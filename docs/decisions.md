@@ -19,3 +19,4 @@
 - Landing page Lighthouse run on the local production build measured performance 100 and accessibility 100. The web server exposes test builds on loopback only.
 - Browser groups require contiguous tabs. Keep pinned tabs first, place a group at its first appearance and preserve source order within it. The plan reports when this changes the overall tab order.
 - Native browser and converter validation used disposable synthetic profiles. Firefox can be rebuilt from the included AMO sources. The detailed owner checks cover the real sidebar, native handoff and browser versions outside the automated matrix.
+- Pin Node 26.13.1 (Lithium LTS) in .nvmrc. [Node release announcement](https://nodejs.org/en/blog/release/v26.13.1/)
