@@ -21,6 +21,7 @@ async function workerOrigin(ctx: BrowserContext, observer: boolean) {
 
 for (const name of [
 	"tiny",
+	"empty-spaces",
 	"typical",
 	"huge",
 	"special-chars",
@@ -141,13 +142,16 @@ for (const name of [
 				expect(state).toHaveLength(plan.windows.length);
 				for (const [i, w] of plan.windows.entries()) {
 					const actual = state[i];
-					expect(actual.tabs).toEqual(
-						w.tabs.map((t) => ({
-							url: new URL(t.url).href,
-							pinned: t.pinned,
-							group: w.groups.find((g) => g.key === t.groupKey)?.title ?? null,
-						})),
-					);
+					const expectedTabs =
+						w.tabs.length === 0
+							? [{ url: "about:blank", pinned: false, group: null }]
+							: w.tabs.map((t) => ({
+									url: new URL(t.url).href,
+									pinned: t.pinned,
+									group:
+										w.groups.find((g) => g.key === t.groupKey)?.title ?? null,
+								}));
+					expect(actual.tabs).toEqual(expectedTabs);
 					const sort = (a: { title: string }, b: { title: string }) =>
 						a.title.localeCompare(b.title);
 					expect(actual.groups.sort(sort)).toEqual(
