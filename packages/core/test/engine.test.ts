@@ -590,3 +590,180 @@ it.each([
 		},
 	});
 });
+
+it("measures UTF-8 bytes for inputs below the UTF-16 length limit", () => {
+	const limit = 100 * 1024 * 1024;
+	// Each Katakana code point uses three bytes. The final emoji adds four.
+	const over = "ア".repeat(Math.floor(limit / 3)) + "🌒";
+	expect(over.length).toBeLessThan(limit);
+	expect(parseInput(over)).toEqual({
+		ok: false,
+		error: {
+			kind: "too-large",
+			limitBytes: limit,
+			message: "This file exceeds the 100 MiB limit.",
+		},
+	});
+});
+
+it("chooses the data container following global, then falls back to a usable container", () => {
+	const first = sidebar(1),
+		second = sidebar(2);
+	const parseContainers = (containers: unknown[]) =>
+		get(JSON.stringify({ sidebar: { containers } }));
+	expect(
+		parseContainers([first, "unused", { global: {} }, second]).report.counts
+			.tabs,
+	).toBe(2);
+	expect(
+		parseContainers([{}, first, { global: {} }, { items: [] }]).report.counts
+			.tabs,
+	).toBe(1);
+	expect(parseContainers([{ items: [] }, second]).report.counts.tabs).toBe(2);
+	expect(parseInput('{"sidebar":{}}')).toMatchObject({
+		ok: false,
+		error: { kind: "no-sidebar-data" },
+	});
+});
+
+it("assigns unused ids to missing, empty or colliding item identities", () => {
+	const raw = sidebar(3);
+	const items = raw.items.map((row) => {
+		if (row.id === "tab-0") return { ...row, id: "tab-mover-item-1" };
+		if (row.id === "tab-1") return { ...row, id: undefined };
+		if (row.id === "tab-2") return { ...row, id: "" };
+		return row;
+	});
+	const lib = get(
+		JSON.stringify(wrap({ ...raw, items: ["bare", {}, ...items] })),
+	);
+	const ids = flatten(lib).map((t) => t.arcId);
+	expect(ids).toHaveLength(3);
+	expect(ids).toContain("tab-mover-item-1");
+	expect(new Set(ids).size).toBe(3);
+	expect(
+		lib.report.warnings.filter((w) => w.kind === "unknown-field"),
+	).toHaveLength(3);
+	expect(get(toPackJson(lib))).toEqual(lib);
+});
+
+it("uses supported metadata fallbacks and preserves explicit unknowns", () => {
+	const raw = sidebar(3, 3);
+	Object.assign(raw.spaces[0], {
+		color: "#00ff00",
+		icon: "Fallback icon",
+		profileID: "Profile ID",
+		customInfo: { color: "#ff00ff", icon: "Custom icon" },
+	});
+	const blend = { _0: { color: { red: 1.5, green: 0, blue: 0 } } };
+	const style = { color: { _0: { blendedSingleColor: blend } } };
+	const customInfo = {
+		windowTheme: { background: { single: { _0: { style } } } },
+	};
+	Object.assign(raw.spaces[1], {
+		color: "#00ff00",
+		icon: "Fallback icon",
+		profile: "Profile label",
+		customInfo,
+	});
+	Object.assign(raw.spaces[2], { title: null });
+	const lib = get(JSON.stringify(wrap(raw)));
+	expect(lib.spaces[0]).toMatchObject({
+		color: "#ff00ff",
+		icon: "Custom icon",
+		profile: "Profile ID",
+	});
+	expect(lib.spaces[1]).toMatchObject({
+		color: "#00ff00",
+		icon: "Fallback icon",
+		profile: "Profile label",
+	});
+	expect(lib.spaces[2]).toMatchObject({
+		title: "Space 3",
+		titleGenerated: true,
+		color: null,
+		icon: null,
+		profile: null,
+	});
+});
+
+it("returns actionable, input-free messages for unsupported or damaged files", () => {
+	expect(parseInput(null as unknown as string)).toEqual({
+		ok: false,
+		error: { kind: "not-json", message: "Choose a JSON file." },
+	});
+	expect(parseInput("{")).toEqual({
+		ok: false,
+		error: {
+			kind: "not-json",
+			message: "The file does not contain complete JSON.",
+		},
+	});
+	expect(parseInput("[]")).toEqual({
+		ok: false,
+		error: {
+			kind: "not-arc-file",
+			message: "No Arc sidebar was found.",
+			hint: "Choose StorableSidebar.json or a Tab Mover pack.",
+		},
+	});
+	expect(parseInput('{"sidebar":{}}')).toEqual({
+		ok: false,
+		error: {
+			kind: "no-sidebar-data",
+			message: "The sidebar contains no usable data container.",
+			hint: "Choose the sidebar file from the Arc application data folder.",
+		},
+	});
+});
+
+it("uses direct Space parents and keyed Favorites, and retains untyped folders and tab title fallbacks", () => {
+	const raw = sidebar(0);
+	Object.assign(raw.spaces[0], {
+		profile: { default: true },
+		iconType: { emoji_v2: "📔" },
+	});
+	raw.items.push({
+		id: "untyped-list",
+		parentID: "space-0",
+		data: {},
+		childrenIds: ["host", "raw", "empty"],
+	});
+	for (const [id, url] of [
+		["host", "https://site.test/path"],
+		["raw", "unparseable"],
+		["empty", ""],
+	])
+		raw.items.push({
+			id,
+			parentID: "untyped-list",
+			data: { tab: { savedURL: url } },
+		});
+	raw.items.push({
+		id: "starred",
+		parentID: "fav",
+		data: { tab: { savedURL: "https://fav.test", savedTitle: "Saved" } },
+	});
+	const lib = get(
+		JSON.stringify(wrap({ ...raw, topAppsContainerIDs: { default: "fav" } })),
+	);
+	expect(lib.spaces[0]).toMatchObject({
+		icon: "📔",
+		profile: "Default",
+		pinned: [
+			{
+				kind: "folder",
+				title: "Untitled folder",
+				children: [
+					{ arcId: "host", title: "site.test" },
+					{ arcId: "raw", title: "unparseable" },
+					{ arcId: "empty", title: "Untitled tab" },
+				],
+			},
+		],
+	});
+	expect(lib.favorites).toMatchObject([{ arcId: "starred", title: "Saved" }]);
+	expect(
+		lib.report.warnings.filter((w) => w.kind === "order-mismatch"),
+	).toEqual([]);
+});

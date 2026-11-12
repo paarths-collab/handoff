@@ -54,25 +54,14 @@ function parse(text: string, mode: "arc" | "pack" | "auto"): InputResult {
 			ok: false,
 			error: { kind: "not-json", message: "Choose a JSON file." },
 		};
-	// UTF-8 uses at most three bytes per UTF-16 code unit. Avoid a second large allocation.
-	let bytes = text.length;
-	if (bytes <= MAX_INPUT_BYTES && bytes > MAX_INPUT_BYTES / 3) {
-		for (let i = 0; i < text.length && bytes <= MAX_INPUT_BYTES; i++) {
-			const c = text.charCodeAt(i);
-			if (c < 128) continue;
-			if (c < 2048) bytes++;
-			else if (
-				c >= 0xd800 &&
-				c <= 0xdbff &&
-				text.charCodeAt(i + 1) >= 0xdc00 &&
-				text.charCodeAt(i + 1) <= 0xdfff
-			) {
-				bytes += 2;
-				i++;
-			} else bytes += 2;
-		}
-	}
-	if (bytes > MAX_INPUT_BYTES)
+	// UTF-8 needs one to three bytes per UTF-16 code unit. Only ambiguous
+	// inputs need encoding; encodeInto stops as soon as the byte budget is full.
+	const exceedsLimit =
+		text.length > MAX_INPUT_BYTES ||
+		(text.length > MAX_INPUT_BYTES / 3 &&
+			new TextEncoder().encodeInto(text, new Uint8Array(MAX_INPUT_BYTES)).read <
+				text.length);
+	if (exceedsLimit)
 		return {
 			ok: false,
 			error: {

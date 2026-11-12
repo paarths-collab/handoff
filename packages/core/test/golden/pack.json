@@ -1,0 +1,64 @@
+{
+  "format": "tab-mover-pack",
+  "schemaVersion": 1,
+  "createdAt": "2025-01-02T03:04:05.000Z",
+  "library": {
+    "schemaVersion": 1,
+    "source": {
+      "platform": "unknown",
+      "parsedAt": "2025-01-02T03:04:05.000Z",
+      "sourceHash": "94781de0"
+    },
+    "favorites": [],
+    "spaces": [
+      {
+        "arcId": "space-0",
+        "title": "Space 1",
+        "titleGenerated": false,
+        "color": null,
+        "icon": null,
+        "profile": null,
+        "pinned": [
+          {
+            "kind": "tab",
+            "arcId": "tab-0",
+            "title": "Title 0000",
+            "customTitle": null,
+            "savedTitle": "Title 0000",
+            "url": "https://site-0000.test/p"
+          },
+          {
+            "kind": "tab",
+            "arcId": "tab-2",
+            "title": "Title 0002",
+            "customTitle": null,
+            "savedTitle": "Title 0002",
+            "url": "https://site-0002.test/p"
+          }
+        ],
+        "today": [
+          {
+            "kind": "tab",
+            "arcId": "tab-1",
+            "title": "Title 0001",
+            "customTitle": null,
+            "savedTitle": "Title 0001",
+            "url": "https://site-0001.test/p"
+          }
+        ]
+      }
+    ],
+    "report": {
+      "skipped": [],
+      "warnings": [],
+      "counts": {
+        "spaces": 1,
+        "tabs": 3,
+        "folders": 0,
+        "favorites": 0,
+        "today": 1,
+        "skipped": 0
+      }
+    }
+  }
+}
