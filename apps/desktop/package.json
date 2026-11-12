@@ -1,0 +1,20 @@
+{
+  "name": "@tab-mover/desktop",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "react": "latest",
+    "react-dom": "latest",
+    "@tab-mover/core": "workspace:*",
+    "@tab-mover/ui": "workspace:*",
+    "@tauri-apps/api": "latest",
+    "@tauri-apps/plugin-dialog": "latest",
+    "@tauri-apps/plugin-fs": "latest",
+    "@tauri-apps/plugin-opener": "latest"
+  },
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite"
+  }
+}

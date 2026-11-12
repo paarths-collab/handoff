@@ -24,3 +24,8 @@ test-results/
 *.mobileprovision
 *.crx
 *.tsbuildinfo
+.worktrees/
+.pnpm-store/
+.pnpm/
+.cache/
+artifacts/

@@ -1,0 +1,40 @@
+{
+  "name": "tab-mover",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.25.0",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "biome lint apps packages scripts",
+    "test": "vitest run",
+    "build": "pnpm -r --if-present run build",
+    "check-manifest": "tsx scripts/check-manifest.ts",
+    "check-anon": "tsx scripts/check-anon.ts",
+    "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm build && pnpm check-manifest && pnpm check-anon && pnpm audit --prod --audit-level high",
+    "e2e": "playwright test",
+    "mutation": "stryker run"
+  },
+  "devDependencies": {
+    "typescript": "latest",
+    "tsx": "latest",
+    "@biomejs/biome": "latest",
+    "vitest": "latest",
+    "fast-check": "latest",
+    "@stryker-mutator/core": "latest",
+    "@stryker-mutator/vitest-runner": "latest",
+    "happy-dom": "latest",
+    "@playwright/test": "latest",
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "@types/chrome": "latest",
+    "wxt": "latest",
+    "@wxt-dev/module-react": "latest",
+    "vite": "latest",
+    "@vitejs/plugin-react": "latest",
+    "@tauri-apps/cli": "latest",
+    "tailwindcss": "latest",
+    "lighthouse": "latest"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "@tab-mover/ui",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "exports": "./src/index.ts",
+  "dependencies": {
+    "react": "latest",
+    "react-dom": "latest",
+    "@tab-mover/core": "workspace:*",
+    "@tanstack/react-virtual": "latest"
+  }
+}

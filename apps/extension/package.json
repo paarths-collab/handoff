@@ -1,0 +1,17 @@
+{
+  "name": "@tab-mover/extension",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "react": "latest",
+    "react-dom": "latest",
+    "@tab-mover/core": "workspace:*",
+    "@tab-mover/ui": "workspace:*"
+  },
+  "scripts": {
+    "build": "wxt build && wxt build -b firefox",
+    "dev": "wxt",
+    "zip": "wxt zip && wxt zip -b firefox"
+  }
+}
