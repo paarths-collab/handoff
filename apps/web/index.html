@@ -1,15 +1,197 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Move your Arc spaces, folders and tabs into a browser of your choice. Convert your sidebar locally with Tab Mover."><meta name="theme-color" content="#f7f6ef"><title>Tab Mover · Take your sidebar with you</title><link rel="stylesheet" href="./src/site/site.css"><script type="module" src="./src/site/countdown.ts"></script></head>
-<body>
-<header class="bar"><a class="brand" href="./"><span class="mark" aria-hidden="true">⇥</span>Tab Mover</a><nav aria-label="Main"><a href="#browsers">Browsers</a><a href="./guides/">Guides</a><a class="nav-action" href="./convert.html">Open converter <span aria-hidden="true">↗</span></a></nav></header>
-<main>
-<section class="hero"><div><a class="notice" href="https://arc.net/"><b aria-hidden="true"></b> Arc closes December 22, 2026<span id="days"></span></a><h1>Take your sidebar<br><em>with you.</em></h1><p class="intro">Move your Arc Spaces, folders and tabs into your next browser. Everything happens on your computer.</p><div class="actions"><a class="primary" href="./convert.html">Convert my sidebar <span aria-hidden="true">→</span></a><a class="textlink" href="#how">How it works</a></div></div>
-<figure class="sample"><figcaption>Migration preview <span>Example sidebar</span></figcaption><div class="window"><div class="chrome" aria-hidden="true"><i></i><i></i><i></i></div><div class="columns"><section><h2>Arc sidebar</h2><p class="space"><b class="dot"></b>Studio</p><p class="row">▱ &nbsp; Reference</p><p class="nested">Design notes</p><p class="nested">Color library</p><p class="space"><b class="dot sand"></b>Personal</p></section><section><h2>Bookmarks</h2><p class="space"><b class="dot"></b>Studio</p><p class="row">▱ &nbsp; Pinned</p><p class="nested">▱ &nbsp; Reference</p><p class="nested">▱ &nbsp; Today</p><p class="space"><b class="dot sand"></b>Personal</p></section></div></div><p class="caption">Your folder structure travels with your tabs.</p></figure>
-</section>
-<section class="band" id="how"><h2>From sidebar to browser</h2><ol class="steps"><li><h3>Find your file</h3><p>Choose StorableSidebar.json from Arc’s local folder. The converter shows you where to look.</p></li><li><h3>Preview your Spaces</h3><p>Review folders, Favorites, Today tabs and anything the reader had to skip.</p></li><li><h3>Take them with you</h3><p>Download bookmarks for your next browser, or keep a searchable HTML archive.</p></li></ol></section>
-<section class="band" id="browsers"><h2>Pick your next browser</h2><div class="grid">
-<a class="browser" href="./guides/chrome.html">Chrome<span aria-hidden="true">↗</span></a><a class="browser" href="./guides/brave.html">Brave<span aria-hidden="true">↗</span></a><a class="browser" href="./guides/edge.html">Edge<span aria-hidden="true">↗</span></a><a class="browser" href="./guides/firefox.html">Firefox<span aria-hidden="true">↗</span></a><a class="browser" href="./guides/safari.html">Safari<span aria-hidden="true">↗</span></a><a class="browser" href="./guides/vivaldi.html">Vivaldi<span aria-hidden="true">↗</span></a><a class="browser" href="./guides/opera.html">Opera<span aria-hidden="true">↗</span></a></div><p>The web converter works now. Browser store listings and desktop downloads are pending.</p></section>
-<section class="band"><h2>Choose an output</h2><table><caption>Format comparison · November 12, 2026</caption><thead><tr><th scope="col">Format</th><th scope="col">What you get</th></tr></thead><tbody><tr><th scope="row">Bookmarks HTML</th><td>Nested folders to import into your browser</td></tr><tr><th scope="row">HTML archive</th><td>A searchable sidebar you can open offline</td></tr><tr><th scope="row">Tab Mover pack</th><td>A portable library for the extension or another conversion</td></tr><tr><th scope="row">CSV</th><td>One row per tab for a spreadsheet</td></tr></tbody></table></section>
-<section class="band"><h2>Your tabs stay here</h2><p>Your browser reads the file locally. The converter’s content security policy blocks outgoing connections. No account or analytics.</p><a href="./guides/privacy.html">Read the privacy policy</a></section>
-<section class="band"><h2>Common questions</h2><details><summary>Will this change my Arc sidebar?</summary><p>The converter reads the file you choose and creates new downloads. You can keep using your original sidebar.</p></details><details><summary>Can I move passwords or browsing history?</summary><p>Use your browser’s own import tools for history and passwords. The <a href="./guides/passwords.html">password guide</a> covers the separate steps.</p></details><details><summary>How do I move tabs to Safari?</summary><p>Download bookmarks HTML and follow the <a href="./guides/safari.html">Safari guide</a>.</p></details></section></main>
-<footer><a class="brand" href="./">Tab Mover</a><span>Source publication pending</span><a href="./guides/privacy.html">Privacy</a></footer></body></html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta
+			name="description"
+			content="Move your Arc spaces, folders and tabs into a browser of your choice. Convert your sidebar locally with Tab Mover."
+		>
+		<meta name="theme-color" content="#f7f6ef">
+		<title>Tab Mover · Take your sidebar with you</title>
+		<link rel="stylesheet" href="./src/site/site.css">
+		<script type="module" src="./src/site/countdown.ts"></script>
+	</head>
+	<body>
+		<header class="bar">
+			<a class="brand" href="./"
+				><span class="mark" aria-hidden="true">⇥</span>Tab Mover</a
+			>
+			<nav aria-label="Main">
+				<a href="#browsers">Browsers</a><a href="./guides/">Guides</a
+				><a class="nav-action" href="./convert.html"
+					>Open converter <span aria-hidden="true">↗</span></a
+				>
+			</nav>
+		</header>
+		<main>
+			<section class="hero">
+				<div>
+					<a class="notice" href="https://arc.net/"
+						><b aria-hidden="true"></b>
+						Arc closes December 22, 2026<span id="days"></span></a
+					>
+					<h1>Take your sidebar<br><em>with you.</em></h1>
+					<p class="intro">
+						Move your Arc Spaces, folders and tabs into your next browser.
+						Everything happens on your computer.
+					</p>
+					<div class="actions">
+						<a class="primary" href="./convert.html"
+							>Convert my sidebar <span aria-hidden="true">→</span></a
+						><a class="textlink" href="#how">How it works</a>
+					</div>
+				</div>
+				<figure class="sample">
+					<figcaption>
+						Migration preview <span>Example sidebar</span>
+					</figcaption>
+					<div class="window">
+						<div class="chrome" aria-hidden="true"><i></i><i></i><i></i></div>
+						<div class="columns">
+							<section>
+								<h2>Arc sidebar</h2>
+								<p class="space"><b class="dot"></b>Studio</p>
+								<p class="row">▱ &nbsp; Reference</p>
+								<p class="nested">Design notes</p>
+								<p class="nested">Color library</p>
+								<p class="space"><b class="dot sand"></b>Personal</p>
+							</section>
+							<section>
+								<h2>Bookmarks</h2>
+								<p class="space"><b class="dot"></b>Studio</p>
+								<p class="row">▱ &nbsp; Pinned</p>
+								<p class="nested">▱ &nbsp; Reference</p>
+								<p class="nested">▱ &nbsp; Today</p>
+								<p class="space"><b class="dot sand"></b>Personal</p>
+							</section>
+						</div>
+					</div>
+					<p class="caption">Your folder structure travels with your tabs.</p>
+				</figure>
+			</section>
+			<section class="band" id="how">
+				<h2>From sidebar to browser</h2>
+				<ol class="steps">
+					<li>
+						<h3>Find your file</h3>
+						<p>
+							Choose StorableSidebar.json from Arc’s local folder. The converter
+							shows you where to look.
+						</p>
+					</li>
+					<li>
+						<h3>Preview your Spaces</h3>
+						<p>
+							Review folders, Favorites, Today tabs and anything the reader had
+							to skip.
+						</p>
+					</li>
+					<li>
+						<h3>Take them with you</h3>
+						<p>
+							Download bookmarks for your next browser, or keep a searchable
+							HTML archive.
+						</p>
+					</li>
+				</ol>
+			</section>
+			<section class="band" id="browsers">
+				<h2>Pick your next browser</h2>
+				<div class="grid">
+					<a class="browser" href="./guides/chrome.html"
+						>Chrome<span aria-hidden="true">↗</span></a
+					><a class="browser" href="./guides/brave.html"
+						>Brave<span aria-hidden="true">↗</span></a
+					><a class="browser" href="./guides/edge.html"
+						>Edge<span aria-hidden="true">↗</span></a
+					><a class="browser" href="./guides/firefox.html"
+						>Firefox<span aria-hidden="true">↗</span></a
+					><a class="browser" href="./guides/safari.html"
+						>Safari<span aria-hidden="true">↗</span></a
+					><a class="browser" href="./guides/vivaldi.html"
+						>Vivaldi<span aria-hidden="true">↗</span></a
+					><a class="browser" href="./guides/opera.html"
+						>Opera<span aria-hidden="true">↗</span></a
+					>
+				</div>
+				<p>
+					The web converter works now. Browser store listings and desktop
+					downloads are pending.
+				</p>
+			</section>
+			<section class="band">
+				<h2>Choose an output</h2>
+				<table>
+					<caption>
+						Format comparison · November 12, 2026
+					</caption>
+					<thead>
+						<tr>
+							<th scope="col">Format</th>
+							<th scope="col">What you get</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<th scope="row">Bookmarks HTML</th>
+							<td>Nested folders to import into your browser</td>
+						</tr>
+						<tr>
+							<th scope="row">HTML archive</th>
+							<td>A searchable sidebar you can open offline</td>
+						</tr>
+						<tr>
+							<th scope="row">Tab Mover pack</th>
+							<td>
+								A portable library for the extension or another conversion
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">CSV</th>
+							<td>One row per tab for a spreadsheet</td>
+						</tr>
+					</tbody>
+				</table>
+			</section>
+			<section class="band">
+				<h2>Your tabs stay here</h2>
+				<p>
+					Your browser reads the file locally. The converter’s content security
+					policy blocks outgoing connections. No account or analytics.
+				</p>
+				<a href="./guides/privacy.html">Read the privacy policy</a>
+			</section>
+			<section class="band">
+				<h2>Common questions</h2>
+				<details>
+					<summary>Will this change my Arc sidebar?</summary>
+					<p>
+						The converter reads the file you choose and creates new downloads.
+						You can keep using your original sidebar.
+					</p>
+				</details>
+				<details>
+					<summary>Can I move passwords or browsing history?</summary>
+					<p>
+						Use your browser’s own import tools for history and passwords. The
+						<a href="./guides/passwords.html">password guide</a> covers the
+						separate steps.
+					</p>
+				</details>
+				<details>
+					<summary>How do I move tabs to Safari?</summary>
+					<p>
+						Download bookmarks HTML and follow the
+						<a href="./guides/safari.html">Safari guide</a>.
+					</p>
+				</details>
+			</section>
+		</main>
+		<footer>
+			<a class="brand" href="./">Tab Mover</a
+			><span>Source publication pending</span
+			><a href="./guides/privacy.html">Privacy</a>
+		</footer>
+	</body>
+</html>

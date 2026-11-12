@@ -16,25 +16,25 @@
     "mutation": "stryker run"
   },
   "devDependencies": {
-    "typescript": "latest",
-    "tsx": "latest",
     "@biomejs/biome": "latest",
-    "vitest": "latest",
-    "fast-check": "latest",
+    "@playwright/test": "latest",
     "@stryker-mutator/core": "latest",
     "@stryker-mutator/vitest-runner": "latest",
-    "happy-dom": "latest",
-    "@playwright/test": "latest",
+    "@tauri-apps/cli": "latest",
+    "@types/chrome": "latest",
     "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
-    "@types/chrome": "latest",
-    "wxt": "latest",
-    "@wxt-dev/module-react": "latest",
-    "vite": "latest",
     "@vitejs/plugin-react": "latest",
-    "@tauri-apps/cli": "latest",
+    "@wxt-dev/module-react": "latest",
+    "fast-check": "latest",
+    "happy-dom": "latest",
+    "lighthouse": "latest",
     "tailwindcss": "latest",
-    "lighthouse": "latest"
+    "tsx": "latest",
+    "typescript": "^6.0.3",
+    "vite": "latest",
+    "vitest": "latest",
+    "wxt": "latest"
   }
 }
