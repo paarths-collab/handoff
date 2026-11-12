@@ -13,7 +13,7 @@
     "check-anon": "tsx scripts/check-anon.ts",
     "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm build && pnpm check-manifest && pnpm check-anon && pnpm audit --prod --audit-level high",
     "e2e": "playwright test",
-    "mutation": "stryker run"
+    "mutation": "vitest run packages/core/test/engine.test.ts -t \"parses 5,000 tabs\" && stryker run"
   },
   "devDependencies": {
     "@biomejs/biome": "latest",

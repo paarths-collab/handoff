@@ -3,6 +3,7 @@ export default {
   ignorePatterns: [".pnpm-store", ".pnpm", ".cache", "reports", ".worktrees", "private", "release", "apps/*/src-tauri", "**/.wxt", "**/.output", "**/dist", "playwright-report", "test-results"],
   incremental: true,
   plugins: ["@stryker-mutator/vitest-runner"],
+  vitest: { configFile: "vitest.mutation.config.ts" },
   testRunner: "vitest",
   coverageAnalysis: "perTest",
   reporters: ["clear-text", "html", "json"],
