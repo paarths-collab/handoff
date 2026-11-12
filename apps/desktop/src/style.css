@@ -1,0 +1,169 @@
+* {
+	box-sizing: border-box;
+}
+body {
+	margin: 0;
+	background: var(--tm-paper);
+	color: var(--tm-ink);
+	font:
+		1rem / 1.55 "DM Sans",
+		system-ui,
+		sans-serif;
+}
+.desk {
+	max-width: 1080px;
+	margin: auto;
+	padding: 0 clamp(18px, 5vw, 54px) 4rem;
+}
+header,
+.source,
+.candidate {
+	display: flex;
+	align-items: center;
+	gap: 0.8rem;
+}
+header {
+	height: 68px;
+	border-bottom: 1px solid var(--tm-stroke);
+	letter-spacing: -0.03em;
+}
+header strong {
+	font-size: 1.1rem;
+}
+.app-mark {
+	background: var(--tm-accent);
+	color: var(--tm-on-accent);
+	width: 32px;
+	height: 30px;
+	text-align: center;
+	border-radius: 7px 12px 7px 7px;
+}
+.platform {
+	margin-left: auto;
+	color: var(--tm-muted);
+	font-size: 0.85rem;
+}
+h1,
+h2,
+p {
+	margin: 0;
+}
+h1 {
+	font:
+		normal clamp(2.8rem, 7vw, 4.5rem) / 1.05 Georgia,
+		serif;
+	letter-spacing: -0.06em;
+	margin: 2.5rem 0 1rem;
+}
+h2 {
+	font-size: 1.1rem;
+	line-height: 1.4;
+}
+.intro {
+	font-size: 1.08rem;
+	max-width: 47ch;
+	color: var(--tm-muted);
+}
+.choose,
+.guide,
+.export-grid section {
+	padding: 1.4rem;
+	background: var(--tm-card);
+	border: 1px solid var(--tm-stroke);
+	border-radius: 12px;
+}
+.choose,
+.export-grid,
+.guide {
+	margin: 1.2rem 0;
+}
+.choose h2,
+.candidate {
+	margin-bottom: 1rem;
+}
+.source,
+.candidate {
+	justify-content: space-between;
+	flex-wrap: wrap;
+}
+.source {
+	margin-bottom: 0.9rem;
+}
+.source span,
+.status,
+.export-grid p,
+.file-button small,
+.candidate small {
+	color: var(--tm-muted);
+}
+button,
+select {
+	font: inherit;
+	color: var(--tm-ink);
+	background: var(--tm-card);
+	border: 1px solid var(--tm-stroke);
+	border-radius: 6px;
+	padding: 0.55em 0.85em;
+}
+button:not(:disabled) {
+	cursor: pointer;
+}
+button:focus-visible,
+select:focus-visible {
+	outline: 3px solid var(--tm-focus);
+	outline-offset: 3px;
+}
+button:disabled {
+	opacity: 0.65;
+}
+.primary {
+	background: var(--tm-accent);
+	color: var(--tm-on-accent);
+	font-weight: 650;
+	border-color: var(--tm-accent);
+}
+.export-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1rem;
+}
+.export-grid p {
+	margin: 0.5rem 0 0.8rem;
+}
+.export-grid label,
+.candidate small,
+.file-button small {
+	display: block;
+}
+.export-grid select {
+	display: block;
+	width: 100%;
+	margin: 0.35rem 0 0.85rem;
+}
+.file-button {
+	display: block;
+	text-align: left;
+	width: 100%;
+	margin-top: 0.55rem;
+}
+.handoff {
+	margin-top: 0.85rem;
+}
+.guide ol {
+	margin-bottom: 0;
+}
+.status,
+.problem {
+	margin: 0.7rem 0;
+}
+.problem {
+	color: var(--tm-focus);
+}
+@media (max-width: 660px) {
+	.export-grid {
+		grid-template-columns: 1fr;
+	}
+	h1 {
+		margin-top: 1.6rem;
+	}
+}
