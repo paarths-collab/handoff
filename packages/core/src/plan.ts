@@ -4,6 +4,7 @@ import type {
 	ImportOptions,
 	ImportPlan,
 	PlannedWindow,
+	PlannedTab,
 } from "./plan-types";
 import { sections, walk } from "./tree";
 
@@ -168,11 +169,36 @@ export function planImport(lib: Library, opts: ImportOptions): ImportPlan {
 			if (pinned) plan.totals.pinned++;
 		}
 	}
-	// Native browsers place all pinned tabs before the first unpinned tab.
-	for (const win of plan.windows)
-		win.tabs = win.tabs
-			.filter((t) => t.pinned)
-			.concat(win.tabs.filter((t) => !t.pinned));
+	// Place each native group at its first occurrence. Within a group the sidebar
+	// order stays intact, even when a nested folder interrupts its parent's tabs.
+	let reordered = false;
+	for (const win of plan.windows) {
+		const pinned: PlannedTab[] = [];
+		const blocks: PlannedTab[][] = [];
+		const grouped = new Map<string, PlannedTab[]>();
+		for (const tab of win.tabs) {
+			if (tab.pinned) {
+				pinned.push(tab);
+			} else if (tab.groupKey === null) {
+				blocks.push([tab]);
+			} else {
+				let block = grouped.get(tab.groupKey);
+				if (!block) {
+					block = [];
+					grouped.set(tab.groupKey, block);
+					blocks.push(block);
+				}
+				block.push(tab);
+			}
+		}
+		const ordered = pinned.concat(blocks.flat());
+		if (ordered.some((tab, index) => tab !== win.tabs[index])) reordered = true;
+		win.tabs = ordered;
+	}
+	if (reordered)
+		plan.notes.push(
+			"Tab order was adjusted to keep pinned tabs first and each browser group together.",
+		);
 	if (unpinned)
 		plan.notes.push(
 			unpinned +
