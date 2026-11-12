@@ -1,0 +1,15 @@
+{
+  "appVersion": "1.0.0",
+  "schemaVersion": 1,
+  "platform": "unknown",
+  "counts": {
+    "spaces": 1,
+    "tabs": 3,
+    "folders": 0,
+    "favorites": 0,
+    "today": 1,
+    "skipped": 0
+  },
+  "warnings": {},
+  "skippedKinds": {}
+}
