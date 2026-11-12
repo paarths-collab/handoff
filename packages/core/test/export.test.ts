@@ -25,9 +25,9 @@ it("reproduces the reviewed tiny-library golden exports", () => {
 		const lib = read(readFileSync("fixtures/tiny.json", "utf8"));
 		const golden = (file: string) =>
 			readFileSync("packages/core/test/golden/" + file, "utf8");
-		expect(toBookmarksHtml(lib)).toBe(golden("bookmarks.html"));
+		expect(toBookmarksHtml(lib)).toBe(golden("bookmarks.html.txt"));
 		expect(toArchiveHtml(lib).replaceAll("><", ">\n<") + "\n").toBe(
-			golden("archive.html"),
+			golden("archive.html.txt"),
 		);
 		expect(toCsv(lib)).toBe(golden("tabs.csv"));
 		expect(JSON.stringify(JSON.parse(toPackJson(lib)), null, 2) + "\n").toBe(

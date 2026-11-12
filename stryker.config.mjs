@@ -2,6 +2,7 @@ export default {
   mutate: ["packages/core/src/{parse,read-pack,tree,plan,export/**/*}.ts"],
   ignorePatterns: [".pnpm-store", ".pnpm", ".cache", "reports", ".worktrees", "private", "release", "apps/*/src-tauri", "**/.wxt", "**/.output", "**/dist", "playwright-report", "test-results"],
   incremental: true,
+  disableTypeChecks: false,
   plugins: ["@stryker-mutator/vitest-runner"],
   vitest: { configFile: "vitest.mutation.config.ts" },
   testRunner: "vitest",
