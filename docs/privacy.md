@@ -1,0 +1,7 @@
+# Privacy policy
+
+Tab Mover reads the sidebar or pack you choose and processes it on your device. It has no account, telemetry, advertising or upload endpoint. The converter blocks outgoing connections after loading. Your exported files remain wherever you save them.
+
+The extension uses tabGroups to recreate folder groups and storage for the last import and Undo. The import record may contain failed tab URLs. Keep your browser profile private. You can remove extension storage by uninstalling it. If you choose to skip already-open tabs, it requests the optional tabs permission to compare URLs locally. If you choose bookmark mode, it requests bookmarks permission to create folders and bookmarks. Opening a destination tab contacts that website through your browser.
+
+The desktop app looks for the known Arc sidebar path and offers a file picker. It reads the selected sidebar and saves exports where you choose. Tab Mover never reads passwords, cookies or browsing history. A diagnostic contains structural counts. You choose whether to copy and share it.
