@@ -6,7 +6,7 @@ export default {
   vitest: { configFile: "vitest.mutation.config.ts" },
   testRunner: "vitest",
   coverageAnalysis: "perTest",
-  reporters: ["clear-text", "html", "json"],
+  reporters: ["progress-append-only", "clear-text", "html", "json"],
   thresholds: { high: 90, low: 80, break: 80 },
-  concurrency: 2
+  concurrency: "50%"
 };

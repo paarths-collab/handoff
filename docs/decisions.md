@@ -15,3 +15,7 @@
 - Opera’s current FAQ describes Add to Opera from the Chrome Web Store. Actual prompts vary by installed version. [Opera FAQ](https://help.opera.com/en/faq/)
 - Tauri uses its dialog plugin from Rust. Custom narrow commands handle IO and browser launch. The webview receives no general filesystem, opener or shell permission.
 - Stryker 10.1.1 uses a compiler API removed from TypeScript 7. The build pins a compatible TypeScript 6 version. Only esbuild ran a dependency installation script during pnpm install.
+- A selected empty Space is represented by a blank native window. Its setup tab is recorded for Undo, while the moved-tab count includes only imported sidebar tabs.
+- Landing page Lighthouse run on the local production build measured performance 100 and accessibility 100. The web server exposes test builds on loopback only.
+- Browser groups require contiguous tabs. Keep pinned tabs first, place a group at its first appearance and preserve source order within it. The plan reports when this changes the overall tab order.
+- Native browser and converter validation used disposable synthetic profiles. Firefox can be rebuilt from the included AMO sources. The detailed owner checks cover the real sidebar, native handoff and browser versions outside the automated matrix.
