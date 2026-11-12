@@ -247,6 +247,40 @@ function readSidebar(raw: Row, top: Row): Library {
 		for (const child of allowed) ordered.push(child);
 		return ordered;
 	}
+	function appendTab(id: string, data: Row, title: string | null, out: Node[]) {
+		const tab = nested(data, "tab");
+		const url = str(tab.savedURL);
+		const savedTitle = str(tab.savedTitle);
+		if (url === null)
+			lib.report.skipped.push({
+				arcId: id,
+				reason: "no-url",
+				detail: "tab",
+			});
+		else {
+			let display = title || savedTitle;
+			if (!display) {
+				try {
+					display = new URL(url).hostname || url;
+				} catch {
+					display = url;
+				}
+				lib.report.warnings.push({
+					kind: "generated-title",
+					target: "tab",
+					arcId: id,
+				});
+			}
+			out.push({
+				kind: "tab",
+				arcId: id,
+				title: display || "Untitled tab",
+				customTitle: title,
+				savedTitle,
+				url,
+			});
+		}
+	}
 	type Frame = { ids: string[]; index: number; out: Node[]; depth: number };
 	function visit(ids: string[], section: Node[]) {
 		const stack: Frame[] = [{ ids, index: 0, out: section, depth: 0 }];
@@ -287,38 +321,7 @@ function readSidebar(raw: Row, top: Row): Library {
 				lib.report.warnings.push({ kind: "depth-limited", arcId: id });
 			}
 			if (Object.hasOwn(data, "tab")) {
-				const tab = nested(data, "tab");
-				const url = str(tab.savedURL);
-				const savedTitle = str(tab.savedTitle);
-				if (url === null)
-					lib.report.skipped.push({
-						arcId: id,
-						reason: "no-url",
-						detail: "tab",
-					});
-				else {
-					let display = title || savedTitle;
-					if (!display) {
-						try {
-							display = new URL(url).hostname || url;
-						} catch {
-							display = url;
-						}
-						lib.report.warnings.push({
-							kind: "generated-title",
-							target: "tab",
-							arcId: id,
-						});
-					}
-					out.push({
-						kind: "tab",
-						arcId: id,
-						title: display || "Untitled tab",
-						customTitle: title,
-						savedTitle,
-						url,
-					});
-				}
+				appendTab(id, data, title, out);
 			} else if (Object.hasOwn(data, "splitView"))
 				lib.report.warnings.push({ kind: "split-view-flattened", arcId: id });
 			else if (
@@ -351,6 +354,12 @@ function readSidebar(raw: Row, top: Row): Library {
 		}
 	}
 	for (const [id, section] of anchors) {
+		const item = items.get(id);
+		if (item) {
+			const data = nested(item, "data");
+			if (Object.hasOwn(data, "tab"))
+				appendTab(id, data, str(item.title), section);
+		}
 		visited.add(id);
 		visit(children(id), section);
 	}

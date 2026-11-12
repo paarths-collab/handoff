@@ -270,6 +270,44 @@ it.each(["tiny", "deep", "special-chars", "schemes", "duplicates"])(
 				"text/html",
 			);
 			const links = [...doc.querySelectorAll("a")];
+			const actualTree = [...doc.querySelectorAll("h3, a")].map((el) => {
+				const path: string[] = [];
+				for (
+					let dl = el.closest("dl");
+					dl;
+					dl = dl.parentElement?.closest("dl") ?? null
+				) {
+					const label = dl.previousElementSibling;
+					if (label?.tagName === "H3") path.unshift(label.textContent);
+				}
+				return { path, title: el.textContent, url: el.getAttribute("href") };
+			});
+			const expectedTree: {
+				path: string[];
+				title: string;
+				url: string | null;
+			}[] = [];
+			for (const section of sections(lib)) {
+				const sectionPath = section.space ? [section.space.title] : [];
+				if (section.name === "Pinned")
+					expectedTree.push({
+						path: [],
+						title: section.space!.title,
+						url: null,
+					});
+				expectedTree.push({
+					path: sectionPath,
+					title: section.name,
+					url: null,
+				});
+				for (const { node, path } of walk(section.nodes))
+					expectedTree.push({
+						path: [...sectionPath, section.name, ...path],
+						title: node.title,
+						url: node.kind === "tab" ? node.url : null,
+					});
+			}
+			expect(actualTree).toEqual(expectedTree);
 			expect(links.map((a) => [a.textContent, a.getAttribute("href")])).toEqual(
 				tabs.map((t) => [t.title, t.url]),
 			);
@@ -349,4 +387,206 @@ it("anonymizes titles, URLs, ids and unrelated metadata while retaining structur
 	expect(out).not.toContain("folder-0");
 	expect(out).not.toContain("Space 1");
 	expect([...generate().keys()]).toHaveLength(16);
+});
+
+it.each(["p-0", "u-0", "fav"])(
+	"conserves a tab and children at a section anchor %s",
+	(id) => {
+		const raw = sidebar(3);
+		const anchor = raw.items.find((r) => r.id === id)!;
+		anchor.title = "Named anchor tab";
+		anchor.data = { tab: { savedURL: "https://anchor.test/p" } };
+		const lib = get(JSON.stringify(wrap(raw)));
+		expect(flatten(lib)).toHaveLength(4);
+		const section =
+			id === "fav"
+				? lib.favorites
+				: id === "p-0"
+					? lib.spaces[0].pinned
+					: lib.spaces[0].today;
+		expect(section[0]).toMatchObject({
+			arcId: id,
+			kind: "tab",
+			title: "Named anchor tab",
+			url: "https://anchor.test/p",
+		});
+		expect(get(toPackJson(lib))).toEqual(lib);
+		anchor.data = { tab: {} };
+		const missing = get(JSON.stringify(wrap(raw)));
+		expect(
+			flatten(missing)
+				.map((n) => n.arcId)
+				.sort(),
+		).toEqual(["tab-0", "tab-1", "tab-2"]);
+		expect(missing.report.skipped).toEqual([
+			{ arcId: id, reason: "no-url", detail: "tab" },
+		]);
+	},
+);
+
+it("makes native groups contiguous in first-encounter order and keeps ungrouped neighbors", () => {
+	const raw = sidebar(0);
+	raw.items.push(
+		{ id: "parent", parentID: "u-0", title: "Parent", data: { list: {} } },
+		{ id: "child", parentID: "parent", title: "Child", data: { list: {} } },
+	);
+	for (const [id, parentID] of [
+		["before", "u-0"],
+		["first", "parent"],
+		["nested", "child"],
+		["second", "parent"],
+		["after", "u-0"],
+	]) {
+		raw.items.push({
+			id,
+			parentID,
+			data: { tab: { savedURL: "https://site.test/" + id } },
+		});
+	}
+	raw.items.find((r) => r.id === "u-0")!.childrenIds = [
+		"before",
+		"parent",
+		"after",
+	];
+	raw.items.find((r) => r.id === "parent")!.childrenIds = [
+		"first",
+		"child",
+		"second",
+	];
+	const lib = get(JSON.stringify(wrap(raw)));
+	const plan = planImport(lib, defaultOptions(lib));
+	expect(plan.windows[0].groups.map((g) => g.title)).toEqual([
+		"Parent",
+		"Parent / Child",
+	]);
+	expect(plan.windows[0].tabs.map((t) => [t.arcId, t.groupKey])).toEqual([
+		["before", null],
+		["first", "group-0"],
+		["second", "group-0"],
+		["nested", "group-1"],
+		["after", null],
+	]);
+	expect(plan.notes).toContain(
+		"Tab order was adjusted to keep pinned tabs first and each browser group together.",
+	);
+	const flat = planImport(lib, {
+		...defaultOptions(lib),
+		folderMode: "flatten",
+	});
+	expect(flat.notes).toEqual([]);
+	expect(flat.windows[0].tabs.map((t) => t.arcId)).toEqual([
+		"before",
+		"first",
+		"nested",
+		"second",
+		"after",
+	]);
+});
+
+it.each([
+	["#ff0000", "red"],
+	["#ff7f00", "orange"],
+	["#ffff00", "yellow"],
+	["#00ff00", "green"],
+	["#00ffff", "cyan"],
+	["#0000ff", "blue"],
+	["#8800ff", "purple"],
+	["#ff0099", "pink"],
+	["#888888", "grey"],
+	["invalid", "blue"],
+])("maps Space color %s to %s", (hex, color) => {
+	const lib = fixture("deep");
+	lib.spaces[0].color = hex;
+	const plan = planImport(lib, {
+		...defaultOptions(lib),
+		collapseGroups: false,
+	});
+	expect(plan.windows[0].groups.length).toBeGreaterThan(0);
+	for (const g of plan.windows[0].groups) {
+		expect(g.color).toBe(color);
+		expect(g.collapsed).toBe(false);
+	}
+});
+
+it("reads theme channels, emoji, profile labels and a custom tab title before saved title", () => {
+	const raw = sidebar(3);
+	const nestedColor = { color: { red: 0, green: 0.5, blue: 1 } };
+	const theme = {
+		background: {
+			single: {
+				_0: {
+					style: { color: { _0: { blendedSingleColor: { _0: nestedColor } } } },
+				},
+			},
+		},
+	};
+	Object.assign(raw.spaces[0], {
+		customInfo: { windowTheme: theme, iconType: { emoji_v2: "🌿" } },
+		profile: { custom: { _0: { directoryBasename: "Profile 7" } } },
+	});
+	const first = raw.items.find((row) => row.id === "tab-0")!;
+	first.title = "Custom title";
+	const lib = get(
+		"\ufeff" + JSON.stringify({ ...wrap(raw), platform: "macos" }),
+	);
+	expect(lib.spaces[0]).toMatchObject({
+		color: "#0080ff",
+		icon: "🌿",
+		profile: "Profile 7",
+		titleGenerated: false,
+	});
+	expect(lib.source.platform).toEqual("macos");
+	expect(lib.spaces[0].pinned[0]).toMatchObject({
+		title: "Custom title",
+		customTitle: "Custom title",
+		savedTitle: "Title 0000",
+	});
+	expect(defaultOptions(lib)).toEqual({
+		spaceIds: ["space-0"],
+		spaceMode: "window",
+		folderMode: "groups",
+		today: "include",
+		favorites: "pinned-first-window",
+		collapseGroups: true,
+		openableSchemes: ["http:", "https:"],
+	});
+});
+
+it.each([
+	["source", "platform"],
+	["source", "parsedAt"],
+	["source", "sourceHash"],
+	["report", "counts"],
+	["report", "warnings"],
+	["report", "skipped"],
+	["space", "profile"],
+	["space", "title"],
+	["space", "color"],
+	["space", "icon"],
+	["space", "pinned"],
+	["space", "today"],
+	["space", "titleGenerated"],
+	["space", "arcId"],
+	["tab", "kind"],
+	["tab", "title"],
+	["tab", "url"],
+	["tab", "customTitle"],
+	["tab", "savedTitle"],
+	["tab", "arcId"],
+])("rejects invalid %s.%s before preview", (level, key) => {
+	const pack = JSON.parse(toPackJson(fixture("tiny")));
+	const parts = new Map([
+		["source", pack.library.source],
+		["report", pack.library.report],
+		["space", pack.library.spaces[0]],
+		["tab", pack.library.spaces[0].pinned[0]],
+	]);
+	parts.get(level)[key] = 19;
+	expect(parsePack(JSON.stringify(pack))).toEqual({
+		ok: false,
+		error: {
+			kind: "invalid-pack",
+			message: "The pack contains invalid or incomplete library data.",
+		},
+	});
 });
