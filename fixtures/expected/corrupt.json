@@ -1,0 +1,84 @@
+{
+  "counts": {
+    "spaces": 1,
+    "tabs": 4,
+    "folders": 3,
+    "favorites": 1,
+    "today": 1,
+    "skipped": 0
+  },
+  "layout": [
+    {
+      "space": null,
+      "section": "Favorites",
+      "items": [
+        [
+          0,
+          "tab",
+          "tab-0"
+        ]
+      ]
+    },
+    {
+      "space": "space-0",
+      "section": "Pinned",
+      "items": [
+        [
+          0,
+          "folder",
+          "tab-mover-recovered-1"
+        ],
+        [
+          1,
+          "tab",
+          "tab-3"
+        ],
+        [
+          1,
+          "folder",
+          "folder-0"
+        ],
+        [
+          2,
+          "folder",
+          "folder-1"
+        ],
+        [
+          2,
+          "tab",
+          "tab-2"
+        ]
+      ]
+    },
+    {
+      "space": "space-0",
+      "section": "Today",
+      "items": [
+        [
+          0,
+          "tab",
+          "tab-1"
+        ]
+      ]
+    }
+  ],
+  "skipped": [],
+  "warnings": [
+    {
+      "kind": "order-mismatch",
+      "parentArcId": "p-0"
+    },
+    {
+      "kind": "orphan-recovered",
+      "arcId": "tab-3"
+    },
+    {
+      "kind": "orphan-recovered",
+      "arcId": "folder-0"
+    },
+    {
+      "kind": "cycle-broken",
+      "arcId": "folder-0"
+    }
+  ]
+}

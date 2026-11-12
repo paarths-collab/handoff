@@ -1,0 +1,352 @@
+import { readFileSync, readdirSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { describe, expect, it } from "vitest";
+import * as fc from "fast-check";
+import { Window } from "happy-dom";
+import {
+	generate,
+	sidebar,
+	snapshot,
+	wrap,
+} from "../../../scripts/gen-fixture";
+import { anonymize } from "../../../scripts/anonymize";
+import {
+	assertConserved,
+	defaultOptions,
+	parseArcSidebar,
+	parseInput,
+	parsePack,
+	planImport,
+	toArchiveHtml,
+	toBookmarksHtml,
+	toCsv,
+	toDiagnostic,
+	toPackJson,
+} from "../src";
+import { sections, walk } from "../src/tree";
+import type { Library } from "../src";
+
+function get(text: string): Library {
+	const result = parseInput(text);
+	if (!result.ok) throw new Error(result.error.kind);
+	return result.value;
+}
+const fixture = (name: string) =>
+	get(readFileSync("fixtures/" + name + ".json", "utf8"));
+function flatten(lib: Library) {
+	return [...sections(lib)].flatMap(({ nodes }) =>
+		[...walk(nodes)].map((r) => r.node).filter((n) => n.kind === "tab"),
+	);
+}
+
+describe("published synthetic fixtures", () => {
+	for (const name of readdirSync("fixtures").filter((n) => n.endsWith(".json")))
+		it(name, () => {
+			const text = readFileSync("fixtures/" + name, "utf8");
+			expect(snapshot(text)).toEqual(
+				JSON.parse(readFileSync("fixtures/expected/" + name, "utf8")),
+			);
+			const result = parseInput(text);
+			if (!result.ok) return;
+			const lib = result.value;
+			const raw = JSON.parse(text);
+			const data = raw.sidebar.containers.find((v: Record<string, unknown>) =>
+				Array.isArray(v.items),
+			);
+			const inputIds = data.items
+				.filter((item: { data?: { tab?: unknown } }) => item.data?.tab)
+				.map((item: { id: string }) => item.id);
+			expect(
+				flatten(lib)
+					.map((t) => t.arcId)
+					.sort(),
+			).toEqual(inputIds.sort());
+			const plan = planImport(lib, defaultOptions(lib));
+			assertConserved(
+				lib,
+				plan.windows.flatMap((w) => w.tabs.map((t) => t.arcId)),
+				plan.skipped.map((s) => s.arcId),
+			);
+			const packed = get(toPackJson(lib));
+			assertConserved(
+				lib,
+				flatten(packed).map((t) => t.arcId),
+				[],
+			);
+			expect(packed).toEqual(lib);
+		});
+});
+it("10,000 random JSON values return a typed result", () => {
+	fc.assert(
+		fc.property(
+			fc.jsonValue({ maxDepth: 3 }),
+			(v) => typeof parseInput(JSON.stringify(v)).ok === "boolean",
+		),
+		{ numRuns: 10_000, seed: 418 },
+	);
+});
+it("generated sidebar and planner conserve every input tab", () => {
+	fc.assert(
+		fc.property(
+			fc.integer({ min: 0, max: 120 }),
+			fc.integer({ min: 1, max: 8 }),
+			fc.integer({ min: 0, max: 15 }),
+			fc.boolean(),
+			(tabs, spaces, folders, skip) => {
+				const lib = get(JSON.stringify(wrap(sidebar(tabs, spaces, folders))));
+				expect(lib.report.counts.tabs).toBe(tabs);
+				const opts = defaultOptions(lib);
+				if (skip) {
+					opts.spaceIds = opts.spaceIds.slice(1);
+					opts.today = "skip";
+					opts.favorites = "skip";
+				}
+				const plan = planImport(lib, opts);
+				assertConserved(
+					lib,
+					plan.windows.flatMap((w) => w.tabs.map((t) => t.arcId)),
+					plan.skipped.map((s) => s.arcId),
+				);
+			},
+		),
+		{ numRuns: 120, seed: 719 },
+	);
+});
+it("rejects oversized input and tolerates 100,000 nested levels", () => {
+	expect(parseInput(" ".repeat(100 * 1024 * 1024 + 1))).toMatchObject({
+		ok: false,
+		error: { kind: "too-large" },
+	});
+	expect(
+		parseInput("[".repeat(100000) + "0" + "]".repeat(100000)),
+	).toMatchObject({ ok: false, error: { kind: "not-arc-file" } });
+	expect(parseInput("{}")).toMatchObject({
+		ok: false,
+		error: { kind: "not-arc-file" },
+	});
+	expect(parseArcSidebar('{"sidebar":{"containers":[]}}')).toMatchObject({
+		ok: false,
+		error: { kind: "no-sidebar-data" },
+	});
+});
+it("bounds deep folder output and honors ordered sections with mixed ID/value arrays", () => {
+	const raw = sidebar(2, 1, 210);
+	for (let i = 1; i < 210; i++)
+		raw.items.find((r) => r.id === "folder-" + i)!.parentID =
+			"folder-" + (i - 1);
+	raw.items.at(-1)!.parentID = "folder-209";
+	raw.items.find((r) => r.id === "p-0")!.childrenIds = ["folder-0"];
+	const lib = get(
+		JSON.stringify(
+			wrap({
+				...raw,
+				items: raw.items.flatMap((v) => [v.id, v]),
+				spaces: raw.spaces.flatMap((v) => [v.id, v]),
+			}),
+		),
+	);
+	expect(lib.report.warnings.some((w) => w.kind === "depth-limited")).toBe(
+		true,
+	);
+	expect(
+		Math.max(...[...walk(lib.spaces[0].pinned)].map((r) => r.path.length)),
+	).toBeLessThan(64);
+	expect(get(toPackJson(lib))).toEqual(lib);
+});
+it("handles special keys, missing and duplicate ids, and a missing URL", () => {
+	const raw = sidebar(3);
+	raw.items.at(-1)!.id = "__proto__";
+	raw.items.at(-2)!.id = "constructor";
+	raw.items.at(-3)!.id = "constructor";
+	raw.items.push({ id: "bad", parentID: "p-0", data: { tab: {} } });
+	const lib = get(JSON.stringify(wrap(raw)));
+	expect(flatten(lib)).toHaveLength(3);
+	expect(lib.report.skipped).toEqual([
+		{ arcId: "bad", reason: "no-url", detail: "tab" },
+	]);
+	expect(get(toPackJson(lib))).toEqual(lib);
+	expect(Object.prototype).not.toHaveProperty("polluted");
+});
+it("validates pack shapes and recomputes counts and source hash", () => {
+	const pack = JSON.parse(toPackJson(fixture("tiny")));
+	pack.library.report.counts.tabs = 9999;
+	pack.library.source.sourceHash = "spoof";
+	const lib = get(JSON.stringify(pack));
+	expect(lib.report.counts.tabs).toBe(3);
+	expect(lib.source.sourceHash).not.toBe("spoof");
+	pack.library.spaces[0].today[0].arcId = lib.spaces[0].pinned[0].arcId;
+	expect(parsePack(JSON.stringify(pack))).toMatchObject({
+		ok: false,
+		error: { kind: "invalid-pack" },
+	});
+	pack.schemaVersion = 4;
+	expect(parsePack(JSON.stringify(pack))).toMatchObject({
+		ok: false,
+		error: { kind: "unsupported-pack-version" },
+	});
+	expect(parsePack("null")).toMatchObject({
+		ok: false,
+		error: { kind: "invalid-pack" },
+	});
+});
+it("respects childrenIds order with missing items appended and a warning", () => {
+	const raw = sidebar(3);
+	raw.items.find((r) => r.id === "p-0")!.childrenIds = ["tab-2", "bogus"];
+	const lib = get(JSON.stringify(wrap(raw)));
+	expect(lib.spaces[0].pinned.map((n) => n.arcId)).toEqual(["tab-2", "tab-0"]);
+	expect(lib.report.warnings).toContainEqual({
+		kind: "order-mismatch",
+		parentArcId: "p-0",
+	});
+});
+it("applies sections, folder grouping, colors, selections, flattening and duplicate policies", () => {
+	const raw = sidebar(10, 2, 2);
+	Object.assign(raw.spaces[0], { color: "#ff0000" });
+	const lib = get(JSON.stringify(wrap(raw)));
+	const opts = defaultOptions(lib);
+	let plan = planImport(lib, opts);
+	expect(plan.windows).toHaveLength(2);
+	expect(plan.windows[0].tabs[0]).toMatchObject({
+		arcId: "tab-0",
+		pinned: true,
+		groupKey: null,
+	});
+	expect(plan.windows[0].groups[0]).toMatchObject({
+		color: "red",
+		collapsed: true,
+		title: "Folder 1",
+	});
+	expect(plan.notes.join(" ")).toContain("became group tabs");
+	plan = planImport(lib, { ...opts, spaceMode: "group" });
+	expect(plan.windows).toHaveLength(1);
+	expect(plan.windows[0].groups.map((g) => g.title)).toContain(
+		"Space 1 / Folder 1",
+	);
+	plan = planImport(lib, {
+		...opts,
+		folderMode: "flatten",
+		today: "skip",
+		favorites: "skip",
+		spaceIds: [lib.spaces[0].arcId],
+	});
+	expect(plan.windows[0].groups).toHaveLength(0);
+	expect(plan.windows[0].tabs.every((t) => t.pinned)).toBe(true);
+	expect(plan.skipped.every((t) => t.reason === "by-choice")).toBe(true);
+	const dup = fixture("duplicates");
+	plan = planImport(dup, {
+		...defaultOptions(dup),
+		skipUrls: new Set([" https://same.test/p "]),
+	});
+	expect(plan.skipped).toHaveLength(4);
+	expect(plan.skipped.every((s) => s.reason === "duplicate")).toBe(true);
+	const schemes = fixture("schemes");
+	plan = planImport(schemes, {
+		...defaultOptions(schemes),
+		openableSchemes: ["javascript:", "https:"],
+	});
+	expect(plan.totals.tabs).toBe(1);
+	expect(plan.skipped.map((s) => s.reason)).toContain("empty-url");
+});
+it("parses 5,000 tabs and builds their plan within budget", () => {
+	const text = JSON.stringify(wrap(sidebar(5000, 4, 40)));
+	const start = performance.now();
+	const lib = get(text);
+	const parsed = performance.now();
+	const plan = planImport(lib, defaultOptions(lib));
+	expect(plan.totals.tabs).toBe(5000);
+	expect(parsed - start).toBeLessThan(200);
+	expect(performance.now() - start).toBeLessThan(300);
+});
+
+it.each(["tiny", "deep", "special-chars", "schemes", "duplicates"])(
+	"round-trips all exported rows in %s",
+	async (name) => {
+		const lib = fixture(name),
+			tabs = flatten(lib),
+			win = new Window({ settings: { disableJavaScriptEvaluation: true } });
+		try {
+			const doc = new win.DOMParser().parseFromString(
+				toBookmarksHtml(lib),
+				"text/html",
+			);
+			const links = [...doc.querySelectorAll("a")];
+			expect(links.map((a) => [a.textContent, a.getAttribute("href")])).toEqual(
+				tabs.map((t) => [t.title, t.url]),
+			);
+			expect(
+				[...doc.querySelectorAll("h3")].map((h) => h.textContent),
+			).toContain("Favorites");
+			function idsFor(rows: string[][]) {
+				const available = new Map<string, string[]>();
+				for (const t of tabs) {
+					const k = JSON.stringify([t.title, t.url]);
+					available.set(k, [...(available.get(k) ?? []), t.arcId]);
+				}
+				return rows.map(
+					(pair) => available.get(JSON.stringify(pair))?.shift() ?? "invalid",
+				);
+			}
+			assertConserved(
+				lib,
+				idsFor(links.map((a) => [a.textContent, a.getAttribute("href") ?? ""])),
+				[],
+			);
+			const archive = new win.DOMParser().parseFromString(
+				toArchiveHtml(lib),
+				"text/html",
+			);
+			expect(archive.querySelectorAll("script")).toHaveLength(2);
+			expect(archive.querySelectorAll("img,iframe,[onerror]")).toHaveLength(0);
+			const archived = get(archive.querySelector("#pack")!.textContent);
+			assertConserved(
+				lib,
+				flatten(archived).map((t) => t.arcId),
+				[],
+			);
+			for (const a of archive.querySelectorAll("a"))
+				expect(a.getAttribute("href")).toMatch(/^(https?:|mailto:)/);
+			const actualHash = createHash("sha256")
+				.update(archive.querySelector("script:not([type])")!.textContent)
+				.digest("base64");
+			expect(
+				archive.querySelector("meta[http-equiv]")!.getAttribute("content"),
+			).toContain("sha256-" + actualHash);
+			const csv = toCsv(lib);
+			const rows = csv
+				.trimEnd()
+				.split("\r\n")
+				.slice(1)
+				.map((line) =>
+					[...line.matchAll(/"((?:[^"]|"")*)"(?=,|$)/g)].map((m) =>
+						m[1].replaceAll('""', '"').replace(/^'(?=[=@+\-\t\r])/u, ""),
+					),
+				);
+			assertConserved(lib, idsFor(rows.map((c) => [c[4], c[5]])), []);
+			if (name === "special-chars") expect(csv).toContain("\"'=");
+		} finally {
+			await win.happyDOM.close();
+		}
+	},
+);
+it("emits only aggregate diagnostics", () => {
+	const lib = fixture("typical"),
+		diag = toDiagnostic(lib, "1.0.0");
+	for (const t of flatten(lib)) {
+		expect(diag).not.toContain(t.title);
+		expect(diag).not.toContain(t.url);
+		expect(diag).not.toContain(t.arcId);
+	}
+	expect(JSON.parse(diag).counts).toEqual(lib.report.counts);
+});
+it("anonymizes titles, URLs, ids and unrelated metadata while retaining structure", () => {
+	const raw = wrap(sidebar(20, 3, 4)),
+		before = get(JSON.stringify(raw));
+	Object.assign(raw, { opaqueMetadata: "secret detail" });
+	const out = JSON.stringify(anonymize(raw)),
+		after = get(out);
+	expect(after.report.counts).toEqual(before.report.counts);
+	expect(out).not.toContain("secret detail");
+	expect(out).not.toContain("folder-0");
+	expect(out).not.toContain("Space 1");
+	expect([...generate().keys()]).toHaveLength(16);
+});
