@@ -117,6 +117,7 @@ interface RunOptions {
 function targetWindows(plan: ImportPlan, groups: boolean): PlannedWindow[] {
 	if (groups) return plan.windows;
 	return plan.windows.flatMap((window) => {
+		if (window.tabs.length === 0) return [window];
 		const byGroup = new Map<string | null, PlannedTab[]>();
 		for (const tab of window.tabs) {
 			const section = byGroup.get(tab.groupKey) ?? [];
@@ -147,7 +148,6 @@ export async function executePlan(
 	await save(result);
 	for (const window of targetWindows(plan, adapter.supportsGroups)) {
 		if (signal.aborted) break;
-		if (!window.tabs.length) continue;
 		let created: Awaited<ReturnType<BrowserTabsAdapter["createWindow"]>>;
 		try {
 			created = await adapter.createWindow();
@@ -166,6 +166,10 @@ export async function executePlan(
 		result.created.windowIds.push(windowId);
 		result.created.tabIds.push(placeholderTabId);
 		await save(result);
+		if (window.tabs.length === 0) {
+			result.notes.push("An empty selected Space opened as a blank window.");
+			continue;
+		}
 		const groupIds = new Map<string, number[]>();
 		for (let i = 0; i < window.tabs.length && !signal.aborted; i += size) {
 			const createdTabs: { tab: PlannedTab; id: number; index: number }[] = [];

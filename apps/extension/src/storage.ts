@@ -40,6 +40,20 @@ export interface UndoAdapter {
 	removeBookmark(id: string): Promise<void>;
 	removeEmptyFolder(id: string): Promise<void>;
 }
+// A user may delete an imported bookmark before Undo. Only suppress an API
+// error after the browser confirms that the owned ID no longer exists.
+async function removeIfPresent(id: string, remove: () => Promise<void>) {
+	try {
+		await remove();
+	} catch (error) {
+		const pending = [...(await api.bookmarks.getTree())];
+		while (pending.length) {
+			const item = pending.pop()!;
+			if (item.id === id) throw error;
+			if (item.children) for (const child of item.children) pending.push(child);
+		}
+	}
+}
 export const undoAdapter: UndoAdapter = {
 	async tabIds() {
 		return new Set(
@@ -52,11 +66,13 @@ export const undoAdapter: UndoAdapter = {
 		await api.tabs.remove(id);
 	},
 	async removeBookmark(id) {
-		await api.bookmarks.remove(id);
+		await removeIfPresent(id, () => api.bookmarks.remove(id));
 	},
 	async removeEmptyFolder(id) {
-		if ((await api.bookmarks.getChildren(id)).length === 0)
-			await api.bookmarks.remove(id);
+		await removeIfPresent(id, async () => {
+			if ((await api.bookmarks.getChildren(id)).length === 0)
+				await api.bookmarks.remove(id);
+		});
 	},
 };
 export async function undoOwned(

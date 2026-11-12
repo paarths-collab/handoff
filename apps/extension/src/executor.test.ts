@@ -135,3 +135,19 @@ describe("executePlan", () => {
 		expect(r.undone).toBe(true);
 	});
 });
+
+it.each([true, false])(
+	"preserves a selected empty Space and tracks its blank tab for Undo (groups %s)",
+	async (supportsGroups) => {
+		const a = adapter();
+		Object.assign(a, { supportsGroups });
+		const empty = structuredClone(plan);
+		empty.windows[0].tabs = [];
+		empty.windows[0].groups = [];
+		const result = await executePlan(empty, a, options());
+		expect(result.created.windowIds).toEqual([3]);
+		expect(result.created.tabIds).toEqual([1]);
+		expect(result.done).toBe(0);
+		expect(a.closeTabs).not.toHaveBeenCalled();
+	},
+);
