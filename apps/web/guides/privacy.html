@@ -26,7 +26,10 @@
 			</p>
 			<p>
 				The extension uses tabGroups to recreate folder groups and storage for
-				the last import and Undo. The import record may contain failed tab URLs.
+				the last import and Undo. The last-import record stores the URLs
+				scheduled to move, including successful, skipped and failed
+				destinations, on this device. Starting a new import replaces the
+				previous record. Undo is available only in the same browser session.
 				Keep your browser profile private. You can remove extension storage by
 				uninstalling it. If you choose to skip already-open tabs, it requests
 				the optional tabs permission to compare URLs locally. If you choose
