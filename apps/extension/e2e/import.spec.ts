@@ -1,0 +1,190 @@
+import { chromium, expect, test, type BrowserContext } from "@playwright/test";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { resolve, join } from "node:path";
+import {
+	parseInput,
+	defaultOptions,
+	planImport,
+} from "../../../packages/core/src/index";
+
+const directory = resolve("apps/extension");
+async function workerOrigin(ctx: BrowserContext, observer: boolean) {
+	const matches = (url: string) => url.endsWith("/observer.js") === observer;
+	const worker =
+		ctx.serviceWorkers().find((w) => matches(w.url())) ??
+		(await ctx.waitForEvent("serviceworker", {
+			predicate: (w) => matches(w.url()),
+		}));
+	return worker.url().split("/").slice(0, 3).join("/");
+}
+
+for (const name of [
+	"tiny",
+	"typical",
+	"huge",
+	"special-chars",
+	"interrupted",
+	"cancelled",
+]) {
+	test(
+		"imports " + name + " in native windows and groups",
+		async ({}, info) => {
+			const fault = name === "interrupted" || name === "cancelled";
+			const file = resolve("fixtures", (fault ? "typical" : name) + ".json");
+			const parsed = parseInput(await readFile(file, "utf8"));
+			if (!parsed.ok) throw Error("Invalid test fixture");
+			const plan = planImport(parsed.value, defaultOptions(parsed.value));
+			const profile = await mkdtemp(join(tmpdir(), "tab-mover-browser-"));
+			const paths = [
+				resolve(directory, ".output/chrome-mv3"),
+				resolve(directory, "e2e/observer"),
+			].join(",");
+			const context = await chromium.launchPersistentContext(profile, {
+				channel: "chromium",
+				headless: true,
+				executablePath: process.env.TAB_MOVER_BROWSER,
+				args: [
+					"--disable-extensions-except=" + paths,
+					"--load-extension=" + paths,
+					"--disable-background-networking",
+					"--host-resolver-rules=MAP *.test ~NOTFOUND",
+				],
+			});
+			try {
+				// Browser loads test pages locally without contacting any fixture domains.
+				await context.route("**/*.test/**", (route) =>
+					route.fulfill({
+						contentType: "text/html",
+						body: "<title>Synthetic page</title>",
+					}),
+				);
+				const [origin, observerOrigin] = await Promise.all([
+					workerOrigin(context, false),
+					workerOrigin(context, true),
+				]);
+				const observer = await context.newPage();
+				await observer.goto(observerOrigin + "/observer.html");
+				const importer = await context.newPage();
+				await importer.goto(origin + "/importer.html");
+				await importer.locator("input[type=file]").setInputFiles(file);
+				await expect(
+					importer.getByRole("button", { name: "Move", exact: true }),
+				).toBeVisible();
+				const before = await observer.evaluate(async () =>
+					(await chrome.windows.getAll({ populate: true })).map((w) => w.id),
+				);
+				await importer
+					.getByRole("button", { name: "Move", exact: true })
+					.click();
+				if (fault) {
+					await importer.waitForFunction(
+						async () =>
+							Object.keys(await chrome.storage.session.get(null)).filter(
+								(key) => key.startsWith("tabMoverOwned:"),
+							).length >= 2,
+					);
+					let page = importer;
+					if (name === "interrupted") {
+						await importer.close();
+						page = await context.newPage();
+						await page.goto(origin + "/importer.html");
+						await expect(
+							page.getByText(/Interrupted or still open/),
+						).toBeVisible();
+					} else {
+						await page.getByRole("button", { name: "Cancel move" }).click();
+						await expect(
+							page.getByRole("heading", { name: "Move cancelled" }),
+						).toBeVisible();
+					}
+					page.once("dialog", (dialog) => dialog.accept());
+					await page.getByRole("button", { name: /^Undo last/ }).click();
+					await expect(
+						page.getByText("Import undone.", { exact: true }),
+					).toBeVisible();
+					expect(
+						await observer.evaluate(async () =>
+							(await chrome.windows.getAll()).map((w) => w.id),
+						),
+					).toEqual(before);
+					return;
+				}
+				await expect(
+					importer.getByRole("heading", { name: "Move complete" }),
+				).toBeVisible({ timeout: 110000 });
+				const state = await observer.evaluate(async (initial) => {
+					const all = await chrome.windows.getAll({ populate: true });
+					const groups = await chrome.tabGroups.query({});
+					return all
+						.filter((w) => !initial.includes(w.id))
+						.map((w) => ({
+							id: w.id,
+							tabs: w.tabs?.map((t) => ({
+								url: t.url ?? t.pendingUrl,
+								pinned: t.pinned,
+								group: groups.find((g) => g.id === t.groupId)?.title ?? null,
+							})),
+							groups: groups
+								.filter((g) => g.windowId === w.id)
+								.map((g) => ({
+									title: g.title ?? "",
+									color: g.color,
+									collapsed: g.collapsed,
+								})),
+						}));
+				}, before);
+				await info.attach("browser-state", {
+					contentType: "application/json",
+					body: Buffer.from(JSON.stringify(state)),
+				});
+				expect(state).toHaveLength(plan.windows.length);
+				for (const [i, w] of plan.windows.entries()) {
+					const actual = state[i];
+					expect(actual.tabs).toEqual(
+						w.tabs.map((t) => ({
+							url: new URL(t.url).href,
+							pinned: t.pinned,
+							group: w.groups.find((g) => g.key === t.groupKey)?.title ?? null,
+						})),
+					);
+					const sort = (a: { title: string }, b: { title: string }) =>
+						a.title.localeCompare(b.title);
+					expect(actual.groups.sort(sort)).toEqual(
+						w.groups
+							.map(({ title, color, collapsed }) => ({
+								title,
+								color,
+								collapsed,
+							}))
+							.sort(sort),
+					);
+				}
+				if (name === "tiny") {
+					const added = await observer.evaluate(
+						async (windowId) =>
+							(await chrome.tabs.create({ windowId, url: "about:blank" })).id,
+						state[0].id,
+					);
+					importer.once("dialog", (dialog) => dialog.accept());
+					await importer
+						.getByRole("button", { name: "Undo last move" })
+						.click();
+					await expect(
+						importer.getByText("Import undone.", { exact: true }),
+					).toBeVisible();
+					expect(
+						await observer.evaluate(
+							async (windowId) =>
+								(await chrome.tabs.query({ windowId })).map((t) => t.id),
+							state[0].id,
+						),
+					).toEqual([added]);
+				}
+			} finally {
+				await context.close();
+				await rm(profile, { recursive: true, force: true });
+			}
+		},
+	);
+}
