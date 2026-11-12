@@ -1,0 +1,62 @@
+{
+  "counts": {
+    "spaces": 1,
+    "tabs": 6,
+    "folders": 0,
+    "favorites": 1,
+    "today": 2,
+    "skipped": 0
+  },
+  "layout": [
+    {
+      "space": null,
+      "section": "Favorites",
+      "items": [
+        [
+          0,
+          "tab",
+          "tab-0"
+        ]
+      ]
+    },
+    {
+      "space": "space-0",
+      "section": "Pinned",
+      "items": [
+        [
+          0,
+          "tab",
+          "tab-2"
+        ],
+        [
+          0,
+          "tab",
+          "tab-3"
+        ],
+        [
+          0,
+          "tab",
+          "tab-5"
+        ]
+      ]
+    },
+    {
+      "space": "space-0",
+      "section": "Today",
+      "items": [
+        [
+          0,
+          "tab",
+          "tab-1"
+        ],
+        [
+          0,
+          "tab",
+          "tab-4"
+        ]
+      ]
+    }
+  ],
+  "skipped": [],
+  "warnings": []
+}

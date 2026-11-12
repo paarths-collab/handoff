@@ -1,0 +1,62 @@
+{
+  "counts": {
+    "spaces": 1,
+    "tabs": 3,
+    "folders": 0,
+    "favorites": 0,
+    "today": 1,
+    "skipped": 2
+  },
+  "layout": [
+    {
+      "space": null,
+      "section": "Favorites",
+      "items": []
+    },
+    {
+      "space": "space-0",
+      "section": "Pinned",
+      "items": [
+        [
+          0,
+          "tab",
+          "tab-2"
+        ],
+        [
+          0,
+          "tab",
+          "tab-0"
+        ]
+      ]
+    },
+    {
+      "space": "space-0",
+      "section": "Today",
+      "items": [
+        [
+          0,
+          "tab",
+          "tab-1"
+        ]
+      ]
+    }
+  ],
+  "skipped": [
+    {
+      "arcId": "note",
+      "reason": "unsupported-kind",
+      "detail": "notes"
+    },
+    {
+      "arcId": "easel",
+      "reason": "unsupported-kind",
+      "detail": "easel"
+    }
+  ],
+  "warnings": [
+    {
+      "kind": "split-view-flattened",
+      "arcId": "split"
+    }
+  ]
+}

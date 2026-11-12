@@ -1,0 +1,51 @@
+{
+  "counts": {
+    "spaces": 1,
+    "tabs": 3,
+    "folders": 1,
+    "favorites": 0,
+    "today": 1,
+    "skipped": 0
+  },
+  "layout": [
+    {
+      "space": null,
+      "section": "Favorites",
+      "items": []
+    },
+    {
+      "space": "space-0",
+      "section": "Pinned",
+      "items": [
+        [
+          0,
+          "folder",
+          "folder-0"
+        ],
+        [
+          1,
+          "tab",
+          "tab-0"
+        ],
+        [
+          1,
+          "tab",
+          "tab-2"
+        ]
+      ]
+    },
+    {
+      "space": "space-0",
+      "section": "Today",
+      "items": [
+        [
+          0,
+          "tab",
+          "tab-1"
+        ]
+      ]
+    }
+  ],
+  "skipped": [],
+  "warnings": []
+}
