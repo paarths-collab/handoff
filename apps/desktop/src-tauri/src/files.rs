@@ -81,7 +81,7 @@ pub async fn pick_sidebar(
     let Some(file) = app
         .dialog()
         .file()
-        .add_filter("Sidebar or Tab Mover pack", &["json"])
+        .add_filter("Sidebar or Handoff pack", &["json"])
         .blocking_pick_file()
     else {
         return Ok(None);
@@ -161,7 +161,7 @@ pub enum Format {
 pub async fn save_export(app: AppHandle, format: Format, contents: String) -> Result<bool, String> {
     let (name, ext) = match format {
         Format::Bookmarks => ("bookmarks.html", "html"),
-        Format::Pack => ("tab-mover-pack.json", "json"),
+        Format::Pack => ("handoff-pack.json", "json"),
         Format::Csv => ("tabs.csv", "csv"),
     };
     let mut picker = app
@@ -253,5 +253,77 @@ mod tests {
         grants.0.lock().unwrap().insert(file.clone());
         assert!(sidebar_under(&dir, Path::new("StorableSidebar.json")).is_none());
         assert!(read_allowed(&file, &grants).is_err());
+    }
+
+    // Hostile-input checks for the read allowlist (plan rule 11).
+    fn granted(dir: &Path, name: &str, body: &[u8]) -> (PathBuf, Grants) {
+        let file = dir.join(name);
+        fs::write(&file, body).unwrap();
+        let grants = Grants::default();
+        grants.0.lock().unwrap().insert(file.clone());
+        (file, grants)
+    }
+    #[test]
+    fn attack_ungranted_sibling_and_relative_paths_are_denied() {
+        let temp = tempfile::tempdir().unwrap();
+        let dir = temp.path().canonicalize().unwrap();
+        let (_, grants) = granted(&dir, "StorableSidebar.json", b"{}");
+        fs::write(dir.join("secret.json"), "{}").unwrap();
+        assert!(read_allowed(&dir.join("secret.json"), &grants).is_err());
+        assert!(read_allowed(Path::new("StorableSidebar.json"), &grants).is_err());
+    }
+    #[test]
+    fn attack_discovery_cannot_escape_its_base() {
+        let temp = tempfile::tempdir().unwrap();
+        let root = temp.path().canonicalize().unwrap();
+        fs::create_dir(root.join("base")).unwrap();
+        fs::write(root.join("outside.json"), "{}").unwrap();
+        assert!(sidebar_under(&root.join("base"), Path::new("../outside.json")).is_none());
+        fs::create_dir(root.join("base/StorableSidebar.json")).unwrap();
+        assert!(sidebar_under(&root.join("base"), Path::new("StorableSidebar.json")).is_none());
+    }
+    #[test]
+    #[cfg(unix)]
+    fn attack_symlinked_parent_directory_is_denied() {
+        let temp = tempfile::tempdir().unwrap();
+        let root = temp.path().canonicalize().unwrap();
+        fs::create_dir_all(root.join("elsewhere/Arc")).unwrap();
+        fs::write(root.join("elsewhere/Arc/StorableSidebar.json"), "{}").unwrap();
+        fs::create_dir(root.join("home")).unwrap();
+        std::os::unix::fs::symlink(root.join("elsewhere/Arc"), root.join("home/Arc")).unwrap();
+        assert!(sidebar_under(&root.join("home"), Path::new("Arc/StorableSidebar.json")).is_none());
+        let grants = Grants::default();
+        let linked = root.join("home/Arc/StorableSidebar.json");
+        grants.0.lock().unwrap().insert(linked.clone());
+        assert!(read_allowed(&linked, &grants).is_err());
+    }
+    #[test]
+    fn attack_granted_directory_is_denied() {
+        let temp = tempfile::tempdir().unwrap();
+        let dir = temp.path().canonicalize().unwrap();
+        let grants = Grants::default();
+        grants.0.lock().unwrap().insert(dir.clone());
+        assert!(read_allowed(&dir, &grants).is_err());
+    }
+    #[test]
+    fn attack_oversized_and_non_utf8_files_are_rejected() {
+        let temp = tempfile::tempdir().unwrap();
+        let dir = temp.path().canonicalize().unwrap();
+        let (big, grants) = granted(&dir, "big.json", b"");
+        File::options()
+            .write(true)
+            .open(&big)
+            .unwrap()
+            .set_len(LIMIT + 1)
+            .unwrap();
+        assert_eq!(
+            read_allowed(&big, &grants).unwrap_err(),
+            "Sidebar exceeds the 100 MiB limit."
+        );
+        let (bad, grants) = granted(&dir, "bad.json", &[0x7b, 0xff, 0xfe, 0x7d]);
+        assert_eq!(
+            read_allowed(&bad, &grants).unwrap_err(),
+            "Choose a UTF-8 JSON file."
+        );
     }
 }

@@ -1,6 +1,6 @@
 {
-  "identifier": "main",
-  "description": "The local main window uses native picker-mediated commands.",
-  "windows": ["main"],
-  "permissions": []
+	"identifier": "main",
+	"description": "The local main window uses native picker-mediated commands.",
+	"windows": ["main"],
+	"permissions": []
 }

@@ -15,7 +15,7 @@ Use the tiny or typical synthetic fixture in a clean browser profile. Hide accou
 | Time | Picture | Voice |
 |---|---|---|
 | 0–5 s | Show an invented Arc sidebar with Studio and Personal Spaces | “I want these folders in my next browser.” |
-| 5–10 s | Choose the local sidebar file | “Tab Mover reads the file here on my computer.” |
+| 5–10 s | Choose the local sidebar file | “Handoff reads the file here on my computer.” |
 | 10–16 s | Expand Studio and inspect its tabs | “I can check the structure before moving anything.” |
 | 16–23 s | Download bookmarks and import them in the destination | “I’ll save bookmarks and import the file into Safari.” |
 | 23–30 s | Expand the imported folders | “Here are the same links, organized by Space.” |

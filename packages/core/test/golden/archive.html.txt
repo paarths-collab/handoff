@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-mNpxKvO/IHZPqlYmRlOERxqdvpai1FXbfmZkUdEniKE='; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
-<title>Tab Mover archive</title>
+<title>Handoff archive</title>
 <style>:root{color-scheme:light dark;font:16px/1.55 system-ui}body{margin:3rem auto;max-width:60rem;padding:0 1.5rem}input{font:inherit;padding:.5rem;width:min(95%,36rem)}details{margin:.4rem 0 .4rem 1rem}summary{cursor:pointer;font-weight:600}ul{padding-left:2rem}li,summary{overflow-wrap:anywhere}small{display:block;opacity:.75}</style>
 </head>
 <body>
@@ -44,7 +44,7 @@
 </details>
 </details>
 </main>
-<script type="application/json" id="pack">{"format":"tab-mover-pack","schemaVersion":1,"createdAt":"2025-01-02T03:04:05.000Z","library":{"schemaVersion":1,"source":{"platform":"unknown","parsedAt":"2025-01-02T03:04:05.000Z","sourceHash":"94781de0"},"favorites":[],"spaces":[{"arcId":"space-0","title":"Space 1","titleGenerated":false,"color":null,"icon":null,"profile":null,"pinned":[{"kind":"tab","arcId":"tab-0","title":"Title 0000","customTitle":null,"savedTitle":"Title 0000","url":"https://site-0000.test/p"},{"kind":"tab","arcId":"tab-2","title":"Title 0002","customTitle":null,"savedTitle":"Title 0002","url":"https://site-0002.test/p"}],"today":[{"kind":"tab","arcId":"tab-1","title":"Title 0001","customTitle":null,"savedTitle":"Title 0001","url":"https://site-0001.test/p"}]}],"report":{"skipped":[],"warnings":[],"counts":{"spaces":1,"tabs":3,"folders":0,"favorites":0,"today":1,"skipped":0}}}}</script>
+<script type="application/json" id="pack">{"format":"handoff-pack","schemaVersion":1,"createdAt":"2025-01-02T03:04:05.000Z","library":{"schemaVersion":1,"source":{"platform":"unknown","parsedAt":"2025-01-02T03:04:05.000Z","sourceHash":"94781de0"},"favorites":[],"spaces":[{"arcId":"space-0","title":"Space 1","titleGenerated":false,"color":null,"icon":null,"profile":null,"pinned":[{"kind":"tab","arcId":"tab-0","title":"Title 0000","customTitle":null,"savedTitle":"Title 0000","url":"https://site-0000.test/p"},{"kind":"tab","arcId":"tab-2","title":"Title 0002","customTitle":null,"savedTitle":"Title 0002","url":"https://site-0002.test/p"}],"today":[{"kind":"tab","arcId":"tab-1","title":"Title 0001","customTitle":null,"savedTitle":"Title 0001","url":"https://site-0001.test/p"}]}],"report":{"skipped":[],"warnings":[],"counts":{"spaces":1,"tabs":3,"folders":0,"favorites":0,"today":1,"skipped":0}}}}</script>
 <script>const search=document.querySelector('#search');search.addEventListener('input',()=>{const q=search.value.toLowerCase().trim();for(const row of document.querySelectorAll('li'))row.hidden=!row.textContent.toLowerCase().includes(q);for(const group of Array.from(document.querySelectorAll('details')).reverse()){group.hidden=!!q&&!group.querySelector('li:not([hidden])');if(q&&!group.hidden)group.open=true}})</script>
 </body>
 </html>

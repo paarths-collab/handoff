@@ -13,9 +13,9 @@ interface Owned {
 	original: number;
 	current: number;
 }
-const prefix = "tabMoverOwned:";
+const prefix = "handoffOwned:";
 const ledgerKey = (run: string, id: number) => prefix + run + ":" + id;
-const guard = "tab-mover-browser-operation";
+const guard = "handoff-browser-operation";
 
 // An extension page can disappear while a create/discard promise is in flight.
 // The background handler finishes that single browser call and records ownership.
@@ -30,9 +30,9 @@ export function installOwnershipHandler() {
 			return;
 		void navigator.locks
 			.request(guard, { mode: "shared" }, async () => {
-				const { tabMoverActive } =
-					await api.storage.session.get("tabMoverActive");
-				if (typeof message.run !== "string" || message.run !== tabMoverActive)
+				const { handoffActive } =
+					await api.storage.session.get("handoffActive");
+				if (typeof message.run !== "string" || message.run !== handoffActive)
 					throw Error();
 				const operation: Operation = message.operation;
 				if (operation.type === "window") {
@@ -111,7 +111,7 @@ export async function startOwnership(run: string) {
 			(key) => key.startsWith(prefix),
 		);
 		if (keys.length) await api.storage.session.remove(keys);
-		await api.storage.session.set({ tabMoverActive: run });
+		await api.storage.session.set({ handoffActive: run });
 	});
 }
 export async function restoreOwnership(result: ImportResult) {

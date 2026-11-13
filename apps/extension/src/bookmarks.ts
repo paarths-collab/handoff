@@ -3,7 +3,7 @@ import {
 	type ImportOptions,
 	type Library,
 	type Node,
-} from "@tab-mover/core";
+} from "@handoff/core";
 import { api } from "./api";
 import { openable, type ImportResult } from "./executor";
 
@@ -20,6 +20,9 @@ export async function moveBookmarks(
 	signal: AbortSignal,
 	save: (r: ImportResult) => Promise<void>,
 	progress: (n: number, total: number) => void,
+	// Mirror mode adds a bookmarks copy of an import that already opened tabs.
+	// It reuses that import's accounting and only records the created IDs for Undo.
+	mirror = false,
 ) {
 	const sections: Section[] = [
 		{
@@ -39,13 +42,17 @@ export async function moveBookmarks(
 					(area === "pinned" || options.today === "include"),
 			});
 		}
-	// First account for all tabs, including exclusions, before changing the browser.
-	const plan = planImport(library, options);
-	result.scheduled = plan.windows.flatMap((win) =>
-		win.tabs.map(({ arcId, url }) => ({ arcId, url })),
-	);
-	result.skipped.push(...plan.skipped);
+	if (!mirror) {
+		// First account for all tabs, including exclusions, before changing the browser.
+		const plan = planImport(library, options);
+		result.scheduled = plan.windows.flatMap((win) =>
+			win.tabs.map(({ arcId, url }) => ({ arcId, url })),
+		);
+		result.skipped.push(...plan.skipped);
+	}
 	const eligible = new Set(result.scheduled.map((tab) => tab.arcId));
+	let mirrored = 0;
+	let mirrorFailed = 0;
 	await save(result);
 	if (eligible.size) {
 		const folder = async (title: string, parentId?: string) => {
@@ -54,7 +61,7 @@ export async function moveBookmarks(
 			await save(result);
 			return created.id;
 		};
-		const root = await folder("Tab Mover");
+		const root = await folder("Handoff");
 		const spaceFolders = new Map<string, string>();
 		for (const section of sections) {
 			if (signal.aborted) break;
@@ -87,20 +94,44 @@ export async function moveBookmarks(
 							title: node.title,
 						});
 						result.created.bookmarks.push(bookmark.id);
-						result.moved.push(node.arcId);
-						result.done++;
+						if (mirror) mirrored++;
+						else {
+							result.moved.push(node.arcId);
+							result.done++;
+						}
 					} catch {
-						result.failed.push({
-							arcId: node.arcId,
-							url: node.url,
-							error: "bookmark-create-failed",
-						});
+						if (mirror) mirrorFailed++;
+						else
+							result.failed.push({
+								arcId: node.arcId,
+								url: node.url,
+								error: "bookmark-create-failed",
+							});
 					}
 					await save(result);
-					progress(result.done + result.failed.length, result.scheduled.length);
+					if (!mirror)
+						progress(
+							result.done + result.failed.length,
+							result.scheduled.length,
+						);
 				}
 			}
 		}
+	}
+	if (mirror) {
+		if (mirrored)
+			result.notes.push(
+				"Also saved " +
+					mirrored +
+					(mirrored === 1 ? " bookmark" : " bookmarks") +
+					' with nested folders in the "Handoff" bookmarks folder.',
+			);
+		if (mirrorFailed)
+			result.notes.push(
+				mirrorFailed +
+					(mirrorFailed === 1 ? " bookmark" : " bookmarks") +
+					" could not be saved. The tabs are still open.",
+			);
 	}
 	result.cancelled = signal.aborted;
 	result.finishedAt = new Date().toISOString();

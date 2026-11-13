@@ -84,7 +84,7 @@ function parse(text: string, mode: "arc" | "pack" | "auto"): InputResult {
 	}
 	if (
 		mode === "pack" ||
-		(mode === "auto" && isRecord(value) && value.format === "tab-mover-pack")
+		(mode === "auto" && isRecord(value) && value.format === "handoff-pack")
 	)
 		return readPack(value);
 	if (!isRecord(value) || !isRecord(value.sidebar))
@@ -93,7 +93,7 @@ function parse(text: string, mode: "arc" | "pack" | "auto"): InputResult {
 			error: {
 				kind: "not-arc-file",
 				message: "No Arc sidebar was found.",
-				hint: "Choose StorableSidebar.json or a Tab Mover pack.",
+				hint: "Choose StorableSidebar.json or a Handoff pack.",
 			},
 		};
 	const containers = Array.isArray(value.sidebar.containers)
@@ -137,7 +137,7 @@ function readSidebar(raw: Row, top: Row): Library {
 	function fresh(prefix: string) {
 		let id: string;
 		do {
-			id = "tab-mover-" + prefix + "-" + ++serial;
+			id = "handoff-" + prefix + "-" + ++serial;
 		} while (reserved.has(id));
 		reserved.add(id);
 		return id;

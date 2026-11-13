@@ -1,5 +1,1 @@
-{
-  "files": {"includes": ["**", "!!**/node_modules", "!!**/dist", "!!**/.output", "!!**/.wxt", "!!**/target", "!!**/.worktrees", "!!private", "!!fixtures", "!!release"]},
-  "formatter": {"enabled": true},
-  "linter": {"enabled":true,"rules":{"preset":"none","security":{"noGlobalEval":"error","noDangerouslySetInnerHtml":"error"}}}
-}
+{"files": {"includes": ["**", "!!**/node_modules", "!!**/dist", "!!**/.output", "!!**/.wxt", "!!**/target", "!!**/.worktrees", "!!private", "!!fixtures", "!!release", "!!**/gen", "!!**/test-results", "!!**/playwright-report", "!!**/test/golden"]}, "formatter": {"enabled": true}, "linter": {"enabled": true, "rules": {"preset": "none", "security": {"noGlobalEval": "error", "noDangerouslySetInnerHtml": "error"}}}}

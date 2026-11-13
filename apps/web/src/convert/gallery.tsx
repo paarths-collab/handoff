@@ -1,4 +1,4 @@
-import { defaultOptions, planImport } from "@tab-mover/core";
+import { defaultOptions, planImport } from "@handoff/core";
 import {
 	CopyDiagnosticButton,
 	FileDrop,
@@ -7,7 +7,7 @@ import {
 	PreviewTree,
 	ProgressView,
 	ResultReport,
-} from "@tab-mover/ui";
+} from "@handoff/ui";
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
 import { library } from "../../../../packages/core/test/builders";

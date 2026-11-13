@@ -1197,6 +1197,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "handoff"
+version = "1.0.0"
+dependencies = [
+ "dirs 6.0.0",
+ "libc",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-dialog",
+ "tempfile",
+]
+
+[[package]]
 name = "hashbrown"
 version = "0.12.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3085,19 +3099,6 @@ dependencies = [
  "pkg-config",
  "toml 0.8.2",
  "version-compare",
-]
-
-[[package]]
-name = "tab-mover"
-version = "1.0.0"
-dependencies = [
- "dirs 6.0.0",
- "libc",
- "serde",
- "tauri",
- "tauri-build",
- "tauri-plugin-dialog",
- "tempfile",
 ]
 
 [[package]]

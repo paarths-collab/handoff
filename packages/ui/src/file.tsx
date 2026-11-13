@@ -1,4 +1,4 @@
-import { parseInput } from "@tab-mover/core";
+import { parseInput } from "@handoff/core";
 import { useId, useRef, useState } from "react";
 import type { FileDropProps, PathHelperProps } from "./types";
 
@@ -74,7 +74,7 @@ export function FileDrop({ onLoaded }: FileDropProps) {
 				<span>JSON</span>
 			</span>
 			<strong>Drop your sidebar file here</strong>
-			<p>StorableSidebar.json or a Tab Mover pack · Up to 100 MB</p>
+			<p>StorableSidebar.json or a Handoff pack · Up to 100 MB</p>
 			<label className="tm-pick" htmlFor={id}>
 				Choose a file
 				<input

@@ -1,6 +1,6 @@
 {
 	"manifest_version": 3,
-	"name": "Tab Mover test observer",
+	"name": "Handoff test observer",
 	"version": "1.0",
 	"permissions": ["tabs", "tabGroups"],
 	"background": { "service_worker": "observer.js" }

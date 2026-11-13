@@ -36,7 +36,7 @@ for (const name of [
 			const parsed = parseInput(await readFile(file, "utf8"));
 			if (!parsed.ok) throw Error("Invalid test fixture");
 			const plan = planImport(parsed.value, defaultOptions(parsed.value));
-			const profile = await mkdtemp(join(tmpdir(), "tab-mover-browser-"));
+			const profile = await mkdtemp(join(tmpdir(), "handoff-browser-"));
 			const paths = [
 				resolve(directory, ".output/chrome-mv3"),
 				resolve(directory, "e2e/observer"),
@@ -44,7 +44,7 @@ for (const name of [
 			const context = await chromium.launchPersistentContext(profile, {
 				channel: "chromium",
 				headless: true,
-				executablePath: process.env.TAB_MOVER_BROWSER,
+				executablePath: process.env.HANDOFF_BROWSER,
 				args: [
 					"--disable-extensions-except=" + paths,
 					"--load-extension=" + paths,
@@ -82,7 +82,7 @@ for (const name of [
 					await importer.waitForFunction(
 						async () =>
 							Object.keys(await chrome.storage.session.get(null)).filter(
-								(key) => key.startsWith("tabMoverOwned:"),
+								(key) => key.startsWith("handoffOwned:"),
 							).length >= 2,
 					);
 					let page = importer;

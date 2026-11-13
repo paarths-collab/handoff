@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import type { ImportPlan } from "@tab-mover/core";
+import type { ImportPlan } from "@handoff/core";
 import {
 	executePlan,
 	newResult,

@@ -1,11 +1,11 @@
 # Store listing drafts
 
-**Name** Tab Mover  
+**Name** Handoff  
 **Short description** Move your Arc Spaces, Favorites and folders into your next browser, locally.
 
 **Long description**
 
-Choose your Arc sidebar file or a Tab Mover pack. Preview the Spaces and tabs that the importer finds, decide whether to include Today tabs, and click Move. Review the result and download the skipped list if you need to follow up on individual items. For Safari, use the web converter to download bookmarks HTML.
+Choose your Arc sidebar file or a Handoff pack. Preview the Spaces and tabs that the importer finds, decide whether to include Today tabs, and click Move. Review the result and download the skipped list if you need to follow up on individual items. For Safari, use the web converter to download bookmarks HTML.
 
 Your file stays on your computer. The extension reads the file you select. Moving an open tab sends its destination URL to your browser as part of normal navigation.
 
@@ -16,7 +16,7 @@ Your file stays on your computer. The extension reads the file you select. Movin
 | tabGroups | Name and color groups that recreate the imported organization. |
 | storage | Save progress and remember the last import for same-session Undo. |
 | tabs (optional) | Compare URLs with already-open tabs only when the user chooses duplicate detection. |
-| bookmarks (optional) | Write the imported folders and URLs only when the user chooses bookmark mode. |
+| bookmarks (optional) | Write the imported folders and URLs only when the user chooses bookmark mode or asks to keep a bookmarks copy of the moved tabs. |
 
 **Data collection** Does not collect user data. No analytics, accounts or remote service.
 

@@ -1,6 +1,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 mod browsers;
 mod files;
+mod profiles;
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
@@ -13,7 +14,10 @@ fn main() {
             files::save_archive,
             browsers::detect_browsers,
             browsers::extension_installed,
-            browsers::open_in_browser
+            browsers::open_in_browser,
+            profiles::list_profiles,
+            profiles::open_in_profile,
+            profiles::open_privacy_settings
         ])
         .run(tauri::generate_context!())
         .expect("desktop runtime unavailable")

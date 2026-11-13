@@ -203,7 +203,8 @@ it("applies sections, folder grouping, colors, selections, flattening and duplic
 	const raw = sidebar(10, 2, 2);
 	Object.assign(raw.spaces[0], { color: "#ff0000" });
 	const lib = get(JSON.stringify(wrap(raw)));
-	const opts = defaultOptions(lib);
+	// Native pinning remains an explicit option; the default groups pinned tabs instead.
+	const opts = { ...defaultOptions(lib), pinned: "native" as const };
 	let plan = planImport(lib, opts);
 	expect(plan.windows).toHaveLength(2);
 	expect(plan.windows[0].tabs[0]).toMatchObject({
@@ -547,6 +548,7 @@ it("reads theme channels, emoji, profile labels and a custom tab title before sa
 		folderMode: "groups",
 		today: "include",
 		favorites: "pinned-first-window",
+		pinned: "group",
 		collapseGroups: true,
 		openableSchemes: ["http:", "https:"],
 	});
@@ -629,7 +631,7 @@ it("chooses the data container following global, then falls back to a usable con
 it("assigns unused ids to missing, empty or colliding item identities", () => {
 	const raw = sidebar(3);
 	const items = raw.items.map((row) => {
-		if (row.id === "tab-0") return { ...row, id: "tab-mover-item-1" };
+		if (row.id === "tab-0") return { ...row, id: "handoff-item-1" };
 		if (row.id === "tab-1") return { ...row, id: undefined };
 		if (row.id === "tab-2") return { ...row, id: "" };
 		return row;
@@ -639,7 +641,7 @@ it("assigns unused ids to missing, empty or colliding item identities", () => {
 	);
 	const ids = flatten(lib).map((t) => t.arcId);
 	expect(ids).toHaveLength(3);
-	expect(ids).toContain("tab-mover-item-1");
+	expect(ids).toContain("handoff-item-1");
 	expect(new Set(ids).size).toBe(3);
 	expect(
 		lib.report.warnings.filter((w) => w.kind === "unknown-field"),
@@ -704,7 +706,7 @@ it("returns actionable, input-free messages for unsupported or damaged files", (
 		error: {
 			kind: "not-arc-file",
 			message: "No Arc sidebar was found.",
-			hint: "Choose StorableSidebar.json or a Tab Mover pack.",
+			hint: "Choose StorableSidebar.json or a Handoff pack.",
 		},
 	});
 	expect(parseInput('{"sidebar":{}}')).toEqual({

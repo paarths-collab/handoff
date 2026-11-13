@@ -1,13 +1,13 @@
 {
-  "name": "@tab-mover/ui",
-  "version": "1.0.0",
-  "type": "module",
-  "private": true,
-  "exports": "./src/index.ts",
-  "dependencies": {
-    "react": "latest",
-    "react-dom": "latest",
-    "@tab-mover/core": "workspace:*",
-    "@tanstack/react-virtual": "latest"
-  }
+	"name": "@handoff/ui",
+	"version": "1.0.0",
+	"type": "module",
+	"private": true,
+	"exports": "./src/index.ts",
+	"dependencies": {
+		"react": "19.3.1",
+		"react-dom": "19.3.1",
+		"@handoff/core": "workspace:*",
+		"@tanstack/react-virtual": "3.14.26"
+	}
 }

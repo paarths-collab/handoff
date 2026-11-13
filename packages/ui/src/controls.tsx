@@ -1,4 +1,4 @@
-import { toDiagnostic } from "@tab-mover/core";
+import { toDiagnostic } from "@handoff/core";
 import { useId, useState } from "react";
 import type {
 	CopyDiagnosticButtonProps,
@@ -70,8 +70,23 @@ export function OptionsPanel({
 						})
 					}
 				/>
-				Pin Favorites in the first window
+				Include Favorites in the first window
 			</label>
+			{capabilities.groups && (
+				<label>
+					<input
+						type="checkbox"
+						checked={value.pinned === "group"}
+						onChange={(e) =>
+							onChange({
+								...value,
+								pinned: e.target.checked ? "group" : "native",
+							})
+						}
+					/>
+					Keep pinned tabs and Favorites as groups instead of pinning
+				</label>
+			)}
 			{capabilities.groups && (
 				<label>
 					<input

@@ -30,7 +30,7 @@ pub enum Destination {
 }
 
 #[cfg(target_os = "macos")]
-fn executable(browser: Browser) -> Option<PathBuf> {
+pub(crate) fn executable(browser: Browser) -> Option<PathBuf> {
     let (bundle, binary) = match browser {
         Browser::Chrome => ("Google Chrome", "Google Chrome"),
         Browser::Brave => ("Brave Browser", "Brave Browser"),
@@ -50,7 +50,7 @@ fn executable(browser: Browser) -> Option<PathBuf> {
     .find(|p| p.is_file())
 }
 #[cfg(target_os = "windows")]
-fn executable(browser: Browser) -> Option<PathBuf> {
+pub(crate) fn executable(browser: Browser) -> Option<PathBuf> {
     let rel = match browser {
         Browser::Chrome => "Google/Chrome/Application/chrome.exe",
         Browser::Brave => "BraveSoftware/Brave-Browser/Application/brave.exe",
@@ -70,7 +70,7 @@ fn executable(browser: Browser) -> Option<PathBuf> {
     .find(|p| p.is_file())
 }
 #[cfg(not(any(target_os = "macos", target_os = "windows")))]
-fn executable(_: Browser) -> Option<PathBuf> {
+pub(crate) fn executable(_: Browser) -> Option<PathBuf> {
     None
 }
 
@@ -79,6 +79,8 @@ const CHROME_STORE_ID: Option<&str> = None;
 const EDGE_STORE_ID: Option<&str> = None;
 const FIREFOX_LISTING: Option<&str> = None;
 const DEV_ID: &str = "epmcofheomfngodepcbhmmglmbekllfg";
+// The downloadable extension's fixed ID (its manifest key). Checked by scripts/check-manifest.ts.
+const LOCAL_ID: &str = "fbaodfmbgdgjoedphimkhagfggglpiog";
 fn store_id(browser: Browser) -> Option<&'static str> {
     match browser {
         Browser::Firefox => None,
@@ -87,8 +89,15 @@ fn store_id(browser: Browser) -> Option<&'static str> {
     }
 }
 fn extension_id(browser: Browser) -> Option<&'static str> {
-    store_id(browser)
-        .or_else(|| (cfg!(debug_assertions) && browser != Browser::Firefox).then_some(DEV_ID))
+    // Firefox gives each install a random internal address, so it has no fixed importer URL.
+    if browser == Browser::Firefox {
+        return None;
+    }
+    store_id(browser).or(Some(if cfg!(debug_assertions) {
+        DEV_ID
+    } else {
+        LOCAL_ID
+    }))
 }
 fn url(browser: Browser, destination: Destination) -> Option<String> {
     match destination {
@@ -105,7 +114,7 @@ fn url(browser: Browser, destination: Destination) -> Option<String> {
         },
     }
 }
-fn profile_base(browser: Browser) -> Option<PathBuf> {
+pub(crate) fn profile_base(browser: Browser) -> Option<PathBuf> {
     #[cfg(target_os = "macos")]
     let path = dirs::data_dir()?.join(match browser {
         Browser::Chrome => "Google/Chrome",
@@ -170,7 +179,7 @@ pub fn extension_installed(browser: Browser) -> Option<bool> {
 pub fn open_in_browser(browser: Browser, destination: Destination) -> Result<(), String> {
     let path = executable(browser).ok_or("Browser is unavailable.")?;
     let target = url(browser, destination)
-        .ok_or("Open Tab Mover from your browser toolbar and drop the saved pack.")?;
+        .ok_or("Open Handoff from your browser toolbar and drop the saved pack.")?;
     Command::new(path)
         .arg(target)
         .spawn()
@@ -201,5 +210,35 @@ mod tests {
         assert!(!has_id(dir.path(), DEV_ID));
         std::fs::create_dir_all(dir.path().join("Extensions").join(DEV_ID)).unwrap();
         assert!(has_id(dir.path(), DEV_ID));
+    }
+
+    // The launcher passes exactly one argument; it must never be a flag or another scheme.
+    #[test]
+    fn attack_launcher_targets_are_fixed_urls() {
+        let id_ok = |id: &str| id.len() == 32 && id.bytes().all(|b| (b'a'..=b'p').contains(&b));
+        for browser in BROWSERS {
+            for destination in [Destination::Importer, Destination::Store] {
+                let Some(target) = url(browser, destination) else {
+                    continue;
+                };
+                assert!(!target.starts_with('-'), "{target}");
+                assert!(!target.chars().any(|c| c.is_whitespace() || c.is_control()));
+                if let Some(rest) = target.strip_prefix("chrome-extension://") {
+                    let id = rest
+                        .strip_suffix("/importer.html")
+                        .expect("importer page only");
+                    assert!(id_ok(id), "{target}");
+                } else {
+                    assert!(
+                        target.starts_with("https://chromewebstore.google.com/detail/")
+                            || target
+                                .starts_with("https://microsoftedge.microsoft.com/addons/detail/"),
+                        "{target}"
+                    );
+                }
+            }
+        }
+        assert!(id_ok(DEV_ID));
+        assert!(id_ok(LOCAL_ID));
     }
 }

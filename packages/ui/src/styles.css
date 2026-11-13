@@ -317,3 +317,27 @@
 	width: 100%;
 	min-height: 8em;
 }
+
+.tm-passwords {
+	margin-top: 1.5rem;
+}
+.tm-passwords ol {
+	padding-left: 1.25rem;
+}
+.tm-passwords li {
+	margin: 0.6rem 0;
+	line-height: 1.6;
+}
+.tm-address {
+	display: inline-flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.4rem;
+}
+.tm-address code {
+	overflow-wrap: anywhere;
+}
+.tm-address .tm-btn {
+	min-height: 30px;
+	padding: 0.15rem 0.6rem;
+}

@@ -6,13 +6,13 @@ import {
 	type Library,
 	type ParseError,
 	type Result,
-} from "@tab-mover/core";
+} from "@handoff/core";
 import {
 	CopyDiagnosticButton,
 	FileDrop,
 	PathHelper,
 	PreviewTree,
-} from "@tab-mover/ui";
+} from "@handoff/ui";
 import { useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./page.css";
@@ -38,10 +38,10 @@ const formats = [
 	},
 	{
 		id: "pack",
-		title: "Tab Mover pack",
+		title: "Handoff pack",
 		ext: "JSON",
-		description: "Keep your complete library for a future move with Tab Mover.",
-		name: "tab-mover-pack.json",
+		description: "Keep your complete library for a future move with Handoff.",
+		name: "handoff-pack.json",
 		mime: "application/json",
 	},
 	{
@@ -130,7 +130,7 @@ function Converter() {
 			<header className="converter-nav">
 				<a className="converter-brand" href="./index.html">
 					<span className="converter-mark" aria-hidden="true" />
-					Tab Mover
+					Handoff
 				</a>
 				<span className="converter-nav-current">Sidebar converter</span>
 			</header>

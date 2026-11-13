@@ -15,6 +15,7 @@ export function defaultOptions(lib: Library): ImportOptions {
 		folderMode: "groups",
 		today: "include",
 		favorites: "pinned-first-window",
+		pinned: "group",
 		collapseGroups: true,
 		openableSchemes: ["http:", "https:"],
 	};
@@ -100,7 +101,9 @@ export function planImport(lib: Library, opts: ImportOptions): ImportPlan {
 		}
 		destinations.set(space.arcId, win);
 	}
+	const pinGroup = opts.pinned === "group";
 	let unpinned = 0;
+	let sectionGrouped = 0;
 	function skipReason(
 		tab: TabNode,
 		enabled: boolean,
@@ -132,13 +135,24 @@ export function planImport(lib: Library, opts: ImportOptions): ImportPlan {
 				continue;
 			}
 			const inFolderGroup = opts.folderMode === "groups" && path.length > 0;
-			const pinned =
+			const pinnedSection =
 				name === "Favorites" || (name === "Pinned" && !inFolderGroup);
+			// With pinGroup, Favorites and root pinned tabs form a named group instead.
+			const sectionGroup = pinGroup && pinnedSection;
+			const pinned = pinnedSection && !pinGroup;
 			let groupKey: string | null = null;
-			if (!pinned && space && (inFolderGroup || opts.spaceMode === "group")) {
+			if (
+				!pinned &&
+				(space || sectionGroup) &&
+				(inFolderGroup || sectionGroup || opts.spaceMode === "group")
+			) {
 				const id = JSON.stringify([
-					space.arcId,
-					inFolderGroup ? folderIds[path.length - 1] : null,
+					space?.arcId ?? null,
+					sectionGroup
+						? name
+						: inFolderGroup
+							? folderIds[path.length - 1]
+							: null,
 				]);
 				const keys = groupKeys.get(win)!;
 				groupKey = keys.get(id) ?? null;
@@ -146,17 +160,18 @@ export function planImport(lib: Library, opts: ImportOptions): ImportPlan {
 					groupKey = "group-" + plan.totals.groups++;
 					keys.set(id, groupKey);
 					const parts = [
-						...(opts.spaceMode === "group" ? [space.title] : []),
-						...(inFolderGroup ? path : []),
+						...(opts.spaceMode === "group" && space ? [space.title] : []),
+						...(sectionGroup ? [name] : inFolderGroup ? path : []),
 					];
 					win.groups.push({
 						key: groupKey,
 						title: parts.join(" / "),
-						color: palette.get(space.arcId)!,
+						color: palette.get(space?.arcId ?? win.spaceArcId) ?? "grey",
 						collapsed: opts.collapseGroups,
 					});
 				}
-				if (name === "Pinned") unpinned++;
+				if (sectionGroup) sectionGrouped++;
+				else if (name === "Pinned" && !pinGroup) unpinned++;
 			}
 			win.tabs.push({
 				arcId: node.arcId,
@@ -207,6 +222,13 @@ export function planImport(lib: Library, opts: ImportOptions): ImportPlan {
 					? "tab inside a folder became a group tab"
 					: "tabs inside folders became group tabs") +
 				".",
+		);
+	if (sectionGrouped)
+		plan.notes.push(
+			sectionGrouped +
+				(sectionGrouped === 1
+					? " pinned tab or Favorite was kept in a group instead of being pinned."
+					: " pinned tabs and Favorites were kept in groups instead of being pinned."),
 		);
 	plan.totals.windows = plan.windows.length;
 	return plan;

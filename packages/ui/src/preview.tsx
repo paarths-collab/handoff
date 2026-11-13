@@ -1,4 +1,4 @@
-import type { Library, Node } from "@tab-mover/core";
+import type { Library, Node } from "@handoff/core";
 import { defaultRangeExtractor, useVirtualizer } from "@tanstack/react-virtual";
 import { useId, useMemo, useRef, useState } from "react";
 import type { PreviewTreeProps } from "./types";

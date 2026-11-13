@@ -37,7 +37,7 @@ export function readPack(value: unknown): Result<Library, ParseError> {
 	} as const;
 	if (
 		isRecord(value) &&
-		value.format === "tab-mover-pack" &&
+		value.format === "handoff-pack" &&
 		value.schemaVersion !== 1
 	)
 		return {

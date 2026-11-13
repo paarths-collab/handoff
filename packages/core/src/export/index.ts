@@ -48,7 +48,7 @@ export function toBookmarksHtml(
 				),
 			);
 	return (
-		'<!DOCTYPE NETSCAPE-Bookmark-file-1>\n<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">\n<TITLE>Tab Mover bookmarks</TITLE>\n<H1>Tab Mover bookmarks</H1>\n<DL><p>\n' +
+		'<!DOCTYPE NETSCAPE-Bookmark-file-1>\n<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">\n<TITLE>Handoff bookmarks</TITLE>\n<H1>Handoff bookmarks</H1>\n<DL><p>\n' +
 		blocks.join("") +
 		"</DL><p>\n"
 	);
@@ -135,7 +135,7 @@ export function toArchiveHtml(lib: Library): string {
 	return (
 		'<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src \'none\'; script-src \'sha256-' +
 		scriptHash +
-		"'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'\"><title>Tab Mover archive</title><style>" +
+		"'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'\"><title>Handoff archive</title><style>" +
 		archiveCss +
 		'</style></head><body><main><h1>Tab archive</h1><label for="search">Search titles and URLs</label><br><input type="search" id="search">' +
 		contents.join("") +
@@ -148,7 +148,7 @@ export function toArchiveHtml(lib: Library): string {
 }
 export function toPackJson(lib: Library): string {
 	return JSON.stringify({
-		format: "tab-mover-pack",
+		format: "handoff-pack",
 		schemaVersion: 1,
 		createdAt: new Date().toISOString(),
 		library: lib,

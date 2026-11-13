@@ -66,6 +66,8 @@ h2 {
 }
 .choose,
 .guide,
+.profiles,
+.tm-passwords,
 .export-grid section {
 	padding: 1.4rem;
 	background: var(--tm-card);
@@ -74,6 +76,8 @@ h2 {
 }
 .choose,
 .export-grid,
+.profiles,
+.tm-passwords,
 .guide {
 	margin: 1.2rem 0;
 }
@@ -166,4 +170,62 @@ button:disabled {
 	h1 {
 		margin-top: 1.6rem;
 	}
+}
+
+.profiles > p,
+.profiles .note {
+	color: var(--tm-muted);
+	margin: 0.5rem 0 0.9rem;
+}
+.profiles .warn {
+	color: var(--tm-focus);
+}
+.profile-rows {
+	display: grid;
+	gap: 0.5rem;
+	margin: 0.9rem 0;
+}
+.profile-rows.bulk {
+	padding-bottom: 0.9rem;
+	border-bottom: 1px solid var(--tm-stroke);
+}
+.profile-rows label {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	flex-wrap: wrap;
+}
+.profile-rows small {
+	color: var(--tm-muted);
+}
+.profile-rows select {
+	min-width: 12rem;
+}
+.profiles .inline {
+	display: block;
+	margin: 0.4rem 0;
+}
+.profiles .handoff button {
+	margin: 0.4rem 0.4rem 0 0;
+}
+.unnamed {
+	margin: 0.9rem 0 1.2rem;
+	padding-bottom: 1rem;
+	border-bottom: 1px solid var(--tm-stroke);
+}
+.label-row {
+	display: grid;
+	grid-template-columns: 7rem 1fr auto;
+	align-items: center;
+	gap: 0.6rem;
+}
+.label-row input {
+	font: inherit;
+	color: var(--tm-ink);
+	background: var(--tm-card);
+	border: 1px solid var(--tm-stroke);
+	border-radius: 6px;
+	padding: 0.5em 0.7em;
+	min-width: 0;
 }

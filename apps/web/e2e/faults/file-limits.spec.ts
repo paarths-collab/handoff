@@ -2,7 +2,9 @@ import { expect, test } from "@playwright/test";
 import { mkdir, open } from "node:fs/promises";
 import { sidebar, wrap } from "../../../../scripts/gen-fixture";
 
-test("recover from a file over 100 MiB and preview 50,000 tabs", async ({ page }, info) => {
+test("recover from a file over 100 MiB and preview 50,000 tabs", async ({
+	page,
+}, info) => {
 	const directory = info.outputPath("files");
 	await mkdir(directory, { recursive: true });
 	const path = info.outputPath("files", "oversized.json");

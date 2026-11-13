@@ -5,14 +5,19 @@ import {
 	toCsv,
 	toPackJson,
 	type Library,
-} from "@tab-mover/core";
-import { CopyDiagnosticButton, PathHelper, PreviewTree } from "@tab-mover/ui";
+} from "@handoff/core";
+import {
+	CopyDiagnosticButton,
+	PasswordGuide,
+	PathHelper,
+	PreviewTree,
+} from "@handoff/ui";
 import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
+import { type Browser, ProfileMover } from "./profiles";
 import "./style.css";
 
-type Browser = "chrome" | "brave" | "edge" | "vivaldi" | "opera" | "firefox";
 type Detected = {
 	browser: Browser;
 	importer_available: boolean;
@@ -126,7 +131,7 @@ function App() {
 		else {
 			setSavedPack(true);
 			setStatus(
-				"Pack saved. Drop it into the Tab Mover extension and review the preview before moving tabs.",
+				"Pack saved. Drop it into the Handoff extension and review the preview before moving tabs.",
 			);
 			if (
 				browser?.importer_available &&
@@ -147,7 +152,7 @@ function App() {
 				<span className="app-mark" aria-hidden="true">
 					⇥
 				</span>
-				<strong>Tab Mover</strong>
+				<strong>Handoff</strong>
 				<span className="platform">Desktop</span>
 			</header>
 			<main>
@@ -176,8 +181,8 @@ function App() {
 							<section>
 								<h2>Send to browser</h2>
 								<p>
-									Save your full library as a pack, then open it in the Tab
-									Mover extension.
+									Save your full library as a pack, then open it in the Handoff
+									extension.
 								</p>
 								{browsers.length > 0 && (
 									<label>
@@ -238,8 +243,9 @@ function App() {
 											</button>
 										) : (
 											<p>
-												Store listing pending. With a local extension installed,
-												open Tab Mover from your browser toolbar.
+												{browser?.browser === "firefox"
+													? "No extension yet? In Firefox, open about:debugging, choose This Firefox, then Load Temporary Add-on and pick the Firefox file from the Handoff download. Firefox removes it when it restarts."
+													: `No extension yet? Open ${browser ? names[browser.browser] : "your browser"}'s extensions page, turn on Developer mode, choose Load unpacked and pick the Handoff Extension folder from the download. Then open Handoff from the toolbar.`}
 											</p>
 										)}
 									</div>
@@ -273,6 +279,17 @@ function App() {
 								</button>
 							</section>
 						</div>
+						{browser && (
+							<ProfileMover
+								library={library}
+								selected={selected}
+								browser={browser.browser}
+								browserName={names[browser.browser]}
+								busy={busy}
+								perform={perform}
+								setStatus={setStatus}
+							/>
+						)}
 						{showSafari && (
 							<section className="guide">
 								<h2>Import in Safari</h2>
@@ -290,6 +307,7 @@ function App() {
 								</ol>
 							</section>
 						)}
+						<PasswordGuide destination={browser?.browser ?? "chrome"} />
 						<CopyDiagnosticButton appVersion="1.0.0" library={library} />
 					</>
 				) : (

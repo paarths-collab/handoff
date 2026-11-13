@@ -1,20 +1,18 @@
 {
-  "name": "@tab-mover/desktop",
-  "version": "1.0.0",
-  "type": "module",
-  "private": true,
-  "dependencies": {
-    "react": "latest",
-    "react-dom": "latest",
-    "@tab-mover/core": "workspace:*",
-    "@tab-mover/ui": "workspace:*",
-    "@tauri-apps/api": "latest",
-    "@tauri-apps/plugin-dialog": "latest",
-    "@tauri-apps/plugin-fs": "latest",
-    "@tauri-apps/plugin-opener": "latest"
-  },
-  "scripts": {
-    "build": "vite build",
-    "dev": "vite"
-  }
+	"name": "@handoff/desktop",
+	"version": "1.0.0",
+	"type": "module",
+	"private": true,
+	"dependencies": {
+		"react": "19.3.1",
+		"react-dom": "19.3.1",
+		"@handoff/core": "workspace:*",
+		"@handoff/ui": "workspace:*",
+		"@tauri-apps/api": "2.12.4"
+	},
+	"scripts": {
+		"build": "vite build",
+		"dev": "vite",
+		"bundle:mac": "RUSTFLAGS=\"--remap-path-prefix=$HOME=/build-home --remap-path-prefix=$(cd ../.. && pwd)=/build\" tauri build --target universal-apple-darwin --bundles app"
+	}
 }

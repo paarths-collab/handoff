@@ -2,15 +2,15 @@ import { restoreOwnership } from "./ownership";
 import { api } from "./api";
 import type { ImportResult } from "./executor";
 
-const key = "tabMoverLastImport";
+const key = "handoffLastImport";
 export async function sessionToken(
 	create = false,
 ): Promise<string | undefined> {
-	const { tabMoverSession } = await api.storage.session.get("tabMoverSession");
-	if (typeof tabMoverSession === "string") return tabMoverSession;
+	const { handoffSession } = await api.storage.session.get("handoffSession");
+	if (typeof handoffSession === "string") return handoffSession;
 	if (!create) return;
 	const token = crypto.randomUUID();
-	await api.storage.session.set({ tabMoverSession: token });
+	await api.storage.session.set({ handoffSession: token });
 	return token;
 }
 export async function saveResult(result: ImportResult) {
@@ -25,7 +25,7 @@ export async function lastResult(): Promise<ImportResult | undefined> {
 }
 export function exclusive(action: () => Promise<void>) {
 	return navigator.locks.request(
-		"tab-mover-import",
+		"handoff-import",
 		{ ifAvailable: true },
 		async (lock) => {
 			if (!lock)

@@ -20,7 +20,9 @@ it("finishes Undo when the user already deleted one owned bookmark and folder", 
 	vi.mocked(api.bookmarks.getChildren).mockRejectedValue(Error("missing"));
 	vi.mocked(
 		api.bookmarks.getTree as () => Promise<chrome.bookmarks.BookmarkTreeNode[]>,
-	).mockResolvedValue([{ id: "root", syncing: false, title: "", children: [] }]);
+	).mockResolvedValue([
+		{ id: "root", syncing: false, title: "", children: [] },
+	]);
 	await undoOwned(r, "session", undoAdapter);
 	expect(r.undone).toBe(true);
 	expect(r.created.bookmarks).toEqual([]);
@@ -33,7 +35,12 @@ it("preserves an existing ID for retry after a genuine removal failure", async (
 	vi.mocked(
 		api.bookmarks.getTree as () => Promise<chrome.bookmarks.BookmarkTreeNode[]>,
 	).mockResolvedValue([
-		{ id: "root", syncing: false, title: "", children: [{ id: "owned", syncing: false, title: "" }] },
+		{
+			id: "root",
+			syncing: false,
+			title: "",
+			children: [{ id: "owned", syncing: false, title: "" }],
+		},
 	]);
 	await expect(undoAdapter.removeBookmark("owned")).rejects.toThrow("denied");
 });

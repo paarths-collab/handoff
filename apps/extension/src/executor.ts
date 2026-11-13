@@ -3,7 +3,7 @@ import type {
 	ImportPlan,
 	PlannedTab,
 	PlannedWindow,
-} from "@tab-mover/core";
+} from "@handoff/core";
 
 export interface BrowserTabsAdapter {
 	readonly supportsGroups: boolean;

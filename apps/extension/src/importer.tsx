@@ -8,16 +8,18 @@ import {
 	type Library,
 	type ParseError,
 	type Result,
-} from "@tab-mover/core";
+} from "@handoff/core";
 import {
 	CopyDiagnosticButton,
 	FileDrop,
 	OptionsPanel,
+	PasswordGuide,
+	type PasswordDestination,
 	PathHelper,
 	PreviewTree,
 	ProgressView,
 	ResultReport,
-} from "@tab-mover/ui";
+} from "@handoff/ui";
 import { api, isFirefox } from "./api";
 import { adapter } from "./adapter";
 import {
@@ -37,6 +39,15 @@ import {
 	undoOwned,
 } from "./storage";
 
+function destination(): PasswordDestination {
+	if (isFirefox) return "firefox";
+	const ua = navigator.userAgent;
+	if (/\bEdg\//.test(ua)) return "edge";
+	if (/\bOPR\//.test(ua)) return "opera";
+	if (/\bVivaldi\//.test(ua)) return "vivaldi";
+	if ("brave" in navigator) return "brave";
+	return "chrome";
+}
 function download(result: ImportResult) {
 	const href = URL.createObjectURL(
 		new Blob([JSON.stringify(skippedItems(result), null, 2)], {
@@ -45,7 +56,7 @@ function download(result: ImportResult) {
 	);
 	const a = document.createElement("a");
 	a.href = href;
-	a.download = "tab-mover-skipped.json";
+	a.download = "handoff-skipped.json";
 	a.click();
 	setTimeout(() => URL.revokeObjectURL(href), 1000);
 }
@@ -54,6 +65,7 @@ export function Importer({ fragment }: { fragment: string }) {
 	const [options, setOptions] = useState<ImportOptions>();
 	const [notice, setNotice] = useState("");
 	const [mode, setMode] = useState<"tabs" | "bookmarks">("tabs");
+	const [keepBookmarks, setKeepBookmarks] = useState(false);
 	const [previous, setPrevious] = useState<ImportResult>();
 	const [report, setReport] = useState<ImportResult>();
 	const [canUndo, setCanUndo] = useState(false);
@@ -78,8 +90,13 @@ export function Importer({ fragment }: { fragment: string }) {
 			return;
 		}
 		setLibrary(parsed.value);
-		setOptions(defaultOptions(parsed.value));
+		// Without native groups, a pinned group would become its own window.
+		setOptions({
+			...defaultOptions(parsed.value),
+			...(adapter.supportsGroups ? {} : { pinned: "native" as const }),
+		});
 		setMode("tabs");
+		setKeepBookmarks(false);
 		setNotice("");
 	};
 	useEffect(() => {
@@ -141,7 +158,7 @@ export function Importer({ fragment }: { fragment: string }) {
 				const onProgress = (done: number, total: number) =>
 					setProgress({ done, total });
 				onProgress(0, plan.totals.tabs);
-				if (mode === "tabs")
+				if (mode === "tabs") {
 					await executePlan(plan, journaledAdapter(result.importId), {
 						batchSize: 10,
 						signal: abort.signal,
@@ -149,7 +166,24 @@ export function Importer({ fragment }: { fragment: string }) {
 						save: saveResult,
 						onProgress,
 					});
-				else
+					if (keepBookmarks && !abort.signal.aborted)
+						try {
+							await moveBookmarks(
+								library,
+								options,
+								result,
+								abort.signal,
+								saveResult,
+								onProgress,
+								true,
+							);
+						} catch {
+							result.notes.push(
+								"The bookmarks copy could not be saved. The tabs are still open.",
+							);
+							await saveResult(result);
+						}
+				} else
 					await moveBookmarks(
 						library,
 						options,
@@ -216,7 +250,7 @@ export function Importer({ fragment }: { fragment: string }) {
 		<main className="importer">
 			<header className="masthead">
 				<span className="tab-icon" aria-hidden="true" />
-				Tab Mover
+				Handoff
 			</header>
 			<h1>Move your sidebar</h1>
 			<p>Preview your Spaces, then choose what to bring into this browser.</p>
@@ -303,13 +337,27 @@ export function Importer({ fragment }: { fragment: string }) {
 						<label>
 							<input
 								type="checkbox"
+								checked={mode === "tabs" && keepBookmarks}
+								disabled={mode === "bookmarks"}
+								onChange={async (e) => {
+									if (!e.target.checked) setKeepBookmarks(false);
+									else if (await permission("bookmarks"))
+										setKeepBookmarks(true);
+								}}
+							/>{" "}
+							Also keep a bookmarks copy with nested folders (stays after you
+							close the tabs)
+						</label>
+						<label>
+							<input
+								type="checkbox"
 								checked={mode === "bookmarks"}
 								onChange={async (e) => {
 									if (!e.target.checked) setMode("tabs");
 									else if (await permission("bookmarks")) setMode("bookmarks");
 								}}
 							/>{" "}
-							Save as bookmark folders
+							Bookmarks only (don't open tabs)
 						</label>
 					</div>
 					<div className="actions">
@@ -351,6 +399,7 @@ export function Importer({ fragment }: { fragment: string }) {
 							<CopyDiagnosticButton library={library} appVersion="1.0.0" />
 						)}
 					</div>
+					<PasswordGuide destination={destination()} />
 				</>
 			)}
 		</main>

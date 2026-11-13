@@ -1,4 +1,4 @@
-# Tab Mover threat model
+# Handoff threat model
 
 Private URLs can carry document identifiers and access tokens. Protect titles, sidebar structure, existing tabs and local files. Inputs may come from another person, a damaged export or a local process. Dependency and download tampering are in scope. A compromised operating system or browser account is outside the trust boundary.
 
@@ -10,6 +10,7 @@ Private URLs can carry document identifiers and access tokens. Protect titles, s
 | Browser tabs and Undo | Allow absolute HTTP(S) at execution. Ask for optional permissions on use. Serialize operations and record current-session owned tab IDs. Preserve user additions to windows. | Extension A6–A10 | 2,5,10 |
 | Web preview and exports | Render text nodes, escape attributes, allowlist archive links, escape less-than in embedded JSON. Enforce CSP and guard CSV cells from formula execution. | Core A5, UI B2 | 1,2,6,9,10 |
 | Desktop IPC | Native grants for exact discovered or picked canonical regular files. Bound reads. Use save picker. Exclude credential stores. Launch only detected executables with one validated argument. | Desktop C1–C3 | 1,4,9,11 |
+| Desktop profile launcher | Chromium browsers only. Read only `profile.info_cache` directory names, profile labels and the account first name Chrome shows in its own profile menu from `Local State`, with a 16 MiB cap; ignore every other field. Accept a profile only if the browser lists it at launch time and its folder name is `[A-Za-z0-9 _-]`, with no leading dash or dot. Pass `--profile-directory`, `--new-window`, then the `--` switch terminator so no later argument can become a switch. Accept up to 500 URLs per launch, each `http(s)://`, under 8 KiB, without whitespace or control characters; zero URLs opens a blank window so the user can identify a profile. Open only after the user's click. When macOS blocks reading `Local State`, probe only whether `Default` and `Profile 1`–`Profile 200` exist (no reads); user-typed labels stay in the app's local storage. The Settings shortcut opens one fixed `x-apple.systempreferences` address. | Desktop, Security | 1,4,9,10,11 |
 | Diagnostics and publication | Emit counts and fixed vocabulary. Use synthetic records for screenshots and traces. Check fixtures and archives for private data. Use original artwork. | Core A2/A5, site B3–B5, launch D1/D2 | 1,4,7,8 |
 | Dependencies and downloads | Pin lockfiles, allowlist build scripts, audit licenses and vulnerabilities. Inspect manifests, archives and release provenance. Label unsigned builds. | Astra A0/A12/C4/C5, Security | 1,5,7,8 |
 

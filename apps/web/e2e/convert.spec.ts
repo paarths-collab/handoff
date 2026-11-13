@@ -29,7 +29,7 @@ test("offline converter previews a sidebar and downloads all four formats", asyn
 	for (const [title, filename, text] of [
 		["Bookmarks", "bookmarks.html", "NETSCAPE-Bookmark-file-1"],
 		["Arc Archive", "archive.html", "<html"],
-		["Tab Mover pack", "tab-mover-pack.json", "tab-mover-pack"],
+		["Handoff pack", "handoff-pack.json", "handoff-pack"],
 		["Spreadsheet", "tabs.csv", "folder_path"],
 	]) {
 		const done = page.waitForEvent("download");
@@ -99,13 +99,11 @@ test("a large preview supports keyboard selection and virtual navigation", async
 	for (let n = 0; n < 1500; n++)
 		data.items.push({ ...tab, id: "virtual-" + n, title: "Virtual tab " + n });
 	await page.goto("/convert.html");
-	await page
-		.getByLabel("Choose a file")
-		.setInputFiles({
-			name: "large.json",
-			mimeType: "application/json",
-			buffer: Buffer.from(JSON.stringify(sidebar)),
-		});
+	await page.getByLabel("Choose a file").setInputFiles({
+		name: "large.json",
+		mimeType: "application/json",
+		buffer: Buffer.from(JSON.stringify(sidebar)),
+	});
 	const tree = page.getByRole("tree");
 	await tree.focus();
 	expect(await page.getByRole("treeitem").count()).toBeLessThan(100);
