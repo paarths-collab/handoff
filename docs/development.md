@@ -66,7 +66,7 @@ flowchart LR
 ```
 
 - Every third-party GitHub Action is pinned to a commit SHA, and Rust to a fixed version. The only job that can write to the repository runs no third-party Actions.
-- **To release:** bump the version in the root, desktop and extension `package.json`, `tauri.conf.json`, `Cargo.toml` and `Cargo.lock`. Commit, tag (`vX.Y.Z`) and push the tag. Run **Actions → Draft desktop release** with that tag. Review the draft, then publish it.
+- **To release:** on an up-to-date `main` with no uncommitted changes, run `pnpm release patch` (or `minor`, `major`, or an exact version like `1.2.3`). It updates the version in all 9 places, commits, tags `vX.Y.Z`, pushes and starts **Draft desktop release**. When the draft is ready, add notes and publish it. Use `pnpm release patch --dry-run` to see the changes first (`git checkout .` undoes them).
 - To build a Windows download yourself on Windows x64 (Rust MSVC, Visual Studio C++ Build Tools): `pnpm install --frozen-lockfile` then `pnpm package:windows`.
 - Builds use ad hoc macOS signing; Apple notarization and Windows code signing are not configured yet.
 

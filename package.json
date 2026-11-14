@@ -19,7 +19,8 @@
     "format": "biome format --write apps packages scripts",
     "format:check": "biome format apps packages scripts",
     "package:windows": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/package-windows.ps1",
-    "check-workflows": "tsx scripts/check-workflows.ts"
+    "check-workflows": "tsx scripts/check-workflows.ts",
+    "release": "tsx scripts/release.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.6",
