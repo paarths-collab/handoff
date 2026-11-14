@@ -39,7 +39,13 @@ Opening tabs contacts those websites through your browser.
     New-Item 'release' -ItemType Directory -Force | Out-Null
     $out = Join-Path $root "release/handoff-$version-windows-x64.zip"
     Compress-Archive -Path (Join-Path $stage '*') -DestinationPath $out -Force
-    Get-FileHash $out -Algorithm SHA256 | Format-List
+    # .NET hashing works even when Windows PowerShell inherits PowerShell 7's module path
+    # and cannot load Get-FileHash, as on GitHub's Windows runners.
+    $sha = [Security.Cryptography.SHA256]::Create()
+    $file = [IO.File]::OpenRead($out)
+    try { $hash = [BitConverter]::ToString($sha.ComputeHash($file)).Replace('-', '') }
+    finally { $file.Dispose(); $sha.Dispose() }
+    Write-Output "SHA256: $hash"
     Write-Output $out
 } finally {
     if ($stage -and (Test-Path $stage)) { Remove-Item $stage -Recurse -Force }
