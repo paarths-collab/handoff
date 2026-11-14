@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security problem
+    url: https://github.com/paarths-collab/handoff/security/advisories/new
+    about: Please report vulnerabilities privately, not as a public issue.
+  - name: Install help and guides
+    url: https://github.com/paarths-collab/handoff#install
+    about: Steps for the Mac one-line install, the Mac disk image and Windows.

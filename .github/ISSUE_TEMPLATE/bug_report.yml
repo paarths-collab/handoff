@@ -1,0 +1,97 @@
+name: Bug report
+description: Something in Handoff didn't work as expected.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Please **don't attach your real sidebar file, exports, passwords or private links** — describe the problem instead, or use invented titles and links.
+        For a security problem, use **Security → Report a vulnerability** instead of an issue.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Describe the problem and what you expected instead.
+      placeholder: When I click "Open 12 tabs in 2 profiles", only one window opens…
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open Handoff
+        2. Click Send to browser
+        3. Choose Chrome and a profile for each Space
+        4. …
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Handoff version
+      description: Shown on the release you installed, for example 1.0.2.
+      placeholder: "1.0.2"
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Your computer
+      options:
+        - Mac (Apple Silicon)
+        - Mac (Intel)
+        - Windows
+    validations:
+      required: true
+  - type: dropdown
+    id: installed-with
+    attributes:
+      label: How did you install Handoff?
+      options:
+        - One-line Terminal install (Mac)
+        - Mac disk image (.dmg)
+        - Windows installer (.zip)
+        - Built from source
+    validations:
+      required: true
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Destination browser
+      multiple: true
+      options:
+        - Chrome
+        - Brave
+        - Edge
+        - Vivaldi
+        - Opera
+        - Firefox
+        - Safari
+        - Not related to a browser
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which part?
+      options:
+        - Installing or opening Handoff
+        - Finding or reading the Arc file
+        - Preview of Spaces and tabs
+        - Opening in browser profiles
+        - Extension (tab groups, Undo)
+        - Bookmarks, archive or CSV export
+        - Recovering archived tabs
+        - Password guide
+        - Something else
+  - type: textarea
+    id: diagnostic
+    attributes:
+      label: Diagnostic (optional)
+      description: In Handoff, open Send to browser and click **Copy diagnostic** at the bottom, then paste it here. It contains only counts, never your titles or links.
+      render: text
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots (optional)
+      description: Drag images here. Hide or blur personal tab titles, emails and links first.

@@ -9,7 +9,7 @@
 Bring your Spaces, pinned tabs and folders from Arc to Chrome, Brave, Edge, Vivaldi, Opera, Firefox or Safari.
 Everything happens on your computer. No account, no upload.
 
-[**Website**](https://um2.us/q/nCuQnjWlY) · [**Download**](https://github.com/paarths-collab/handoff/releases/latest) · [What moves](#what-moves-with-you) · [Privacy](#your-data-stays-on-your-computer) · [For developers](#for-developers)
+[**Website**](https://um2.us/q/nCuQnjWlY) · [**Download**](https://github.com/paarths-collab/handoff/releases/latest) · [What moves](#what-moves-with-you) · [Privacy](#your-data-stays-on-your-computer) · [Report a problem](#found-a-problem) · [For developers](#for-developers)
 
 [![Latest release](https://img.shields.io/github/v/release/paarths-collab/handoff?label=release)](https://github.com/paarths-collab/handoff/releases/latest)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
@@ -158,7 +158,18 @@ flowchart LR
 
 **Can I undo a move?** With the extension, yes — **Undo** removes the tabs and bookmarks that move created, in the same browser session. Tabs opened in profiles are ordinary tabs you can close.
 
-**Something went wrong.** Use **Copy diagnostic** at the bottom of the Send to browser screen and include it in an [issue](https://github.com/paarths-collab/handoff/issues). It contains only counts, never your titles or links.
+## Found a problem?
+
+Please [open an issue](https://github.com/paarths-collab/handoff/issues/new/choose) — it takes a minute and helps everyone:
+
+1. Go to the **Issues** tab and click **New issue**.
+2. Choose **Bug report** (or **Feature request** for an idea).
+3. Describe **what happened**, **what you expected** and the **steps** that led there.
+4. Add your Handoff version, your computer (Mac or Windows) and the browser you were moving to.
+5. Optional but very helpful: in Handoff, open **Send to browser** and click **Copy diagnostic** at the bottom, then paste it in. It contains only counts — never your titles or links.
+
+> [!IMPORTANT]
+> Don't attach your real Arc sidebar file, exports, passwords or private links, and blur personal tab titles in screenshots. For a **security** problem, use **Security → Report a vulnerability** instead of a public issue ([details](SECURITY.md)).
 
 ---
 

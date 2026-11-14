@@ -1,0 +1,34 @@
+name: Feature request
+description: Suggest something Handoff should do.
+title: "[Idea]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do?
+      description: Describe the problem or situation, not just the solution.
+      placeholder: I move between two Macs and want…
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would help?
+      placeholder: A button that…
+    validations:
+      required: true
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Browser it's about
+      multiple: true
+      options:
+        - Chrome
+        - Brave
+        - Edge
+        - Vivaldi
+        - Opera
+        - Firefox
+        - Safari
+        - Any browser
