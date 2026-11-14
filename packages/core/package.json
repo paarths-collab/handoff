@@ -1,6 +1,7 @@
 {
 	"name": "@handoff/core",
 	"version": "1.0.0",
+	"license": "MIT",
 	"type": "module",
 	"private": true,
 	"exports": "./src/index.ts"
