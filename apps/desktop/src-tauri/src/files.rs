@@ -220,21 +220,124 @@ pub async fn save_archive(app: AppHandle, html: String, pack: String) -> Result<
         return Ok(false);
     };
     let dir = folder.into_path().map_err(|_| "Choose a local folder.")?;
-    // A unique child directory preserves earlier exports and leaves existing files alone.
+    // Record the folder's real location now, so a later swap can be detected.
+    let picked = fs::canonicalize(&dir).map_err(|_| "Choose a local folder.")?;
+    create_archive(&dir, &picked, html.as_bytes(), pack.as_bytes())
+        .map(|_| true)
+        .map_err(|_| "Could not save the archive.".into())
+}
+
+/// Creates a unique "Arc Archive" child of `dir` holding archive.html and pack.json, and
+/// leaves earlier exports and existing files alone. On Unix every step goes through one
+/// handle to the chosen folder, so a symlink or swapped folder cannot redirect the writes.
+#[cfg(unix)]
+fn create_archive(dir: &Path, picked: &Path, html: &[u8], pack: &[u8]) -> std::io::Result<PathBuf> {
+    use std::{
+        ffi::CString,
+        io::{Error, ErrorKind},
+        os::unix::{
+            ffi::OsStrExt,
+            io::{AsRawFd, FromRawFd, OwnedFd},
+        },
+    };
+    let c = |bytes: &[u8]| CString::new(bytes).map_err(|_| Error::from(ErrorKind::InvalidInput));
+    let dir_flags = libc::O_RDONLY | libc::O_DIRECTORY | libc::O_NOFOLLOW | libc::O_CLOEXEC;
+    let fd = |raw: libc::c_int| {
+        if raw < 0 {
+            Err(Error::last_os_error())
+        } else {
+            // SAFETY: a non-negative descriptor was just returned to us and is owned here.
+            Ok(unsafe { OwnedFd::from_raw_fd(raw) })
+        }
+    };
+    // SAFETY: the path is a valid NUL-terminated C string for the duration of the call.
+    let parent = fd(unsafe { libc::open(c(dir.as_os_str().as_bytes())?.as_ptr(), dir_flags) })?;
+    #[cfg(target_os = "macos")]
+    {
+        // The opened folder must still be the one the user picked.
+        let mut buf = vec![0u8; libc::PATH_MAX as usize];
+        // SAFETY: F_GETPATH writes at most PATH_MAX bytes into the buffer.
+        if unsafe { libc::fcntl(parent.as_raw_fd(), libc::F_GETPATH, buf.as_mut_ptr()) } < 0 {
+            return Err(Error::last_os_error());
+        }
+        let end = buf.iter().position(|&b| b == 0).unwrap_or(buf.len());
+        if std::ffi::OsStr::from_bytes(&buf[..end]) != picked.as_os_str() {
+            return Err(Error::other("The chosen folder changed."));
+        }
+    }
+    #[cfg(not(target_os = "macos"))]
+    let _ = picked;
+    let write = |dir: &OwnedFd, name: &[u8], bytes: &[u8]| -> std::io::Result<()> {
+        let flags =
+            libc::O_WRONLY | libc::O_CREAT | libc::O_EXCL | libc::O_NOFOLLOW | libc::O_CLOEXEC;
+        // SAFETY: valid directory descriptor and NUL-terminated name.
+        let file = fd(unsafe {
+            libc::openat(
+                dir.as_raw_fd(),
+                c(name)?.as_ptr(),
+                flags,
+                0o644 as libc::c_uint,
+            )
+        })?;
+        let mut file = File::from(file);
+        file.write_all(bytes)?;
+        file.sync_all()
+    };
+    use std::hash::{BuildHasher, Hasher};
+    let mut seed = std::collections::hash_map::RandomState::new().build_hasher();
+    for attempt in 0..64u64 {
+        seed.write_u64(attempt);
+        let name = format!("Arc Archive {:012x}", seed.finish() & 0xffff_ffff_ffff);
+        let cname = c(name.as_bytes())?;
+        // SAFETY: valid directory descriptor and NUL-terminated name.
+        if unsafe { libc::mkdirat(parent.as_raw_fd(), cname.as_ptr(), 0o755 as libc::mode_t) } != 0
+        {
+            let error = Error::last_os_error();
+            if error.kind() == ErrorKind::AlreadyExists {
+                continue;
+            }
+            return Err(error);
+        }
+        // SAFETY: valid directory descriptor and NUL-terminated name.
+        let child = fd(unsafe { libc::openat(parent.as_raw_fd(), cname.as_ptr(), dir_flags) })?;
+        let written =
+            write(&child, b"archive.html", html).and_then(|()| write(&child, b"pack.json", pack));
+        if let Err(error) = written {
+            // Remove the partial archive; every name is relative to our own handles.
+            for file in [&b"archive.html"[..], b"pack.json"] {
+                if let Ok(file) = c(file) {
+                    // SAFETY: valid directory descriptor and NUL-terminated name.
+                    unsafe { libc::unlinkat(child.as_raw_fd(), file.as_ptr(), 0) };
+                }
+            }
+            // SAFETY: valid directory descriptor and NUL-terminated name.
+            unsafe { libc::unlinkat(parent.as_raw_fd(), cname.as_ptr(), libc::AT_REMOVEDIR) };
+            return Err(error);
+        }
+        return Ok(dir.join(name));
+    }
+    Err(ErrorKind::AlreadyExists.into())
+}
+
+/// Windows has no descriptor-relative creation here; picker paths are used directly.
+#[cfg(not(unix))]
+fn create_archive(
+    dir: &Path,
+    _picked: &Path,
+    html: &[u8],
+    pack: &[u8],
+) -> std::io::Result<PathBuf> {
     let tmp = tempfile::Builder::new()
         .prefix("Arc Archive ")
-        .tempdir_in(dir)
-        .map_err(|_| "Could not create the archive folder.")?;
+        .tempdir_in(dir)?;
     fn write(path: PathBuf, bytes: &[u8]) -> std::io::Result<()> {
         let mut file = File::create_new(path)?;
         file.write_all(bytes)?;
         file.sync_all()
     }
-    write(tmp.path().join("archive.html"), html.as_bytes())
-        .and_then(|()| write(tmp.path().join("pack.json"), pack.as_bytes()))
-        .map_err(|_| "Could not save the archive.")?;
-    let _ = tmp.keep();
-    Ok(true)
+    write(tmp.path().join("archive.html"), html)?;
+    write(tmp.path().join("pack.json"), pack)?;
+    Ok(tmp.keep())
 }
 #[cfg(test)]
 mod tests {
@@ -339,6 +442,47 @@ mod tests {
         grants.0.lock().unwrap().insert(dir.clone());
         assert!(read_allowed(&dir, &grants).is_err());
     }
+    #[test]
+    #[cfg(unix)]
+    fn archive_is_created_inside_the_picked_folder() {
+        let root = tempfile::tempdir().unwrap();
+        let picked = root.path().canonicalize().unwrap().join("picked");
+        fs::create_dir(&picked).unwrap();
+        let out = create_archive(&picked, &picked, b"<html>", b"{}").unwrap();
+        assert_eq!(out.parent(), Some(picked.as_path()));
+        assert_eq!(fs::read(out.join("archive.html")).unwrap(), b"<html>");
+        assert_eq!(fs::read(out.join("pack.json")).unwrap(), b"{}");
+        let again = create_archive(&picked, &picked, b"2", b"2").unwrap();
+        assert_ne!(again, out);
+    }
+    #[test]
+    #[cfg(unix)]
+    fn attack_archive_folder_swapped_for_symlink_is_not_followed() {
+        let root = tempfile::tempdir().unwrap();
+        let root = root.path().canonicalize().unwrap();
+        let (picked, protected) = (root.join("picked"), root.join("protected"));
+        fs::create_dir(&picked).unwrap();
+        fs::create_dir(&protected).unwrap();
+        fs::remove_dir(&picked).unwrap();
+        std::os::unix::fs::symlink(&protected, &picked).unwrap();
+        assert!(create_archive(&picked, &picked, b"x", b"y").is_err());
+        assert_eq!(fs::read_dir(&protected).unwrap().count(), 0);
+    }
+    #[test]
+    #[cfg(target_os = "macos")]
+    fn attack_archive_parent_swapped_for_symlink_is_detected() {
+        let root = tempfile::tempdir().unwrap();
+        let root = root.path().canonicalize().unwrap();
+        let picked = root.join("a").join("picked");
+        fs::create_dir_all(&picked).unwrap();
+        let protected = root.join("b").join("picked");
+        fs::create_dir_all(&protected).unwrap();
+        fs::rename(root.join("a"), root.join("a-old")).unwrap();
+        std::os::unix::fs::symlink(root.join("b"), root.join("a")).unwrap();
+        assert!(create_archive(&picked, &picked, b"x", b"y").is_err());
+        assert_eq!(fs::read_dir(&protected).unwrap().count(), 0);
+    }
+
     #[test]
     fn attack_oversized_and_non_utf8_files_are_rejected() {
         let temp = tempfile::tempdir().unwrap();
