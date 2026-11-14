@@ -108,9 +108,16 @@ async function setup(page: Page, named = true) {
 		.getByRole("button", { name: "Preview sidebar", exact: true })
 		.click();
 	await expect(page.locator(".ws-totals")).toContainText("3 tabs");
+	// The main action after the preview, as in the product film.
 	await page
-		.getByRole("button", { name: "Migration tools", exact: true })
+		.getByRole("button", { name: "Send to browser", exact: true })
 		.click();
+	await expect(
+		page.getByRole("heading", { name: "Send to browser" }),
+	).toBeVisible();
+	await expect(
+		page.getByRole("radio", { name: "Chrome", checked: true }),
+	).toBeVisible();
 	return actions;
 }
 
@@ -131,6 +138,7 @@ test("desktop UI previews a discovered sidebar, saves exports and hands off a pa
 	await expect(
 		page.getByRole("status", { name: "File operation" }),
 	).toContainText("Spreadsheet saved");
+	await page.getByText("Tab groups with the Handoff extension").click();
 	await page.getByRole("button", { name: "Save browser pack" }).click();
 	await expect.poll(() => actions.at(-1)?.command).toBe("open_in_browser");
 	expect(actions.at(-1)?.args).toEqual({
@@ -245,11 +253,16 @@ test("desktop recovery uses the native archive picker and exports the included t
 	await expect(recovery.getByRole("status")).toContainText(
 		"2 recoverable tabs",
 	);
-	await expect(page.locator(".ws-totals")).toContainText("3 tabs");
 	await recovery
 		.getByRole("button", { name: "Add recovered tabs to preview" })
 		.click();
+	// The preview, one step back, now counts the recovered tabs.
+	await page.getByRole("button", { name: "← Back to preview" }).click();
 	await expect(page.locator(".ws-totals")).toContainText("5 tabs");
+	await page
+		.getByRole("button", { name: "Send to browser", exact: true })
+		.click();
+	await page.getByText("Tab groups with the Handoff extension").click();
 	await page.getByRole("button", { name: "Save browser pack" }).click();
 	const pack = actions.find(
 		(action) =>

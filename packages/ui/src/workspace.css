@@ -464,17 +464,76 @@ body {
 	padding: 15px 30px;
 	margin: 0;
 }
-.desktop-tools {
-	padding: 30px;
-	border-top: 1px solid #333;
+/* Send to browser: the steps after the preview, in the order the film shows. */
+.desktop-send {
+	display: grid;
+	gap: 22px;
+	max-width: 860px;
+	margin: 0 auto;
+	padding: 28px 30px 40px;
 }
-.desktop-tools-heading {
+.desktop-send-heading h2 {
+	margin: 14px 0 6px;
+	font-size: 30px;
+	letter-spacing: -0.03em;
+}
+.desktop-send-heading p {
+	margin: 0;
+	color: #aaa;
+}
+.desktop-back {
+	padding: 8px 12px;
+	background: #111;
+	color: #ccc;
+	border: 1px solid #333;
+	border-radius: 10px;
+	font-size: 13px;
+}
+.desktop-back:hover:not(:disabled) {
+	color: #fff;
+	background: #1b1b1b;
+}
+.desktop-step h3 {
+	margin: 0 0 12px;
+	color: #aaa;
+	font-size: 13px;
+	font-weight: 500;
+}
+.browser-tiles {
 	display: flex;
-	align-items: center;
-	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 10px;
 }
-.desktop-tools-heading h2 {
-	font-size: 22px;
+.browser-tiles button {
+	min-width: 120px;
+	padding: 14px 18px;
+	background: #111;
+	color: #eee;
+	border: 1px solid #333;
+	border-radius: 12px;
+	font-size: 15px;
+	text-align: left;
+}
+.browser-tiles button:hover:not(:disabled) {
+	background: #1b1b1b;
+}
+.browser-tiles button[aria-checked="true"] {
+	background: #0b2147;
+	border-color: #1489fc;
+	box-shadow: 0 0 0 1px #1489fc;
+	color: #fff;
+}
+.desktop-more {
+	padding: 16px 18px;
+	border: 1px solid #333;
+	border-radius: 14px;
+}
+.desktop-more summary {
+	cursor: pointer;
+	font-weight: 600;
+}
+.desktop-more p {
+	color: #aaa;
 }
 .ws-space-content .tm-counts,
 .ws-space-content .tm-tree-tools {
@@ -519,4 +578,20 @@ body {
 }
 .ws-found button > small {
 	flex-shrink: 0;
+}
+.desktop-send .export-grid {
+	grid-template-columns: 1fr;
+}
+/* Archive recovery is a plain section here, not a collapsible help box. */
+.desktop-send section.tm-help {
+	margin: 0;
+	padding: 16px 18px;
+}
+.desktop-send section.tm-help > * {
+	margin: 0 0 10px;
+	padding: 0;
+}
+.desktop-send section.tm-help h2 {
+	color: var(--tm-ink);
+	font-size: 1rem;
 }

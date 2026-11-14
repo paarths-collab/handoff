@@ -57,7 +57,8 @@ function App() {
 	const [showSafari, setShowSafari] = useState(false);
 	const [expanded, setExpanded] = useState(false);
 	const [format, setFormat] = useState<ExportFormat>("bookmarks");
-	const [showTools, setShowTools] = useState(false);
+	// After the preview, Send to browser opens the next steps, in the order the film shows.
+	const [sending, setSending] = useState(false);
 	useEffect(() => {
 		if (!isTauri()) return;
 		const window = getCurrentWindow();
@@ -120,6 +121,7 @@ function App() {
 		setSourcePath(file.path);
 		setSavedPack(false);
 		setShowSafari(false);
+		setSending(false);
 	}
 
 	async function save(kind: "bookmarks" | "csv" | "archive" | "pack") {
@@ -172,56 +174,212 @@ function App() {
 	}
 	return (
 		<div className="desktop-shell">
-			<DesktopWorkspace
-				key={library?.source.sourceHash ?? "empty"}
-				library={library}
-				source={source}
-				sourceDetails={sourcePath}
-				selected={selected}
-				onSelection={setSelected}
-				expanded={expanded}
-				onToggle={() => setExpanded((value) => !value)}
-				format={format}
-				onFormat={setFormat}
-				onPick={() => perform(chooseFile)}
-				onExport={() => perform(() => save(format))}
-				busy={busy}
-				onTools={() => setShowTools((value) => !value)}
-				candidates={found.map((file) => (
-					<button
-						type="button"
-						key={file.path}
-						disabled={busy}
-						onClick={() => perform(() => load(file))}
-					>
-						<span>
-							<strong>{filename(file)}</strong>
-							<span className="ws-candidate-path">{file.path}</span>
-						</span>
-						<small>{Math.ceil(file.size / 1024).toLocaleString()} KB</small>
-					</button>
-				))}
-				help={
-					<PathHelper
-						platform={
-							/Mac/.test(navigator.platform)
-								? "macos"
-								: /Win/.test(navigator.platform)
-									? "windows"
-									: "unknown"
-						}
-					/>
-				}
-			/>
-			{library && showTools && (
-				<section className="desktop-tools" aria-label="Migration tools">
-					<div className="desktop-tools-heading">
-						<h2>Migration tools</h2>
-						<button type="button" onClick={() => setShowTools(false)}>
-							Close tools
+			{!(library && sending) && (
+				<DesktopWorkspace
+					key={library?.source.sourceHash ?? "empty"}
+					library={library}
+					source={source}
+					sourceDetails={sourcePath}
+					selected={selected}
+					onSelection={setSelected}
+					expanded={expanded}
+					onToggle={() => setExpanded((value) => !value)}
+					format={format}
+					onFormat={setFormat}
+					onPick={() => perform(chooseFile)}
+					onExport={() => perform(() => save(format))}
+					busy={busy}
+					primary={{
+						label: "Send to browser",
+						onClick: () => {
+							setSending(true);
+							setExpanded(true);
+						},
+					}}
+					candidates={found.map((file) => (
+						<button
+							type="button"
+							key={file.path}
+							disabled={busy}
+							onClick={() => perform(() => load(file))}
+						>
+							<span>
+								<strong>{filename(file)}</strong>
+								<span className="ws-candidate-path">{file.path}</span>
+							</span>
+							<small>{Math.ceil(file.size / 1024).toLocaleString()} KB</small>
 						</button>
+					))}
+					help={
+						<PathHelper
+							platform={
+								/Mac/.test(navigator.platform)
+									? "macos"
+									: /Win/.test(navigator.platform)
+										? "windows"
+										: "unknown"
+							}
+						/>
+					}
+				/>
+			)}
+			{library && sending && (
+				<section className="desktop-send" aria-labelledby="send-heading">
+					<div className="desktop-send-heading">
+						<button
+							type="button"
+							className="desktop-back"
+							disabled={busy}
+							onClick={() => setSending(false)}
+						>
+							← Back to preview
+						</button>
+						<h2 id="send-heading">Send to browser</h2>
+						<p>
+							{selected.size} {selected.size === 1 ? "Space" : "Spaces"}{" "}
+							selected. Choose a browser, then a profile for each Space.
+						</p>
 					</div>
-
+					<section className="desktop-step" aria-labelledby="browser-heading">
+						<h3 id="browser-heading">Destination browser</h3>
+						{browsers.length > 0 ? (
+							<div
+								className="browser-tiles"
+								role="radiogroup"
+								aria-labelledby="browser-heading"
+							>
+								{browsers.map(({ browser: b }) => (
+									<button
+										key={b}
+										type="button"
+										role="radio"
+										aria-checked={b === target}
+										disabled={busy}
+										onClick={() => {
+											setTarget(b);
+											setSavedPack(false);
+										}}
+									>
+										{names[b]}
+									</button>
+								))}
+							</div>
+						) : (
+							<p>
+								No supported browser was found. Save bookmarks below instead.
+							</p>
+						)}
+					</section>
+					{browser && (
+						<ProfileMover
+							library={library}
+							selected={selected}
+							browser={browser.browser}
+							browserName={names[browser.browser]}
+							busy={busy}
+							perform={perform}
+							setStatus={setStatus}
+						/>
+					)}
+					<section className="desktop-step export-grid">
+						<section>
+							<h2>Keep every folder</h2>
+							<button
+								className="file-button"
+								disabled={busy}
+								onClick={() => perform(() => save("bookmarks"))}
+							>
+								<strong>Safari bookmarks</strong>
+								<small>Selected Spaces and Favorites · HTML</small>
+							</button>
+							<button
+								className="file-button"
+								disabled={busy}
+								onClick={() => perform(() => save("archive"))}
+							>
+								<strong>Arc Archive</strong>
+								<small>Full searchable library · HTML and JSON</small>
+							</button>
+							<button
+								className="file-button"
+								disabled={busy}
+								onClick={() => perform(() => save("csv"))}
+							>
+								<strong>Spreadsheet</strong>
+								<small>All tabs and folder paths · CSV</small>
+							</button>
+						</section>
+					</section>
+					{showSafari && (
+						<section className="guide">
+							<h2>Import in Safari</h2>
+							<ol>
+								<li>
+									Open Safari and choose File → Import Browsing Data from File
+									or Folder. In older versions choose File → Import From →
+									Bookmarks HTML File.
+								</li>
+								<li>
+									Select your saved bookmarks HTML file and confirm the import.
+								</li>
+								<li>Open Bookmarks and expand an imported Space.</li>
+							</ol>
+						</section>
+					)}
+					<details className="desktop-more">
+						<summary>Tab groups with the Handoff extension</summary>
+						<p>
+							Opening in profiles makes plain tabs. For tab groups, save a pack
+							and open it in the Handoff extension.
+						</p>
+						<button
+							className="primary"
+							disabled={busy}
+							onClick={() => perform(() => save("pack"))}
+						>
+							Save browser pack
+						</button>
+						{savedPack && (
+							<div className="handoff">
+								{browser?.importer_available && (
+									<button
+										disabled={busy}
+										onClick={() =>
+											perform(() =>
+												invoke("open_in_browser", {
+													browser: browser.browser,
+													destination: "importer",
+												}),
+											)
+										}
+									>
+										I already have the extension · Open importer
+									</button>
+								)}
+								{browser?.store_available ? (
+									<button
+										disabled={busy}
+										onClick={() =>
+											perform(() =>
+												invoke("open_in_browser", {
+													browser: browser.browser,
+													destination: "store",
+												}),
+											)
+										}
+									>
+										Install extension
+									</button>
+								) : (
+									<p>
+										{browser?.browser === "firefox"
+											? "No extension yet? In Firefox, open about:debugging, choose This Firefox, then Load Temporary Add-on and pick the Firefox file from the Handoff download. Firefox removes it when it restarts."
+											: `No extension yet? Open ${browser ? names[browser.browser] : "your browser"}'s extensions page, turn on Developer mode, choose Load unpacked and pick the Handoff Extension folder from the download. Then open Handoff from the toolbar.`}
+									</p>
+								)}
+							</div>
+						)}
+					</details>
 					<ArchiveRecovery
 						library={library}
 						onChange={(next) => {
@@ -248,135 +406,6 @@ function App() {
 								: null;
 						}}
 					/>
-					<div className="export-grid">
-						<section>
-							<h2>Send to browser</h2>
-							<p>
-								Save your full library as a pack, then open it in the Handoff
-								extension.
-							</p>
-							{browsers.length > 0 && (
-								<label>
-									Destination browser
-									<select
-										value={target}
-										disabled={busy}
-										onChange={(e) => {
-											setTarget(e.target.value as Browser);
-											setSavedPack(false);
-										}}
-									>
-										{browsers.map(({ browser: b }) => (
-											<option key={b} value={b}>
-												{names[b]}
-											</option>
-										))}
-									</select>
-								</label>
-							)}
-							<button
-								className="primary"
-								disabled={busy}
-								onClick={() => perform(() => save("pack"))}
-							>
-								Save browser pack
-							</button>
-							{savedPack && (
-								<div className="handoff">
-									{browser?.importer_available && (
-										<button
-											disabled={busy}
-											onClick={() =>
-												perform(() =>
-													invoke("open_in_browser", {
-														browser: browser.browser,
-														destination: "importer",
-													}),
-												)
-											}
-										>
-											I already have the extension · Open importer
-										</button>
-									)}
-									{browser?.store_available ? (
-										<button
-											disabled={busy}
-											onClick={() =>
-												perform(() =>
-													invoke("open_in_browser", {
-														browser: browser.browser,
-														destination: "store",
-													}),
-												)
-											}
-										>
-											Install extension
-										</button>
-									) : (
-										<p>
-											{browser?.browser === "firefox"
-												? "No extension yet? In Firefox, open about:debugging, choose This Firefox, then Load Temporary Add-on and pick the Firefox file from the Handoff download. Firefox removes it when it restarts."
-												: `No extension yet? Open ${browser ? names[browser.browser] : "your browser"}'s extensions page, turn on Developer mode, choose Load unpacked and pick the Handoff Extension folder from the download. Then open Handoff from the toolbar.`}
-										</p>
-									)}
-								</div>
-							)}
-						</section>
-						<section>
-							<h2>Save an export</h2>
-							<button
-								className="file-button"
-								disabled={busy}
-								onClick={() => perform(() => save("bookmarks"))}
-							>
-								<strong>Safari bookmarks</strong>
-								<small>Selected Spaces and Favorites · HTML</small>
-							</button>
-							<button
-								className="file-button"
-								disabled={busy}
-								onClick={() => perform(() => save("archive"))}
-							>
-								<strong>Arc Archive</strong>
-								<small>Full searchable library · HTML and JSON</small>
-							</button>
-							<button
-								className="file-button"
-								disabled={busy}
-								onClick={() => perform(() => save("csv"))}
-							>
-								<strong>Spreadsheet</strong>
-								<small>All tabs and folder paths · CSV</small>
-							</button>
-						</section>
-					</div>
-					{browser && (
-						<ProfileMover
-							library={library}
-							selected={selected}
-							browser={browser.browser}
-							browserName={names[browser.browser]}
-							busy={busy}
-							perform={perform}
-							setStatus={setStatus}
-						/>
-					)}
-					{showSafari && (
-						<section className="guide">
-							<h2>Import in Safari</h2>
-							<ol>
-								<li>
-									Open Safari and choose File → Import Browsing Data from File
-									or Folder. In older versions choose File → Import From →
-									Bookmarks HTML File.
-								</li>
-								<li>
-									Select your saved bookmarks HTML file and confirm the import.
-								</li>
-								<li>Open Bookmarks and expand an imported Space.</li>
-							</ol>
-						</section>
-					)}
 					<PasswordGuide destination={browser?.browser ?? "chrome"} />
 					<CopyDiagnosticButton appVersion="1.0.0" library={library} />
 				</section>

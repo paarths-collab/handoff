@@ -97,7 +97,9 @@ export interface SidebarWorkspaceProps {
 	onPick: () => void;
 	onExport: () => void;
 	busy: boolean;
-	onTools: () => void;
+	onTools?: () => void;
+	/** Replaces the export controls with one main action, such as Send to browser. */
+	primary?: { label: string; onClick: () => void };
 	candidates: ReactNode;
 	help: ReactNode;
 	importMode?: boolean;
@@ -184,9 +186,11 @@ export function SidebarWorkspace(props: SidebarWorkspaceProps) {
 				</div>
 				{library && (
 					<div className="ws-header-actions">
-						<button type="button" disabled={busy} onClick={props.onTools}>
-							{props.toolsLabel ?? "Migration tools"}
-						</button>
+						{props.onTools && (
+							<button type="button" disabled={busy} onClick={props.onTools}>
+								{props.toolsLabel ?? "Migration tools"}
+							</button>
+						)}
 						<button
 							type="button"
 							className="ws-view-toggle"
@@ -347,33 +351,54 @@ export function SidebarWorkspace(props: SidebarWorkspaceProps) {
 			</div>
 			{library && (
 				<footer className="ws-exportbar">
-					{expanded && (
+					{props.primary ? (
 						<>
 							<div className="ws-totals">
 								<strong>
-									{fullExport
-										? "Full library"
-										: `${selected.size} ${selected.size === 1 ? "Space" : "Spaces"}`}
+									{selected.size} {selected.size === 1 ? "Space" : "Spaces"}
 								</strong>
-								<span>
-									{exportTabs} tabs {fullExport ? "in total" : "selected"}
-								</span>
+								<span>{selectedTabs} tabs selected</span>
 							</div>
-							{formatPicker}
+							<button
+								type="button"
+								className="ws-export"
+								disabled={busy || selected.size === 0}
+								onClick={props.primary.onClick}
+							>
+								{busy ? "Working…" : props.primary.label}
+							</button>
+						</>
+					) : (
+						<>
+							{expanded && (
+								<>
+									<div className="ws-totals">
+										<strong>
+											{fullExport
+												? "Full library"
+												: `${selected.size} ${selected.size === 1 ? "Space" : "Spaces"}`}
+										</strong>
+										<span>
+											{exportTabs} tabs {fullExport ? "in total" : "selected"}
+										</span>
+									</div>
+									{formatPicker}
+								</>
+							)}
+							<button
+								type="button"
+								className="ws-export"
+								aria-label={props.actionAccessibleName}
+								disabled={busy || (!exportTabs && props.format === "bookmarks")}
+								onClick={props.onExport}
+							>
+								<Icon kind="download" />
+								{busy
+									? "Working…"
+									: `${props.importMode ? "Move" : "Export"} ${exportTabs} ${props.importMode && props.format === "bookmarks" ? "bookmarks" : "tabs"}`}
+							</button>
 						</>
 					)}
-					<button
-						type="button"
-						className="ws-export"
-						aria-label={props.actionAccessibleName}
-						disabled={busy || (!exportTabs && props.format === "bookmarks")}
-						onClick={props.onExport}
-					>
-						<Icon kind="download" />
-						{busy
-							? "Working…"
-							: `${props.importMode ? "Move" : "Export"} ${exportTabs} ${props.importMode && props.format === "bookmarks" ? "bookmarks" : "tabs"}`}
-					</button>
 				</footer>
 			)}
 			<p className="ws-local">
