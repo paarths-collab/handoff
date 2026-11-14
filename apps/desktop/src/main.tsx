@@ -468,7 +468,7 @@ function App() {
 						}}
 					/>
 					<PasswordGuide destination={browser?.browser ?? "chrome"} />
-					<CopyDiagnosticButton appVersion="1.0.1" library={library} />
+					<CopyDiagnosticButton appVersion="1.0.2" library={library} />
 				</section>
 			)}
 			<p className="desktop-status" role="status" aria-label="File operation">

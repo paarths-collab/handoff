@@ -433,7 +433,7 @@ export function Importer({ fragment }: { fragment: string }) {
 							Bookmarks only (don't open tabs)
 						</label>
 					</div>
-					<CopyDiagnosticButton library={library} appVersion="1.0.1" />
+					<CopyDiagnosticButton library={library} appVersion="1.0.2" />
 				</details>
 			)}
 
@@ -466,7 +466,7 @@ export function Importer({ fragment }: { fragment: string }) {
 							Choose another file
 						</button>
 						{library && (
-							<CopyDiagnosticButton library={library} appVersion="1.0.1" />
+							<CopyDiagnosticButton library={library} appVersion="1.0.2" />
 						)}
 					</div>
 					<PasswordGuide destination={destination()} />

@@ -11,7 +11,7 @@ export default defineConfig({
 		),
 		description:
 			"Move an Arc sidebar into browser tabs or bookmarks on your own computer.",
-		version: "1.0.1",
+		version: "1.0.2",
 		permissions: ["tabGroups", "storage"],
 		optional_permissions: ["tabs", "bookmarks"],
 		content_security_policy: {
