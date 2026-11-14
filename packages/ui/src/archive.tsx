@@ -1,4 +1,5 @@
 import {
+	libraryLimitError,
 	MAX_INPUT_BYTES,
 	parseArcArchive,
 	recoverArchivedTabs,
@@ -56,7 +57,13 @@ export function ArchiveRecovery({
 				recovery && library === recovery.result.library
 					? recovery.base
 					: library;
-			setRecovery({ base, result: recoverArchivedTabs(base, parsed.value) });
+			const result = recoverArchivedTabs(base, parsed.value);
+			const tooMany = libraryLimitError(result.library);
+			if (tooMany) {
+				setError(tooMany.message);
+				return;
+			}
+			setRecovery({ base, result });
 		} catch (reason) {
 			if (token === current.current)
 				setError(

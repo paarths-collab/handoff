@@ -4,6 +4,7 @@ import type {
 	PlannedTab,
 	PlannedWindow,
 } from "@handoff/core";
+import { moveLimitMessage } from "@handoff/core";
 
 export interface BrowserTabsAdapter {
 	readonly supportsGroups: boolean;
@@ -137,6 +138,9 @@ export async function executePlan(
 	adapter: BrowserTabsAdapter,
 	opts: RunOptions,
 ): Promise<ImportResult> {
+	// Refuse before touching the browser; the importer also checks before starting.
+	const limit = moveLimitMessage(plan.totals.tabs);
+	if (limit) throw new Error(limit);
 	const { result, save, signal } = opts;
 	const size = Math.max(1, Math.floor(opts.batchSize) || 1);
 	result.scheduled = plan.windows.flatMap((win) =>

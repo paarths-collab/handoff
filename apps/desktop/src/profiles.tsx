@@ -1,5 +1,6 @@
 import {
 	isOpenableUrl,
+	moveLimitMessage,
 	toBookmarksHtml,
 	type Library,
 	type Node,
@@ -195,6 +196,11 @@ export function ProfileMover({
 		});
 
 	async function openAll() {
+		const limit = moveLimitMessage(total);
+		if (limit) {
+			setStatus(limit);
+			return;
+		}
 		for (const job of jobs)
 			for (let i = 0; i < job.urls.length; i += PER_LAUNCH) {
 				await invoke("open_in_profile", {

@@ -1,4 +1,5 @@
 import {
+	moveLimitMessage,
 	planImport,
 	type ImportOptions,
 	type Library,
@@ -45,6 +46,8 @@ export async function moveBookmarks(
 	if (!mirror) {
 		// First account for all tabs, including exclusions, before changing the browser.
 		const plan = planImport(library, options);
+		const limit = moveLimitMessage(plan.totals.tabs);
+		if (limit) throw new Error(limit);
 		result.scheduled = plan.windows.flatMap((win) =>
 			win.tabs.map(({ arcId, url }) => ({ arcId, url })),
 		);

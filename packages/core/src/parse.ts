@@ -5,6 +5,7 @@ import { readPack } from "./read-pack";
 import { emptyLibrary, summarize } from "./tree";
 
 import { readJson } from "./json";
+import { libraryLimitError } from "./limits";
 export { MAX_INPUT_BYTES } from "./json";
 type InputResult = Result<Library, ParseError>;
 type Row = Record<string, unknown>;
@@ -50,6 +51,15 @@ function themeColor(custom: Row) {
 }
 
 function parse(text: string, mode: "arc" | "pack" | "auto"): InputResult {
+	const result = parseUnbounded(text, mode);
+	const error = result.ok ? libraryLimitError(result.value) : null;
+	return error ? { ok: false, error } : result;
+}
+
+function parseUnbounded(
+	text: string,
+	mode: "arc" | "pack" | "auto",
+): InputResult {
 	const decoded = readJson(text);
 	if (!decoded.ok) return decoded;
 	const value = decoded.value;

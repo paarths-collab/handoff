@@ -2,6 +2,7 @@ import { startOwnership, journaledAdapter } from "./ownership";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
 	defaultOptions,
+	moveLimitMessage,
 	parsePack,
 	planImport,
 	type ImportOptions,
@@ -148,6 +149,11 @@ export function Importer({ fragment }: { fragment: string }) {
 	};
 	const run = async () => {
 		if (!library || !options || !plan || busy) return;
+		const limit = moveLimitMessage(plan.totals.tabs);
+		if (limit) {
+			setNotice(limit);
+			return;
+		}
 		setNotice("");
 		setBusy(true);
 		try {

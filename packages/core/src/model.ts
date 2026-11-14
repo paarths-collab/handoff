@@ -70,4 +70,5 @@ export type ParseError =
 	| { kind: "not-json"; message: string }
 	| { kind: "not-arc-file"; message: string; hint: string }
 	| { kind: "no-sidebar-data"; message: string; hint: string }
-	| { kind: "too-large"; message: string; limitBytes: number };
+	| { kind: "too-large"; message: string; limitBytes: number }
+	| { kind: "too-many"; message: string; hint: string };

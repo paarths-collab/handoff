@@ -151,3 +151,12 @@ it.each([true, false])(
 		expect(a.closeTabs).not.toHaveBeenCalled();
 	},
 );
+
+it("refuses a Move above the tab limit before touching the browser", async () => {
+	const browser = adapter();
+	const huge = { ...plan, totals: { ...plan.totals, tabs: 5_001 } };
+	await expect(executePlan(huge, browser, options())).rejects.toThrow(
+		/up to 5,000 tabs/,
+	);
+	expect(browser.createWindow).not.toHaveBeenCalled();
+});
