@@ -6,6 +6,16 @@ This repository contains the desktop app, browser extension, shared code and pro
 
 ## Install
 
+The quickest way on macOS is one line in Terminal. It downloads the latest release, checks it against the release's SHA-256 checksum, installs Handoff in Applications and opens it, without the "Apple could not verify" prompt that browser downloads of unsigned apps get:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/paarths-collab/handoff/main/scripts/install-mac.sh | bash
+```
+
+You can read [the script](scripts/install-mac.sh) first. It also puts the optional browser extensions in `~/Handoff Extras`.
+
+If you download the disk image in a browser instead, macOS blocks the first launch because Handoff is not yet notarized by Apple. Click **Done**, then open **System Settings → Privacy & Security** and choose **Open Anyway** next to Handoff. On Windows, choose **More info → Run anyway** if SmartScreen warns about the installer.
+
 On macOS, download the disk image from [GitHub Releases](https://github.com/paarths-collab/handoff/releases) and drag Handoff to Applications. On Windows x64, extract the Windows ZIP, run `Handoff-Setup.exe`, then open Handoff from Start. The Windows installer sets up WebView2 if missing (internet required for runtime setup). To get tab groups, open your browser's Extensions page, turn on Developer mode, choose **Load unpacked** and pick the **Handoff Extension** folder (copy it somewhere permanent first, since the browser loads it from that folder). Repeat in each browser profile that should get groups; the app opens tabs in any profile without it.
 
 ## Set up with Claude Code, Codex or Cursor
