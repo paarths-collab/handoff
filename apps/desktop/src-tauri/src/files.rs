@@ -3,7 +3,7 @@ use std::{
     collections::HashSet,
     fs::{self, File, OpenOptions},
     io::{Read, Write},
-    path::{Path, PathBuf},
+    path::{Component, Path, PathBuf},
     sync::Mutex,
 };
 use tauri::{AppHandle, State};
@@ -20,6 +20,14 @@ pub struct Sidebar {
 }
 
 fn sidebar_under(base: &Path, relative: &Path) -> Option<PathBuf> {
+    // Validate before joining: Windows verbatim paths normalize `..` in join().
+    if relative.as_os_str().is_empty()
+        || relative
+            .components()
+            .any(|part| !matches!(part, Component::Normal(_)))
+    {
+        return None;
+    }
     let base = base.canonicalize().ok()?;
     let expected = base.join(relative);
     // Discovery never grants a symbolic link to another file.
@@ -107,6 +115,13 @@ pub async fn pick_sidebar(
 }
 fn read_allowed(path: &Path, grants: &Grants) -> Result<String, String> {
     let denied = || String::from("Choose the sidebar again to allow access.");
+    if !path.is_absolute()
+        || path
+            .components()
+            .any(|part| matches!(part, Component::ParentDir))
+    {
+        return Err(denied());
+    }
     let canonical = path.canonicalize().map_err(|_| denied())?;
     if path != canonical || !grants.0.lock().map_err(|_| denied())?.contains(&canonical) {
         return Err(denied());
@@ -239,7 +254,18 @@ mod tests {
         grants.0.lock().unwrap().insert(file.clone());
         assert_eq!(read_allowed(&file, &grants).unwrap(), "{}");
         fs::create_dir(dir.join("sub")).unwrap();
-        assert!(read_allowed(&dir.join("sub/../StorableSidebar.json"), &grants).is_err());
+        // Avoid PathBuf::join here: it removes `..` for verbatim Windows bases.
+        let mut raw = dir.as_os_str().to_os_string();
+        raw.push(std::path::MAIN_SEPARATOR.to_string());
+        raw.push(format!(
+            "sub{sep}..{sep}StorableSidebar.json",
+            sep = std::path::MAIN_SEPARATOR
+        ));
+        let traversal = PathBuf::from(raw);
+        assert!(traversal
+            .components()
+            .any(|part| matches!(part, Component::ParentDir)));
+        assert!(read_allowed(&traversal, &grants).is_err());
     }
     #[test]
     #[cfg(unix)]
@@ -279,6 +305,14 @@ mod tests {
         fs::create_dir(root.join("base")).unwrap();
         fs::write(root.join("outside.json"), "{}").unwrap();
         assert!(sidebar_under(&root.join("base"), Path::new("../outside.json")).is_none());
+        assert!(sidebar_under(&root.join("base"), &root.join("outside.json")).is_none());
+        fs::create_dir(root.join("base/sub")).unwrap();
+        fs::write(root.join("base/sub/sidebar.json"), "{}").unwrap();
+        assert_eq!(
+            sidebar_under(&root.join("base"), Path::new("sub/sidebar.json")),
+            Some(root.join("base/sub/sidebar.json"))
+        );
+        assert!(sidebar_under(&root.join("base"), Path::new("sub/../../outside.json")).is_none());
         fs::create_dir(root.join("base/StorableSidebar.json")).unwrap();
         assert!(sidebar_under(&root.join("base"), Path::new("StorableSidebar.json")).is_none());
     }
