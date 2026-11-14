@@ -21,11 +21,11 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version-file: .nvmrc
           package-manager-cache: false
@@ -64,30 +64,31 @@ jobs:
     name: Upload reviewed builds to a draft release
     needs: builds
     if: ${{ github.repository == 'paarths-collab/handoff' }}
+    # The only job with write access runs no third-party Actions: just the runner's own gh and node.
     permissions:
       contents: write
+      actions: read
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-      - uses: actions/setup-node@v7
-        with:
-          node-version-file: .nvmrc
-          package-manager-cache: false
-      - uses: actions/download-artifact@v8
-        with:
-          pattern: handoff-download-*
-          path: release
-          merge-multiple: true
+      - name: Download the builds from this run
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh run download "$GITHUB_RUN_ID" --pattern 'handoff-download-*' --dir downloads
+          mkdir release
+          find downloads -type f -exec mv {} release/ \;
       - name: Verify downloads and calculate SHA-256 checksums
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
         run: |
           node --input-type=module <<'NODE'
           import assert from 'node:assert/strict';
           import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
           import { createHash } from 'node:crypto';
-          const { version } = JSON.parse(readFileSync('apps/desktop/src-tauri/tauri.conf.json', 'utf8'));
+          // The validate job already proved the tag equals v<app version> at this commit.
+          const version = process.env.RELEASE_TAG.slice(1);
           const expected = [`handoff-${version}-macos-universal.dmg`, `handoff-${version}-windows-x64.zip`].sort();
           assert.deepEqual(readdirSync('release').sort(), expected, 'Both exact-version downloads are required');
           const sums = expected.map(name => `${createHash('sha256').update(readFileSync(`release/${name}`)).digest('hex')}  ${name}`);
