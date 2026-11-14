@@ -18,8 +18,9 @@ on:
 permissions:
   contents: read
 
+# Hand-started download builds get their own lane, so they never cancel the push run.
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: true
 
 jobs:
