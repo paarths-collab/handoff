@@ -28,11 +28,9 @@ Arc is no longer moving forward, and starting over in a new browser means rebuil
 3. You **pick a browser and a profile for each Space**, already signed in - and each Space opens in its own window.
 4. You **keep a copy** as bookmarks, a searchable archive or a spreadsheet.
 
-### Watch the film
+### Demo
 
-[![Watch the Handoff film (1:36)](docs/media/handoff-film-poster.jpg)](docs/media/handoff-film.mp4)
-
-*Click the image to play the film (1:36, with sound).*
+[![Handoff demo](docs/media/handoff-film-poster.jpg)](docs/media/handoff-film.mp4)
 
 ## Install
 
@@ -160,7 +158,7 @@ flowchart LR
 
 ## Found a problem?
 
-Please [open an issue](https://github.com/paarths-collab/handoff/issues/new/choose) - it takes a minute and helps everyone:
+[Open an issue](https://github.com/paarths-collab/handoff/issues/new/choose):
 
 1. Go to the **Issues** tab and click **New issue**.
 2. Choose **Bug report** (or **Feature request** for an idea).
