@@ -4,7 +4,7 @@ Thanks for helping. Bug reports, fixes and improvements are welcome.
 
 ## Report a bug
 
-Open an [issue](https://github.com/paarths-collab/handoff/issues) with your Handoff version, platform and browser, what you did, and what happened. Add the app's **Copy diagnostic** output if you can — it holds only counts. Never attach your real sidebar file, exports or private links. For security problems, follow [SECURITY.md](SECURITY.md) instead.
+Open an [issue](https://github.com/paarths-collab/handoff/issues) with your Handoff version, platform and browser, what you did, and what happened. Add the app's **Copy diagnostic** output if you can - it holds only counts. Never attach your real sidebar file, exports or private links. For security problems, follow [SECURITY.md](SECURITY.md) instead.
 
 ## Make a change
 

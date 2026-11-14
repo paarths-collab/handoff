@@ -78,10 +78,10 @@ Astra (lead) ── owns root config, contracts, lockfile, docs/decisions.md and
 | Agent | Wave | Tasks | Code copy | Owns (may edit only these) |
 |---|---|---|---|---|
 | `astra` | 0–3 | A0, A1, merges, A12, C4, C5, D3 | Main checkout | Root files (`package.json`, `pnpm-workspace.yaml`, `pnpm-lock.yaml`, `tsconfig.base.json`, `biome.json`, `.nvmrc`, `.gitignore`, `stryker.config.mjs`), contract files (`packages/core/src/{result,model,plan-types}.ts`, `packages/ui/src/types.ts`), `packages/core/test/builders.ts`, `docs/PLAN.md`, `docs/decisions.md`, the Wave 0 outputs it commits (`docs/arc-format.md`, `docs/security/threat-model.md`, `SECURITY.md`), `release/` (gitignored), `CHANGELOG.md` |
-| `spike-format` | 0 | S3 | None: reads the private file and returns the text of `docs/arc-format.md` | — |
-| `spike-chromium`, `spike-handoff`, `spike-firefox` | 0 | S1, S2, S4 | None: throwaway code in a scratch folder outside the repo | — |
-| `threat-modeler` | 0 | R0 | None: returns the threat model and `SECURITY.md` text | — |
-| `design-reviewer` | 0 | R1 | None: reads the contract files | — |
+| `spike-format` | 0 | S3 | None: reads the private file and returns the text of `docs/arc-format.md` | - |
+| `spike-chromium`, `spike-handoff`, `spike-firefox` | 0 | S1, S2, S4 | None: throwaway code in a scratch folder outside the repo | - |
+| `threat-modeler` | 0 | R0 | None: returns the threat model and `SECURITY.md` text | - |
+| `design-reviewer` | 0 | R1 | None: reads the contract files | - |
 | `core` | 1 | A2–A5 | `../tm-core` | `packages/core/` except the contract files and `builders.ts`; `fixtures/`; `scripts/{anonymize,gen-fixture,check-anon}.ts` |
 | `extension` | 1 | A6–A11 | `../tm-extension` | `apps/extension/`; `scripts/check-manifest.ts` |
 | `ui-web` | 1 | B1, B2 | `../tm-ui-web` | `packages/ui/` except `src/types.ts`; `apps/web` config (`package.json` and the Vite config, set up with entries for every page); `apps/web/{convert.html,dev.html}`; `apps/web/src/convert/`; `apps/web/e2e/` |

@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for reporting! Please **don't attach your real sidebar file, exports, passwords or private links** — describe the problem instead, or use invented titles and links.
+        Thanks for reporting! Please **don't attach your real sidebar file, exports, passwords or private links** - describe the problem instead, or use invented titles and links.
         For a security problem, use **Security → Report a vulnerability** instead of an issue.
   - type: textarea
     id: what-happened

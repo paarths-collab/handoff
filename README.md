@@ -4,7 +4,7 @@
 
 # Handoff
 
-**Move on from Arc — without starting over.**
+**Move on from Arc - without starting over.**
 
 Bring your Spaces, pinned tabs and folders from Arc to Chrome, Brave, Edge, Vivaldi, Opera, Firefox or Safari.
 Everything happens on your computer. No account, no upload.
@@ -25,7 +25,7 @@ Arc is no longer moving forward, and starting over in a new browser means rebuil
 
 1. It **finds your Arc sidebar** on its own.
 2. You **preview** every Space, folder and tab and choose what moves.
-3. You **pick a browser and a profile for each Space**, already signed in — and each Space opens in its own window.
+3. You **pick a browser and a profile for each Space**, already signed in - and each Space opens in its own window.
 4. You **keep a copy** as bookmarks, a searchable archive or a spreadsheet.
 
 ### Watch the film
@@ -36,7 +36,7 @@ Arc is no longer moving forward, and starting over in a new browser means rebuil
 
 ## Install
 
-### Mac — one line in Terminal (recommended)
+### Mac - one line in Terminal (recommended)
 
 Open **Terminal** (press <kbd>⌘</kbd> <kbd>Space</kbd>, type *Terminal*, press <kbd>Return</kbd>), paste this and press <kbd>Return</kbd>:
 
@@ -44,9 +44,9 @@ Open **Terminal** (press <kbd>⌘</kbd> <kbd>Space</kbd>, type *Terminal*, press
 curl -fsSL https://raw.githubusercontent.com/paarths-collab/handoff/main/scripts/install-mac.sh | bash
 ```
 
-It downloads the latest release, checks it against the release's SHA-256 checksum, installs Handoff in **Applications** and opens it — without the "Apple could not verify" warning. Run the same line again any time to update. You can [read the script](scripts/install-mac.sh) first; it also puts the optional browser extensions in `~/Handoff Extras`.
+It downloads the latest release, checks it against the release's SHA-256 checksum, installs Handoff in **Applications** and opens it - without the "Apple could not verify" warning. Run the same line again any time to update. You can [read the script](scripts/install-mac.sh) first; it also puts the optional browser extensions in `~/Handoff Extras`.
 
-### Mac — download the disk image
+### Mac - download the disk image
 
 1. Download `handoff-<version>-macos-universal.dmg` from the [latest release](https://github.com/paarths-collab/handoff/releases/latest). It works on Apple Silicon and Intel Macs.
 2. Open it and drag **Handoff** into **Applications**.
@@ -81,11 +81,11 @@ flowchart LR
 1. **Open Handoff.** It looks for your Arc sidebar file and shows **Arc sidebar found**. You can also choose a file yourself ([where is it?](#where-is-my-arc-file)).
 2. **Preview.** Spaces are on the left, folders and tabs on the right. Untick any Space you don't want to move.
 3. **Send to browser.** Pick your new browser:
-   - **Chrome, Brave, Edge or Vivaldi** — choose a profile for each Space (for example *Work* for your work Space). Click **Open N tabs in M profiles**. Each Space opens in its own window, signed in as that profile. No extension needed.
-   - **Firefox or Opera** — save a pack and open it in the [Handoff extension](#optional-tab-groups-with-the-extension).
-   - **Safari** (Mac) — click **Save Safari bookmarks**, then in Safari choose **File → Import Browsing Data from File or Folder**.
+   - **Chrome, Brave, Edge or Vivaldi** - choose a profile for each Space (for example *Work* for your work Space). Click **Open N tabs in M profiles**. Each Space opens in its own window, signed in as that profile. No extension needed.
+   - **Firefox or Opera** - save a pack and open it in the [Handoff extension](#optional-tab-groups-with-the-extension).
+   - **Safari** (Mac) - click **Save Safari bookmarks**, then in Safari choose **File → Import Browsing Data from File or Folder**.
 4. **Keep every folder.** Tabs open as plain tabs, so also save a bookmarks file for each profile to keep your nested folders. You can save an **Arc Archive** (a searchable web page of everything) or a **Spreadsheet** (CSV) too.
-5. **Move your passwords** (optional). Handoff shows you how to export them from Arc and import them in each profile — Handoff itself never sees them.
+5. **Move your passwords** (optional). Handoff shows you how to export them from Arc and import them in each profile - Handoff itself never sees them.
 
 ### What moves with you
 
@@ -112,7 +112,7 @@ Opening in profiles gives you plain tabs. For **tab groups** (and for Firefox or
 
 ### Full Disk Access on Mac (optional)
 
-Handoff reads only the **names** of your browser profiles (such as *Work* or *Personal*) so you can pick them. Some Macs block that, and Handoff then lists profiles as *Default*, *Profile 1* and so on — you can still click **Show** to see which is which and type a name.
+Handoff reads only the **names** of your browser profiles (such as *Work* or *Personal*) so you can pick them. Some Macs block that, and Handoff then lists profiles as *Default*, *Profile 1* and so on - you can still click **Show** to see which is which and type a name.
 
 To let Handoff see the real names:
 
@@ -128,7 +128,7 @@ Handoff also has a button that opens this settings page for you. You can turn th
 
 Handoff finds it automatically. If you need to choose it yourself, the file is called **StorableSidebar.json**:
 
-- **Mac:** `~/Library/Application Support/Arc/StorableSidebar.json` — in the file picker press <kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>G</kbd> and paste that path.
+- **Mac:** `~/Library/Application Support/Arc/StorableSidebar.json` - in the file picker press <kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>G</kbd> and paste that path.
 - **Windows:** in Arc's folder under your user's `AppData\Local\Packages` (the folder name starts with `TheBrowserCompany.Arc`), in `LocalCache\Local\Arc`.
 
 ## Your data stays on your computer
@@ -156,17 +156,17 @@ flowchart LR
 
 **Will it change Arc?** No. Handoff only reads Arc's sidebar file. Arc keeps working as before.
 
-**Can I undo a move?** With the extension, yes — **Undo** removes the tabs and bookmarks that move created, in the same browser session. Tabs opened in profiles are ordinary tabs you can close.
+**Can I undo a move?** With the extension, yes - **Undo** removes the tabs and bookmarks that move created, in the same browser session. Tabs opened in profiles are ordinary tabs you can close.
 
 ## Found a problem?
 
-Please [open an issue](https://github.com/paarths-collab/handoff/issues/new/choose) — it takes a minute and helps everyone:
+Please [open an issue](https://github.com/paarths-collab/handoff/issues/new/choose) - it takes a minute and helps everyone:
 
 1. Go to the **Issues** tab and click **New issue**.
 2. Choose **Bug report** (or **Feature request** for an idea).
 3. Describe **what happened**, **what you expected** and the **steps** that led there.
 4. Add your Handoff version, your computer (Mac or Windows) and the browser you were moving to.
-5. Optional but very helpful: in Handoff, open **Send to browser** and click **Copy diagnostic** at the bottom, then paste it in. It contains only counts — never your titles or links.
+5. Optional but very helpful: in Handoff, open **Send to browser** and click **Copy diagnostic** at the bottom, then paste it in. It contains only counts - never your titles or links.
 
 > [!IMPORTANT]
 > Don't attach your real Arc sidebar file, exports, passwords or private links, and blur personal tab titles in screenshots. For a **security** problem, use **Security → Report a vulnerability** instead of a public issue ([details](SECURITY.md)).
