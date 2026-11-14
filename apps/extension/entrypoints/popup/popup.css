@@ -1,15 +1,79 @@
+@font-face {
+	font-family: Figtree;
+	src: url("../../../../packages/ui/src/assets/figtree.woff2") format("woff2");
+	font-weight: 300 900;
+	font-display: swap;
+}
 body {
 	margin: 0;
-	padding: 12px;
-	background: #f7f6ef;
+	padding: 16px;
+	background: #000;
+	color: #f5f5f5;
+	color-scheme: dark;
+	font-family: Figtree, system-ui, sans-serif;
 }
 button {
-	width: 160px;
-	border: 0;
-	border-radius: 8px;
-	padding: 12px;
-	font: 600 14px system-ui;
-	color: white;
-	background: #235646;
+	width: 190px;
+	border: 1px solid #ddd;
+	border-radius: 11px;
+	padding: 13px 16px;
+	font:
+		650 14px Figtree,
+		system-ui,
+		sans-serif;
+	color: #000;
+	background: #f5f5f5;
 	cursor: pointer;
+}
+button:hover {
+	background: #ddd;
+}
+button:focus-visible {
+	outline: 2px solid #fff;
+	outline-offset: 4px;
+}
+
+body {
+	width: 360px;
+	padding: 26px;
+	box-sizing: border-box;
+}
+header {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+header strong {
+	font-size: 24px;
+	letter-spacing: -0.05em;
+}
+.popup-mark {
+	width: 40px;
+	height: 40px;
+	border-radius: 11px;
+	background:
+		#eee url("../../../../packages/ui/src/assets/handoff-mark.png") center /
+		26px no-repeat;
+}
+h1 {
+	font-size: 30px;
+	line-height: 1.1;
+	letter-spacing: -0.055em;
+	margin: 26px 0 14px;
+}
+p {
+	color: #aaa;
+	font-size: 14px;
+	line-height: 1.6;
+	margin-bottom: 22px;
+}
+button {
+	width: 100%;
+}
+small {
+	display: block;
+	color: #888;
+	text-align: center;
+	margin-top: 15px;
+	font-size: 11px;
 }

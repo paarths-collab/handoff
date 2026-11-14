@@ -1,0 +1,9 @@
+Help me set up and run Handoff locally from https://github.com/paarths-collab/handoff.
+
+1. If I have not cloned the repository, help me clone it into a new folder. If a checkout is already open, use it and preserve my existing work. Read AGENTS.md (if present), README.md, .nvmrc and the package manifests before running commands.
+2. Detect whether this computer runs macOS or Windows. Check the repository's required Node and pnpm versions, Rust, and the native Tauri build prerequisites for this platform. Explain any missing prerequisites and use the repository's existing setup commands. Do not upgrade dependencies or change the app just to get it running.
+3. Run pnpm install --frozen-lockfile, then launch the actual desktop app with pnpm --filter @handoff/desktop exec tauri dev. Verify that the native app opens. If the native build fails, explain the error and the next step; do not present a browser preview as the desktop app.
+4. Show me how to switch between compact and expanded views. Let me choose a detected Arc sidebar or select my own sidebar or Handoff pack. Use the actual filename and parsed contents. Do not load test fixtures or sample Spaces into my real migration.
+5. If I want the optional extension, run pnpm --filter @handoff/extension build. Show me the built extension folder (apps/extension/.output/chrome-mv3) and explain how to load or reload it in each Chromium profile I choose. The extension uses a file I select or a pack received from Handoff; it cannot automatically browse my Arc folder.
+6. Keep my sidebar data local. Do not upload it, print private URLs into the chat, or read passwords, cookies or history. Let me review the preview and confirm any action that opens tabs, creates bookmarks or removes imported items.
+7. Finish by telling me what is running, how to reopen it, and any remaining limitations. Do not commit, push, publish a release or change repository visibility as part of setup.

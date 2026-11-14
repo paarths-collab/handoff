@@ -4,6 +4,8 @@ import { tmpdir } from "node:os";
 import { resolve, join } from "node:path";
 import {
 	parseInput,
+	parseArcArchive,
+	recoverArchivedTabs,
 	defaultOptions,
 	planImport,
 } from "../../../packages/core/src/index";
@@ -21,6 +23,7 @@ async function workerOrigin(ctx: BrowserContext, observer: boolean) {
 
 for (const name of [
 	"tiny",
+	"archive",
 	"empty-spaces",
 	"typical",
 	"huge",
@@ -32,10 +35,23 @@ for (const name of [
 		"imports " + name + " in native windows and groups",
 		async ({}, info) => {
 			const fault = name === "interrupted" || name === "cancelled";
-			const file = resolve("fixtures", (fault ? "typical" : name) + ".json");
+			const file = resolve(
+				"fixtures",
+				(fault ? "typical" : name === "archive" ? "tiny" : name) + ".json",
+			);
 			const parsed = parseInput(await readFile(file, "utf8"));
 			if (!parsed.ok) throw Error("Invalid test fixture");
-			const plan = planImport(parsed.value, defaultOptions(parsed.value));
+			const archive = parseArcArchive(
+				await readFile(resolve("fixtures/archive/recovery.json"), "utf8"),
+			);
+			if (!archive.ok) throw Error("Invalid archive fixture");
+			const lib =
+				name === "archive"
+					? recoverArchivedTabs(parsed.value, archive.value).library
+					: parsed.value;
+			const options = defaultOptions(lib);
+			if (name === "archive") options.collapseGroups = false;
+			const plan = planImport(lib, options);
 			const profile = await mkdtemp(join(tmpdir(), "handoff-browser-"));
 			const paths = [
 				resolve(directory, ".output/chrome-mv3"),
@@ -72,6 +88,37 @@ for (const name of [
 				await expect(
 					importer.getByRole("button", { name: "Move", exact: true }),
 				).toBeVisible();
+				if (name === "archive") {
+					await importer
+						.getByRole("button", { name: "Preview sidebar", exact: true })
+						.click();
+					await importer
+						.getByRole("button", { name: "Import options", exact: true })
+						.click();
+					const beforeRecovery = await observer.evaluate(async () =>
+						(await chrome.windows.getAll()).map((window) => window.id),
+					);
+					// Leave recovery groups expanded so recovered links are visible.
+					await importer.getByLabel("Start with groups collapsed").uncheck();
+					const recovery = importer.getByRole("region", {
+						name: "Archived tab recovery",
+					});
+					await recovery
+						.getByLabel("Choose archive file")
+						.setInputFiles(resolve("fixtures/archive/recovery.json"));
+					await expect(recovery.getByRole("status")).toContainText(
+						"2 recoverable tabs",
+					);
+					await recovery
+						.getByRole("button", { name: "Add recovered tabs to preview" })
+						.click();
+					await expect(importer.locator(".ws-totals")).toContainText("5 tabs");
+					expect(
+						await observer.evaluate(async () =>
+							(await chrome.windows.getAll()).map((window) => window.id),
+						),
+					).toEqual(beforeRecovery);
+				}
 				const before = await observer.evaluate(async () =>
 					(await chrome.windows.getAll({ populate: true })).map((w) => w.id),
 				);
@@ -164,7 +211,7 @@ for (const name of [
 							.sort(sort),
 					);
 				}
-				if (name === "tiny") {
+				if (name === "tiny" || name === "archive") {
 					const added = await observer.evaluate(
 						async (windowId) =>
 							(await chrome.tabs.create({ windowId, url: "about:blank" })).id,

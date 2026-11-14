@@ -7,11 +7,18 @@ async function setup(page: Page, named = true) {
 		new URL("../../../fixtures/tiny.json", import.meta.url),
 		"utf8",
 	);
+	const archiveInput = await readFile(
+		new URL("../../../fixtures/archive/recovery.json", import.meta.url),
+		"utf8",
+	);
 	const actions: { command: string; args: Record<string, string> }[] = [];
 	await page.route("http://desktop.test/**", async (route) => {
 		const name =
 			new URL(route.request().url()).pathname.slice(1) || "index.html";
-		if (name !== "index.html" && !/^assets\/[\w.-]+\.(js|css)$/.test(name))
+		if (
+			name !== "index.html" &&
+			!/^assets\/[\w.-]+\.(js|css|woff2|png)$/.test(name)
+		)
 			return route.abort();
 		await route.fulfill({
 			body: await readFile(new URL(name, root)),
@@ -19,7 +26,11 @@ async function setup(page: Page, named = true) {
 				? "application/javascript"
 				: name.endsWith(".css")
 					? "text/css"
-					: "text/html",
+					: name.endsWith(".woff2")
+						? "font/woff2"
+						: name.endsWith(".png")
+							? "image/png"
+							: "text/html",
 		});
 	});
 	await page.exposeFunction(
@@ -36,13 +47,21 @@ async function setup(page: Page, named = true) {
 						store_available: false,
 					},
 				];
-			if (command === "read_arc_file") return input;
+			if (command === "pick_sidebar")
+				return {
+					path: "archive.json",
+					size: archiveInput.length,
+					modified: null,
+				};
+			if (command === "read_arc_file")
+				return args.path === "archive.json" ? archiveInput : input;
 			if (
 				command === "save_export" ||
 				command === "save_archive" ||
 				command === "extension_installed"
 			)
 				return true;
+			if (command.startsWith("plugin:window|")) return null;
 			if (command === "open_in_browser") return null;
 			if (command === "list_profiles")
 				return named
@@ -70,12 +89,28 @@ async function setup(page: Page, named = true) {
 			__TAURI_INTERNALS__: unknown;
 			testNativeInvoke: unknown;
 		};
-		mock.__TAURI_INTERNALS__ = { invoke: mock.testNativeInvoke };
+		mock.__TAURI_INTERNALS__ = {
+			invoke: mock.testNativeInvoke,
+			metadata: {
+				currentWindow: { label: "main" },
+				currentWebview: { label: "main" },
+			},
+		};
 	});
 	await page.goto("http://desktop.test/");
-	await page.getByRole("button", { name: "Preview sidebar" }).click();
-	await expect(page.getByRole("tree")).toBeVisible();
-	await expect(page.locator(".tm-counts")).toContainText("3 tabs");
+
+	await expect(
+		page.getByRole("button", { name: "Try an example sidebar" }),
+	).toHaveCount(0);
+	await page.getByRole("button", { name: /fixture.json/ }).click();
+	await expect(page.locator(".ws-source")).toContainText("fixture.json");
+	await page
+		.getByRole("button", { name: "Preview sidebar", exact: true })
+		.click();
+	await expect(page.locator(".ws-totals")).toContainText("3 tabs");
+	await page
+		.getByRole("button", { name: "Migration tools", exact: true })
+		.click();
 	return actions;
 }
 
@@ -159,7 +194,7 @@ test("without permission to read names, profiles can be shown, named and used", 
 }) => {
 	const actions = await setup(page, false);
 	const section = page.locator("section.profiles");
-	await expect(section.getByText("macOS is blocking Handoff")).toBeVisible();
+	await expect(section.getByText(/Handoff could not read/)).toBeVisible();
 	await section
 		.locator(".label-row")
 		.filter({ hasText: "Profile 3" })
@@ -187,8 +222,45 @@ test("without permission to read names, profiles can be shown, named and used", 
 		.poll(() => actions.filter((x) => x.command === "open_in_profile").length)
 		.toBe(2);
 	expect(actions.at(-1)?.args.profile).toBe("Profile 3");
-	await section.getByRole("button", { name: /allow Full Disk Access/ }).click();
-	await expect
-		.poll(() => actions.at(-1)?.command)
-		.toBe("open_privacy_settings");
+	if (await page.evaluate(() => /Mac/.test(navigator.platform))) {
+		await section
+			.getByRole("button", { name: /allow Full Disk Access/ })
+			.click();
+		await expect
+			.poll(() => actions.at(-1)?.command)
+			.toBe("open_privacy_settings");
+	} else {
+		await expect(
+			section.getByRole("button", { name: /Full Disk Access/ }),
+		).toHaveCount(0);
+	}
+});
+
+test("desktop recovery uses the native archive picker and exports the included tabs", async ({
+	page,
+}) => {
+	const actions = await setup(page);
+	const recovery = page.getByRole("region", { name: "Archived tab recovery" });
+	await recovery.getByRole("button", { name: "Choose archive file" }).click();
+	await expect(recovery.getByRole("status")).toContainText(
+		"2 recoverable tabs",
+	);
+	await expect(page.locator(".ws-totals")).toContainText("3 tabs");
+	await recovery
+		.getByRole("button", { name: "Add recovered tabs to preview" })
+		.click();
+	await expect(page.locator(".ws-totals")).toContainText("5 tabs");
+	await page.getByRole("button", { name: "Save browser pack" }).click();
+	const pack = actions.find(
+		(action) =>
+			action.command === "save_export" && action.args.format === "pack",
+	);
+	expect(JSON.parse(pack!.args.contents).library.report.counts.tabs).toBe(5);
+	expect(
+		actions.some(
+			(action) =>
+				action.command === "read_arc_file" &&
+				action.args.path === "archive.json",
+		),
+	).toBe(true);
 });

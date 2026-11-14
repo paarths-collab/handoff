@@ -13,6 +13,7 @@
 	"scripts": {
 		"build": "vite build",
 		"dev": "vite",
-		"bundle:mac": "RUSTFLAGS=\"--remap-path-prefix=$HOME=/build-home --remap-path-prefix=$(cd ../.. && pwd)=/build\" tauri build --target universal-apple-darwin --bundles app"
+		"bundle:mac": "RUSTFLAGS=\"--remap-path-prefix=$HOME=/build-home --remap-path-prefix=$(cd ../.. && pwd)=/build\" tauri build --target universal-apple-darwin --bundles app",
+		"bundle:windows": "tauri build --target x86_64-pc-windows-msvc --bundles nsis"
 	}
 }

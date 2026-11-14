@@ -1,0 +1,522 @@
+body {
+	background: #000;
+}
+.desktop-shell {
+	background: #000;
+	min-height: 100vh;
+	font-family: var(--tm-sans);
+}
+.handoff-workspace {
+	color: #f5f5f5;
+	background: #000;
+}
+.handoff-workspace [hidden] {
+	display: none !important;
+}
+.handoff-workspace svg {
+	width: 20px;
+	height: 20px;
+	flex-shrink: 0;
+}
+.handoff-workspace button {
+	border-radius: 10px;
+	font-weight: 550;
+}
+.ws-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	min-height: 96px;
+	height: auto;
+	padding: 22px 30px;
+	border-bottom: 1px solid #282828;
+}
+.ws-brand {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+.ws-brand img {
+	background: #eee;
+	border-radius: 13px;
+	padding: 7px;
+	width: 48px;
+	height: 48px;
+}
+.ws-header .ws-brand strong {
+	font-size: 27px;
+	font-weight: 700;
+	letter-spacing: -0.055em;
+}
+.ws-header-actions {
+	display: flex;
+	gap: 10px;
+}
+.ws-header-actions button {
+	padding: 9px 13px;
+	background: #111;
+	color: #ccc;
+	border: 1px solid #333;
+	font-size: 12px;
+}
+.ws-header-actions button:hover {
+	color: #fff;
+	background: #1b1b1b;
+}
+.is-compact .ws-header {
+	border: 0;
+	padding: 30px 32px 0;
+}
+.is-compact .ws-header-actions {
+	display: none;
+}
+.ws-compact {
+	padding: 24px 32px 0;
+}
+.handoff-workspace h1 {
+	margin: 0;
+	font: 650 38px / 1.1 var(--tm-sans);
+	letter-spacing: -0.06em;
+}
+.ws-compact h1 {
+	margin: 0 0 26px;
+}
+.ws-source {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 18px;
+	border: 1px solid #333;
+	background: #0b0b0b;
+	border-radius: 12px;
+}
+.ws-source strong {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-size: 16px;
+	letter-spacing: -0.03em;
+}
+.ws-source button {
+	margin-left: auto;
+	border: 0;
+	background: none;
+	padding: 0;
+	color: #bbb;
+	text-decoration: underline;
+	text-underline-offset: 4px;
+	font-size: 14px;
+}
+.ws-setting {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 15px;
+	border-bottom: 1px solid #2b2b2b;
+	padding: 18px 0;
+	color: #aaa;
+	font-size: 16px;
+}
+.ws-setting select {
+	background: #000;
+	border: 0;
+	max-width: 65%;
+	font-weight: 600;
+	padding-right: 0;
+	color: #f5f5f5;
+}
+.ws-space-picker {
+	position: relative;
+	max-width: 72%;
+}
+.ws-space-picker summary {
+	color: #f5f5f5;
+	font-weight: 600;
+	cursor: pointer;
+	text-align: right;
+}
+.ws-space-options {
+	position: absolute;
+	z-index: 4;
+	right: 0;
+	top: calc(100% + 14px);
+	min-width: 250px;
+	max-height: 250px;
+	overflow: auto;
+	border: 1px solid #444;
+	border-radius: 12px;
+	background: #111;
+	box-shadow: 0 12px 30px #0008;
+	padding: 10px;
+}
+.ws-space-options label {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+	padding: 10px;
+	color: #fff;
+	cursor: pointer;
+}
+.ws-space-options small {
+	margin-left: auto;
+	color: #aaa;
+}
+.handoff-workspace input[type="checkbox"] {
+	accent-color: #eee;
+	width: 16px;
+	height: 16px;
+	margin: 0;
+	flex-shrink: 0;
+	cursor: pointer;
+}
+.ws-preview-button {
+	width: 100%;
+	margin-top: 24px;
+	padding: 18px;
+	border: 1px solid #555;
+	background: #0b0b0b;
+	text-align: left;
+	font-size: 16px;
+}
+.ws-filebar {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+	padding: 14px 30px;
+	border-bottom: 1px solid #282828;
+	color: #aaa;
+	font-size: 14px;
+}
+.ws-filebar span {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.ws-filebar svg {
+	width: 17px;
+	height: 17px;
+}
+.ws-filebar button {
+	margin-left: auto;
+	padding: 0;
+	background: none;
+	border: 0;
+	color: #bbb;
+	font-size: 14px;
+	white-space: nowrap;
+}
+.ws-library {
+	display: grid;
+	grid-template-columns: 230px minmax(0, 1fr);
+	min-height: 390px;
+	height: calc(100vh - 276px);
+}
+.ws-spaces {
+	padding: 25px 14px;
+	background: #080808;
+	border-right: 1px solid #282828;
+	overflow: auto;
+}
+.ws-spaces h2 {
+	margin: 0 10px 18px;
+	font-size: 14px;
+	color: #aaa;
+	font-weight: 600;
+}
+.ws-space {
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	padding: 11px 10px;
+	margin: 4px 0;
+	border-radius: 9px;
+}
+.ws-space.active {
+	background: #222;
+}
+.ws-space button {
+	padding: 0;
+	border: 0;
+	flex: 1;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	background: none;
+	text-align: left;
+	font-size: 16px;
+	font-weight: 500;
+}
+.ws-space small {
+	color: #aaa;
+	font-size: 13px;
+}
+.ws-favorites {
+	display: flex;
+	width: 100%;
+	justify-content: space-between;
+	margin-top: 20px;
+	padding: 11px 10px;
+	border: 0;
+	color: #bbb;
+	background: none;
+	text-align: left;
+}
+.ws-favorites.active {
+	background: #222;
+}
+.ws-space-content {
+	padding: 30px;
+	min-width: 0;
+	overflow: auto;
+}
+.ws-space-content > p {
+	color: #aaa;
+	font-size: 15px;
+	margin: 9px 0 30px;
+}
+.ws-folder {
+	margin: 0 0 16px;
+	padding: 0 0 16px;
+	border-bottom: 1px solid #282828;
+}
+.ws-folder summary {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+	cursor: pointer;
+	list-style: none;
+	font-size: 16px;
+}
+.ws-folder summary::-webkit-details-marker {
+	display: none;
+}
+.ws-folder summary::before {
+	content: "›";
+	width: 8px;
+	font-size: 20px;
+	line-height: 1;
+	color: #aaa;
+}
+.ws-folder[open] > summary::before {
+	transform: rotate(90deg);
+}
+.ws-folder summary svg {
+	color: #999;
+	width: 19px;
+	height: 19px;
+}
+.ws-folder summary span {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.ws-folder summary small {
+	margin-left: auto;
+	color: #aaa;
+	font-size: 12px;
+	white-space: nowrap;
+}
+.ws-children {
+	padding: 15px 0 0 28px;
+}
+.ws-children .ws-folder {
+	margin-top: 12px;
+}
+.ws-tab {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 8px 0;
+	font-size: 16px;
+}
+.ws-tab svg {
+	color: #999;
+	width: 18px;
+	height: 18px;
+}
+.ws-tab span {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.ws-exportbar {
+	display: flex;
+	align-items: center;
+	gap: 18px;
+	padding: 18px 28px;
+	border-top: 1px solid #282828;
+}
+.ws-totals {
+	display: grid;
+	font-size: 14px;
+	line-height: 1.4;
+}
+.ws-totals strong {
+	font-weight: 650;
+}
+.ws-totals span {
+	color: #aaa;
+	font-size: 13px;
+}
+.ws-exportbar select {
+	font-size: 13px;
+	padding: 13px;
+	border-radius: 10px;
+	background: #000;
+}
+.ws-export {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 10px;
+	margin-left: auto;
+	padding: 15px 21px;
+	background: #fff;
+	color: #000;
+	border: 1px solid #fff;
+	font-size: 16px;
+	font-weight: 650 !important;
+}
+.ws-export:hover:not(:disabled) {
+	background: #ddd;
+}
+.is-compact .ws-exportbar {
+	border: 0;
+	padding: 12px 32px 0;
+}
+.is-compact .ws-export {
+	width: 100%;
+	margin: 0;
+}
+.ws-local {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 8px;
+	padding: 0 20px 18px;
+	margin: 0;
+	color: #999;
+	font-size: 12px;
+}
+.is-compact .ws-local {
+	padding-top: 14px;
+}
+.ws-local svg {
+	width: 13px;
+	height: 13px;
+}
+.ws-found {
+	display: grid;
+	gap: 8px;
+	margin-top: 14px;
+}
+.ws-found button {
+	display: flex;
+	gap: 12px;
+	justify-content: space-between;
+	padding: 12px;
+	font-size: 13px;
+}
+.ws-found small {
+	color: #aaa;
+}
+.ws-intro {
+	margin: 24px 0 18px;
+	color: #aaa;
+	font-size: 15px;
+	line-height: 1.6;
+}
+.ws-example {
+	width: 100%;
+	padding: 13px;
+	background: #fff;
+	border: 1px solid #fff;
+	color: #000;
+	font-size: 14px;
+}
+.ws-file-help {
+	margin: 20px 0 0;
+	color: #aaa;
+	font-size: 13px;
+}
+.ws-file-help summary {
+	cursor: pointer;
+}
+.ws-format-note {
+	margin: 10px 0 0;
+	font-size: 12px;
+	color: #aaa;
+}
+.desktop-status {
+	color: #aaa;
+	margin: 0;
+	padding: 0 30px;
+	font-size: 13px;
+}
+.desktop-status:empty {
+	display: none;
+}
+.desktop-error {
+	color: #ffb4aa;
+	padding: 15px 30px;
+	margin: 0;
+}
+.desktop-tools {
+	padding: 30px;
+	border-top: 1px solid #333;
+}
+.desktop-tools-heading {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+.desktop-tools-heading h2 {
+	font-size: 22px;
+}
+.ws-space-content .tm-counts,
+.ws-space-content .tm-tree-tools {
+	display: none;
+}
+@media (max-width: 700px) {
+	.ws-library {
+		grid-template-columns: 170px minmax(0, 1fr);
+	}
+	.ws-spaces {
+		padding-inline: 8px;
+	}
+	.ws-space-content {
+		padding: 24px;
+	}
+	.ws-header-actions button {
+		font-size: 11px;
+		padding: 8px;
+	}
+	.ws-exportbar {
+		gap: 12px;
+		padding-inline: 22px;
+	}
+	.ws-exportbar select {
+		max-width: 180px;
+	}
+}
+
+.ws-candidate-path {
+	display: block;
+	color: #999;
+	font-weight: 400;
+	font-size: 11px;
+	overflow-wrap: anywhere;
+	margin-top: 4px;
+}
+.ws-found button {
+	text-align: left;
+}
+.ws-found button > span {
+	min-width: 0;
+}
+.ws-found button > small {
+	flex-shrink: 0;
+}

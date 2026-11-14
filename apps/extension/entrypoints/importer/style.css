@@ -1,10 +1,8 @@
 :root {
-	font:
-		16px / 1.5 system-ui,
-		sans-serif;
-	color: #202d29;
-	background: #f7f6ef;
-	color-scheme: light dark;
+	font: 16px / 1.5 var(--tm-sans);
+	color: var(--tm-ink);
+	background: var(--tm-paper);
+	color-scheme: dark;
 }
 * {
 	box-sizing: border-box;
@@ -22,26 +20,25 @@ body {
 	align-items: center;
 	gap: 12px;
 	padding: 0 0 18px;
-	border-bottom: 1px solid #b8c0b3;
+	border-bottom: 1px solid var(--tm-stroke);
 	font-weight: 700;
 }
 .tab-icon {
 	display: inline-block;
-	width: 25px;
-	height: 20px;
-	border: 2px solid currentColor;
-	border-radius: 6px 6px 2px 2px;
-	box-shadow: 3px -3px #a5b692;
+	width: 40px;
+	height: 40px;
+	border-radius: 11px;
+	background:
+		#eee url("../../../../packages/ui/src/assets/handoff-mark.png") center /
+		26px no-repeat;
 }
 .importer h1 {
-	font:
-		500 clamp(2.4rem, 5vw, 4rem) / 1.04 Georgia,
-		serif;
+	font: 650 clamp(2.4rem, 5vw, 3.5rem) / 1.08 var(--tm-sans);
 	letter-spacing: -0.045em;
 	margin: 32px 0 12px;
 }
 .importer h2 {
-	font: 600 1.25rem / 1.3 system-ui;
+	font: 600 1.25rem / 1.3 var(--tm-sans);
 	margin: 20px 0 10px;
 }
 .actions,
@@ -58,18 +55,18 @@ body {
 }
 .actions button,
 .primary {
-	border: 1px solid #718073;
+	border: 1px solid var(--tm-stroke-strong);
 	padding: 10px 18px;
-	border-radius: 7px;
+	border-radius: 10px;
 	cursor: pointer;
 	background: transparent;
 	color: inherit;
 	font: inherit;
 }
 .actions .primary {
-	background: #235646;
-	border-color: #235646;
-	color: #fff;
+	background: var(--tm-accent);
+	border-color: var(--tm-accent);
+	color: var(--tm-on-accent);
 }
 .actions button:disabled {
 	opacity: 0.45;
@@ -78,28 +75,82 @@ body {
 .notice,
 .previous {
 	padding: 12px 16px;
-	border-inline-start: 3px solid #718073;
-	background: #e8ece1;
+	border-inline-start: 3px solid var(--tm-stroke-strong);
+	background: var(--tm-tint);
 	margin: 16px 0;
 }
 :focus-visible {
-	outline: 3px solid #ae6534;
+	outline: 3px solid var(--tm-focus);
 	outline-offset: 3px;
 }
-@media (prefers-color-scheme: dark) {
-	:root {
-		color: #edf1e9;
-		background: #19221e;
-	}
-	.notice,
-	.previous {
-		background: #2c3931;
-	}
-	.actions .primary {
-		background: #c1d8ad;
-		color: #15291a;
-	}
-	.masthead {
-		border-color: #576258;
+
+.masthead {
+	font-size: 22px;
+	letter-spacing: -0.04em;
+}
+.notice,
+.previous {
+	border: 1px solid var(--tm-stroke);
+	border-radius: 12px;
+}
+
+.importer-workspace {
+	max-width: 1180px;
+	margin: 28px auto;
+	border: 1px solid #333;
+	border-radius: 20px;
+	overflow: clip;
+	background: #000;
+}
+.importer-workspace.compact {
+	max-width: 560px;
+}
+.importer-workspace .ws-library {
+	height: min(600px, calc(100vh - 310px));
+	min-height: 390px;
+}
+.importer-workspace .ws-file-help {
+	margin-bottom: 18px;
+}
+.importer-workspace .ws-local {
+	margin-top: 16px;
+}
+.extension-options {
+	padding: 22px 30px;
+	border-top: 1px solid #333;
+}
+.extension-options > summary {
+	cursor: pointer;
+	color: #bbb;
+	font-weight: 600;
+}
+.extension-options > .tm-options,
+.extension-options > .tm-help {
+	margin-top: 20px;
+}
+.importer-workspace > .notice,
+.importer-workspace > .previous,
+.importer-workspace > .tm-result,
+.importer-workspace > .tm-progress,
+.importer-workspace > .tm-passwords,
+.importer-workspace > .actions,
+.importer-workspace > p {
+	margin: 20px 30px;
+}
+.importer-workspace button,
+.importer-workspace select {
+	font: inherit;
+	border-radius: 10px;
+}
+.importer-workspace .ws-export {
+	font-weight: 650;
+}
+.importer-workspace h2 {
+	font-size: 22px;
+	letter-spacing: -0.04em;
+}
+@media (max-width: 800px) {
+	.importer-workspace {
+		margin: 16px;
 	}
 }

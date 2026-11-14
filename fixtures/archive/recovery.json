@@ -1,0 +1,76 @@
+{
+  "items": [
+    "id-a",
+    {
+      "reason": "auto",
+      "archivedAt": 812505600.0,
+      "source": {
+        "space": {
+          "_0": "space-0"
+        }
+      },
+      "sidebarItem": {
+        "data": {
+          "tab": {
+            "savedURL": "https://archive.test/recovered",
+            "savedTitle": "Archived link"
+          }
+        }
+      }
+    },
+    "id-b",
+    {
+      "reason": "auto",
+      "archivedAt": 815184000.0,
+      "source": {
+        "space": {
+          "_0": "space-0"
+        }
+      },
+      "sidebarItem": {
+        "data": {
+          "tab": {
+            "savedURL": "https://archive.test/recovered",
+            "savedTitle": "Archived link"
+          }
+        }
+      }
+    },
+    "id-c",
+    {
+      "reason": "manual",
+      "archivedAt": 812505600.0,
+      "source": {
+        "space": {
+          "_0": "space-0"
+        }
+      },
+      "sidebarItem": {
+        "data": {
+          "tab": {
+            "savedURL": "https://manual.test/closed",
+            "savedTitle": "Archived link"
+          }
+        }
+      }
+    },
+    "id-d",
+    {
+      "reason": "auto",
+      "archivedAt": 812505600.0,
+      "source": {
+        "space": {
+          "_0": "missing-space"
+        }
+      },
+      "sidebarItem": {
+        "data": {
+          "tab": {
+            "savedURL": "https://other.test/recovered",
+            "savedTitle": "Archived link"
+          }
+        }
+      }
+    }
+  ]
+}

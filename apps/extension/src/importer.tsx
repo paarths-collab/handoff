@@ -10,13 +10,15 @@ import {
 	type Result,
 } from "@handoff/core";
 import {
+	ArchiveRecovery,
 	CopyDiagnosticButton,
 	FileDrop,
 	OptionsPanel,
 	PasswordGuide,
 	type PasswordDestination,
 	PathHelper,
-	PreviewTree,
+	SidebarWorkspace,
+	type ExportFormat,
 	ProgressView,
 	ResultReport,
 } from "@handoff/ui";
@@ -62,6 +64,10 @@ function download(result: ImportResult) {
 }
 export function Importer({ fragment }: { fragment: string }) {
 	const [library, setLibrary] = useState<Library>();
+	const [sourceName, setSourceName] = useState("");
+	const [expanded, setExpanded] = useState(false);
+	const [showOptions, setShowOptions] = useState(false);
+	const picker = useRef<HTMLDivElement>(null);
 	const [options, setOptions] = useState<ImportOptions>();
 	const [notice, setNotice] = useState("");
 	const [mode, setMode] = useState<"tabs" | "bookmarks">("tabs");
@@ -81,15 +87,18 @@ export function Importer({ fragment }: { fragment: string }) {
 		setPrevious(last);
 		setCanUndo(!!session && last?.session === session && !last.undone);
 	};
-	const load = (parsed: Result<Library, ParseError>) => {
+	const load = (parsed: Result<Library, ParseError>, name: string) => {
 		setReport(undefined);
 		if (!parsed.ok) {
 			setLibrary(undefined);
+			setSourceName("");
+			setExpanded(false);
 			setOptions(undefined);
 			setNotice(parsed.error.message);
 			return;
 		}
 		setLibrary(parsed.value);
+		setSourceName(name);
 		// Without native groups, a pinned group would become its own window.
 		setOptions({
 			...defaultOptions(parsed.value),
@@ -103,7 +112,7 @@ export function Importer({ fragment }: { fragment: string }) {
 		void refresh().catch(() => setNotice("The last import could not be read."));
 		if (fragment)
 			void readFragment(fragment)
-				.then((text) => load(parsePack(text)))
+				.then((text) => load(parsePack(text), "Sidebar received from Handoff"))
 				.catch(() =>
 					setNotice(
 						"The handoff could not be read. Choose the pack file instead.",
@@ -246,25 +255,62 @@ export function Importer({ fragment }: { fragment: string }) {
 		: /Mac/.test(navigator.platform)
 			? "macos"
 			: "unknown";
+	async function changeMode(format: ExportFormat) {
+		if (format === "pack") setMode("tabs");
+		else if (await permission("bookmarks")) setMode("bookmarks");
+	}
 	return (
-		<main className="importer">
-			<header className="masthead">
-				<span className="tab-icon" aria-hidden="true" />
-				Handoff
-			</header>
-			<h1>Move your sidebar</h1>
-			<p>Preview your Spaces, then choose what to bring into this browser.</p>
+		<main className={`importer-workspace ${expanded ? "expanded" : "compact"}`}>
+			{!busy && !report && (
+				<SidebarWorkspace
+					key={library?.source.sourceHash ?? "empty"}
+					library={library ?? null}
+					source={sourceName}
+					selected={new Set(options?.spaceIds ?? [])}
+					onSelection={(ids) => {
+						if (options) setOptions({ ...options, spaceIds: [...ids] });
+					}}
+					expanded={expanded && !!library}
+					onToggle={() => setExpanded((value) => !value)}
+					format={mode === "tabs" ? "pack" : "bookmarks"}
+					onFormat={(format) => void changeMode(format)}
+					formatOptions={[
+						{
+							value: "pack",
+							label: adapter.supportsGroups
+								? "Tabs and groups"
+								: "Browser tabs",
+						},
+						{ value: "bookmarks", label: "Nested bookmarks" },
+					]}
+					importMode
+					actionCount={plan?.totals.tabs ?? 0}
+					actionAccessibleName="Move"
+					onPick={() =>
+						picker.current
+							?.querySelector<HTMLInputElement>('input[type="file"]')
+							?.click()
+					}
+					onExport={() => void run()}
+					busy={busy}
+					onTools={() => setShowOptions((value) => !value)}
+					toolsLabel="Import options"
+					candidates={null}
+					filePicker={
+						<div ref={picker}>
+							<FileDrop onLoaded={load} />
+						</div>
+					}
+					help={<PathHelper platform={platform} />}
+					emptyIntro="Choose your Arc sidebar or a Handoff pack to preview its actual Spaces, folders and tabs. Your file stays in this browser."
+				/>
+			)}
 			{notice && (
 				<p className="notice" role="status">
 					{notice}
 				</p>
 			)}
-			{!busy && !report && (
-				<>
-					<FileDrop onLoaded={load} />
-					{!library && <PathHelper platform={platform} />}
-				</>
-			)}
+
 			{previous && !busy && !report && (
 				<section className="previous">
 					<h2>Last import</h2>
@@ -305,11 +351,32 @@ export function Importer({ fragment }: { fragment: string }) {
 				/>
 			)}
 			{library && options && plan && !busy && !report && (
-				<>
-					<PreviewTree
+				<details
+					className="extension-options"
+					open={showOptions}
+					onToggle={(event) => setShowOptions(event.currentTarget.open)}
+				>
+					<summary>Import options and recovery</summary>
+
+					<ArchiveRecovery
 						library={library}
-						selectedSpaceIds={new Set(options.spaceIds)}
-						onChange={(ids) => setOptions({ ...options, spaceIds: [...ids] })}
+						onChange={(next) => {
+							setLibrary(next);
+							setOptions({
+								...options,
+								spaceIds: [
+									...options.spaceIds,
+									...next.spaces
+										.filter(
+											(space) =>
+												!library.spaces.some(
+													(old) => old.arcId === space.arcId,
+												),
+										)
+										.map((space) => space.arcId),
+								],
+							});
+						}}
 					/>
 					<OptionsPanel
 						value={options}
@@ -360,14 +427,10 @@ export function Importer({ fragment }: { fragment: string }) {
 							Bookmarks only (don't open tabs)
 						</label>
 					</div>
-					<div className="actions">
-						<button className="primary" onClick={() => void run()}>
-							Move
-						</button>
-						<CopyDiagnosticButton library={library} appVersion="1.0.0" />
-					</div>
-				</>
+					<CopyDiagnosticButton library={library} appVersion="1.0.0" />
+				</details>
 			)}
+
 			{report && plan && !busy && (
 				<>
 					<ResultReport
@@ -390,6 +453,7 @@ export function Importer({ fragment }: { fragment: string }) {
 							onClick={() => {
 								setReport(undefined);
 								setLibrary(undefined);
+								setSourceName("");
 								setOptions(undefined);
 							}}
 						>

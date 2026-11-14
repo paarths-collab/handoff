@@ -16,7 +16,8 @@
     "e2e": "playwright test",
     "mutation": "vitest run packages/core/test/engine.test.ts -t \"parses 5,000 tabs\" && stryker run",
     "format": "biome format --write apps packages scripts",
-    "format:check": "biome format apps packages scripts"
+    "format:check": "biome format apps packages scripts",
+    "package:windows": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/package-windows.ps1"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.6",

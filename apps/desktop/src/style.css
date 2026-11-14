@@ -5,10 +5,7 @@ body {
 	margin: 0;
 	background: var(--tm-paper);
 	color: var(--tm-ink);
-	font:
-		1rem / 1.55 "DM Sans",
-		system-ui,
-		sans-serif;
+	font: 1rem / 1.55 var(--tm-sans);
 }
 .desk {
 	max-width: 1080px;
@@ -31,12 +28,14 @@ header strong {
 	font-size: 1.1rem;
 }
 .app-mark {
-	background: var(--tm-accent);
-	color: var(--tm-on-accent);
-	width: 32px;
-	height: 30px;
-	text-align: center;
-	border-radius: 7px 12px 7px 7px;
+	width: 40px;
+	height: 40px;
+	border-radius: 11px;
+	background:
+		#eee url("../../../packages/ui/src/assets/handoff-mark.png") center / 26px
+		no-repeat;
+	font-size: 0;
+	flex-shrink: 0;
 }
 .platform {
 	margin-left: auto;
@@ -49,9 +48,7 @@ p {
 	margin: 0;
 }
 h1 {
-	font:
-		normal clamp(2.8rem, 7vw, 4.5rem) / 1.05 Georgia,
-		serif;
+	font: 650 clamp(2.8rem, 7vw, 3.7rem) / 1.05 var(--tm-sans);
 	letter-spacing: -0.06em;
 	margin: 2.5rem 0 1rem;
 }
@@ -106,7 +103,7 @@ select {
 	color: var(--tm-ink);
 	background: var(--tm-card);
 	border: 1px solid var(--tm-stroke);
-	border-radius: 6px;
+	border-radius: 10px;
 	padding: 0.55em 0.85em;
 }
 button:not(:disabled) {
@@ -225,7 +222,16 @@ button:disabled {
 	color: var(--tm-ink);
 	background: var(--tm-card);
 	border: 1px solid var(--tm-stroke);
-	border-radius: 6px;
+	border-radius: 10px;
 	padding: 0.5em 0.7em;
 	min-width: 0;
+}
+
+header strong {
+	font-size: 22px;
+	font-weight: 700;
+	letter-spacing: -0.045em;
+}
+h2 {
+	font-weight: 600;
 }

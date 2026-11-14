@@ -16,7 +16,7 @@ export type Browser =
 	| "firefox";
 type Profile = { directory: string; name: string };
 type ProfileList = { profiles: Profile[]; named: boolean };
-// Profile labels the user typed when names can't be read. Stored only on this Mac.
+// Profile labels the user typed when names can't be read. Stored only on this device.
 const labelKey = (browser: string) => "handoff.profileLabels." + browser;
 function loadLabels(browser: string): Record<string, string> {
 	try {
@@ -244,11 +244,10 @@ export function ProfileMover({
 					{!named && (
 						<div className="unnamed">
 							<p className="note warn">
-								macOS is blocking Handoff from reading {browserName}'s profile
-								names, so your profiles are listed by folder. Click{" "}
-								<strong>Show</strong> to open an empty window in a profile and
-								see which account it is, then type a name. Names are saved on
-								this Mac.
+								Handoff could not read {browserName}'s profile names, so your
+								profiles are listed by folder. Click <strong>Show</strong> to
+								open an empty window in a profile and see which account it is,
+								then type a name. Names are saved on this device.
 							</p>
 							<div className="profile-rows">
 								{raw?.profiles.map((p) => (
@@ -286,13 +285,15 @@ export function ProfileMover({
 									</div>
 								))}
 							</div>
-							<button
-								type="button"
-								disabled={busy}
-								onClick={() => perform(() => invoke("open_privacy_settings"))}
-							>
-								Or allow Full Disk Access to see names automatically
-							</button>
+							{/Mac/.test(navigator.platform) && (
+								<button
+									type="button"
+									disabled={busy}
+									onClick={() => perform(() => invoke("open_privacy_settings"))}
+								>
+									Or allow Full Disk Access to see names automatically
+								</button>
+							)}
 						</div>
 					)}
 					{arcProfiles.size > 1 && (

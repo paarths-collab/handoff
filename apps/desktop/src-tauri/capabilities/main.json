@@ -2,5 +2,5 @@
 	"identifier": "main",
 	"description": "The local main window uses native picker-mediated commands.",
 	"windows": ["main"],
-	"permissions": []
+	"permissions": ["core:window:allow-set-size", "core:window:allow-center"]
 }

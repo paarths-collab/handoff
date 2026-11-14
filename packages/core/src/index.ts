@@ -6,3 +6,4 @@ export * from "./parse";
 export * from "./plan";
 export * from "./conserve";
 export * from "./export/index";
+export * from "./archive";

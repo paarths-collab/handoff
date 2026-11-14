@@ -71,10 +71,10 @@ export function FileDrop({ onLoaded }: FileDropProps) {
 			}}
 		>
 			<span className="tm-file-icon" aria-hidden="true">
-				<span>JSON</span>
+				<span>{"{ }"}</span>
 			</span>
 			<strong>Drop your sidebar file here</strong>
-			<p>StorableSidebar.json or a Handoff pack · Up to 100 MB</p>
+			<p>StorableSidebar.json or a Handoff pack · up to 100 MB</p>
 			<label className="tm-pick" htmlFor={id}>
 				Choose a file
 				<input

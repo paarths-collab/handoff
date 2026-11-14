@@ -1,0 +1,40 @@
+name: Windows desktop installer
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'apps/desktop/**'
+      - 'apps/extension/**'
+      - 'packages/**'
+      - 'scripts/package-windows.ps1'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/windows-desktop.yaml'
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Install pnpm
+        run: npm install --global pnpm@11.25.0
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Check TypeScript
+        run: pnpm typecheck
+      - name: Test shared code
+        run: pnpm test
+      - name: Test native Windows app
+        working-directory: apps/desktop/src-tauri
+        run: cargo test --locked
+      - name: Build installer and extension download
+        run: pnpm package:windows
+      - uses: actions/upload-artifact@v4
+        with:
+          name: handoff-windows-x64
+          path: release/handoff-*-windows-x64.zip
+          if-no-files-found: error

@@ -49,25 +49,38 @@ pub(crate) fn executable(browser: Browser) -> Option<PathBuf> {
     .map(|base| base.join(&app))
     .find(|p| p.is_file())
 }
+// Search both machine-wide and per-user Windows installations.
+#[cfg(any(target_os = "windows", test))]
+fn windows_candidates(browser: Browser, roots: &[PathBuf]) -> Vec<PathBuf> {
+    let relative: &[&str] = match browser {
+        Browser::Chrome => &["Google/Chrome/Application/chrome.exe"],
+        Browser::Brave => &["BraveSoftware/Brave-Browser/Application/brave.exe"],
+        Browser::Edge => &["Microsoft/Edge/Application/msedge.exe"],
+        Browser::Vivaldi => &["Vivaldi/Application/vivaldi.exe"],
+        Browser::Opera => &["Opera/launcher.exe", "Programs/Opera/launcher.exe"],
+        Browser::Firefox => &[
+            "Mozilla Firefox/firefox.exe",
+            "Programs/Mozilla Firefox/firefox.exe",
+        ],
+    };
+    roots
+        .iter()
+        .flat_map(|base| relative.iter().map(move |rel| base.join(rel)))
+        .collect()
+}
 #[cfg(target_os = "windows")]
 pub(crate) fn executable(browser: Browser) -> Option<PathBuf> {
-    let rel = match browser {
-        Browser::Chrome => "Google/Chrome/Application/chrome.exe",
-        Browser::Brave => "BraveSoftware/Brave-Browser/Application/brave.exe",
-        Browser::Edge => "Microsoft/Edge/Application/msedge.exe",
-        Browser::Vivaldi => "Vivaldi/Application/vivaldi.exe",
-        Browser::Opera => "Programs/Opera/launcher.exe",
-        Browser::Firefox => "Mozilla Firefox/firefox.exe",
-    };
-    [
+    let roots: Vec<PathBuf> = [
         std::env::var_os("ProgramFiles").map(PathBuf::from),
         std::env::var_os("ProgramFiles(x86)").map(PathBuf::from),
         dirs::data_local_dir(),
     ]
     .into_iter()
     .flatten()
-    .map(|base| base.join(rel))
-    .find(|p| p.is_file())
+    .collect();
+    windows_candidates(browser, &roots)
+        .into_iter()
+        .find(|p| p.is_file())
 }
 #[cfg(not(any(target_os = "macos", target_os = "windows")))]
 pub(crate) fn executable(_: Browser) -> Option<PathBuf> {
@@ -189,6 +202,29 @@ pub fn open_in_browser(browser: Browser, destination: Destination) -> Result<(),
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn windows_discovery_covers_machine_and_per_user_installs() {
+        let root = PathBuf::from("test-root");
+        for browser in BROWSERS {
+            let paths = windows_candidates(browser, std::slice::from_ref(&root));
+            assert!(!paths.is_empty());
+            assert!(paths
+                .iter()
+                .all(|p| p.starts_with(&root) && p.extension().is_some_and(|ext| ext == "exe")));
+        }
+        assert!(
+            windows_candidates(Browser::Opera, std::slice::from_ref(&root))
+                .contains(&root.join("Opera/launcher.exe"))
+        );
+        assert!(
+            windows_candidates(Browser::Firefox, std::slice::from_ref(&root))
+                .contains(&root.join("Programs/Mozilla Firefox/firefox.exe"))
+        );
+        assert_eq!(
+            windows_candidates(Browser::Chrome, &[]),
+            Vec::<PathBuf>::new()
+        );
+    }
     #[test]
     fn destinations_are_fixed() {
         for browser in BROWSERS {
