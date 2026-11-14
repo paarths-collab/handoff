@@ -1,73 +1,237 @@
+<div align="center">
+
+<img src="apps/desktop/src-tauri/icons/128x128.png" width="96" height="96" alt="Handoff icon">
+
 # Handoff
 
-Move an Arc sidebar into browser windows, pinned tabs and groups, or export nested bookmarks, a searchable offline archive, a JSON pack and CSV. The desktop app and extension read your file locally. The extension opens destinations only after you choose Move.
+**Move on from Arc — without starting over.**
 
-This repository contains the desktop app, browser extension, shared code and product-film sources. The website, browser guides and offline web converter are maintained in the separate private [handoff-website](https://github.com/paarths-collab/handoff-website) repository. Website builds and tests run there.
+Bring your Spaces, pinned tabs and folders from Arc to Chrome, Brave, Edge, Vivaldi, Opera, Firefox or Safari.
+Everything happens on your computer. No account, no upload.
+
+[**Website**](https://um2.us/q/nCuQnjWlY) · [**Download**](https://github.com/paarths-collab/handoff/releases/latest) · [What moves](#what-moves-with-you) · [Privacy](#your-data-stays-on-your-computer) · [For developers](#for-developers)
+
+[![Latest release](https://img.shields.io/github/v/release/paarths-collab/handoff?label=release)](https://github.com/paarths-collab/handoff/releases/latest)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+![macOS and Windows](https://img.shields.io/badge/platforms-macOS%20%C2%B7%20Windows-lightgrey)
+
+</div>
+
+---
+
+## What is Handoff?
+
+Arc is no longer moving forward, and starting over in a new browser means rebuilding years of Spaces, folders and tabs by hand. Handoff does that for you:
+
+1. It **finds your Arc sidebar** on its own.
+2. You **preview** every Space, folder and tab and choose what moves.
+3. You **pick a browser and a profile for each Space**, already signed in — and each Space opens in its own window.
+4. You **keep a copy** as bookmarks, a searchable archive or a spreadsheet.
+
+Watch the 90-second film on the [website](https://um2.us/q/nCuQnjWlY).
 
 ## Install
 
-The quickest way on macOS is one line in Terminal. It downloads the latest release, checks it against the release's SHA-256 checksum, installs Handoff in Applications and opens it, without the "Apple could not verify" prompt that browser downloads of unsigned apps get:
+### Mac — one line in Terminal (recommended)
+
+Open **Terminal** (press <kbd>⌘</kbd> <kbd>Space</kbd>, type *Terminal*, press <kbd>Return</kbd>), paste this and press <kbd>Return</kbd>:
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/paarths-collab/handoff/main/scripts/install-mac.sh | bash
 ```
 
-You can read [the script](scripts/install-mac.sh) first. It also puts the optional browser extensions in `~/Handoff Extras`.
+It downloads the latest release, checks it against the release's SHA-256 checksum, installs Handoff in **Applications** and opens it — without the "Apple could not verify" warning. Run the same line again any time to update. You can [read the script](scripts/install-mac.sh) first; it also puts the optional browser extensions in `~/Handoff Extras`.
 
-If you download the disk image in a browser instead, macOS blocks the first launch because Handoff is not yet notarized by Apple. Click **Done**, then open **System Settings → Privacy & Security** and choose **Open Anyway** next to Handoff. On Windows, choose **More info → Run anyway** if SmartScreen warns about the installer.
+### Mac — download the disk image
 
-On macOS, download the disk image from [GitHub Releases](https://github.com/paarths-collab/handoff/releases) and drag Handoff to Applications. On Windows x64, extract the Windows ZIP, run `Handoff-Setup.exe`, then open Handoff from Start. The Windows installer sets up WebView2 if missing (internet required for runtime setup). To get tab groups, open your browser's Extensions page, turn on Developer mode, choose **Load unpacked** and pick the **Handoff Extension** folder (copy it somewhere permanent first, since the browser loads it from that folder). Repeat in each browser profile that should get groups; the app opens tabs in any profile without it.
+1. Download `handoff-<version>-macos-universal.dmg` from the [latest release](https://github.com/paarths-collab/handoff/releases/latest). It works on Apple Silicon and Intel Macs.
+2. Open it and drag **Handoff** into **Applications**.
+3. The first time you open it, macOS says *"Handoff" Not Opened* because Handoff is not yet notarized by Apple. Click **Done**, then open **System Settings → Privacy & Security**, scroll down and click **Open Anyway** next to Handoff.
 
-## Set up with Claude Code, Codex or Cursor
+### Windows (x64)
 
-Use a coding agent to check your platform prerequisites and launch the native app:
+1. Download `handoff-<version>-windows-x64.zip` from the [latest release](https://github.com/paarths-collab/handoff/releases/latest) and extract it.
+2. Run **Handoff-Setup.exe**. If Windows shows *"Windows protected your PC"*, click **More info → Run anyway** (the installer is not yet signed).
+3. Open Handoff from the **Start** menu. The installer adds Microsoft WebView2 if it is missing (needs internet).
+
+> [!NOTE]
+> Windows builds pass automated tests on Windows, but have had less real-world use than the Mac app. Please [report anything odd](https://github.com/paarths-collab/handoff/issues).
+
+## How it works
+
+```mermaid
+flowchart LR
+    A["🗂️ Arc sidebar<br/>StorableSidebar.json"] --> B["1 · Handoff finds it"]
+    B --> C["2 · Preview Spaces,<br/>folders and tabs"]
+    C --> D{"3 · Send to browser"}
+    D -->|"Chrome · Brave · Edge · Vivaldi"| E["A profile for each Space<br/>→ opens in its own window"]
+    D -->|"Firefox · Opera"| F["Handoff extension<br/>→ tabs and tab groups"]
+    D -->|Safari| G["Save Safari bookmarks<br/>→ import in Safari"]
+    E --> H["4 · Keep every folder<br/>bookmarks · archive · CSV"]
+    F --> H
+    G --> H
+```
+
+### Step by step
+
+1. **Open Handoff.** It looks for your Arc sidebar file and shows **Arc sidebar found**. You can also choose a file yourself ([where is it?](#where-is-my-arc-file)).
+2. **Preview.** Spaces are on the left, folders and tabs on the right. Untick any Space you don't want to move.
+3. **Send to browser.** Pick your new browser:
+   - **Chrome, Brave, Edge or Vivaldi** — choose a profile for each Space (for example *Work* for your work Space). Click **Open N tabs in M profiles**. Each Space opens in its own window, signed in as that profile. No extension needed.
+   - **Firefox or Opera** — save a pack and open it in the [Handoff extension](#optional-tab-groups-with-the-extension).
+   - **Safari** (Mac) — click **Save Safari bookmarks**, then in Safari choose **File → Import Browsing Data from File or Folder**.
+4. **Keep every folder.** Tabs open as plain tabs, so also save a bookmarks file for each profile to keep your nested folders. You can save an **Arc Archive** (a searchable web page of everything) or a **Spreadsheet** (CSV) too.
+5. **Move your passwords** (optional). Handoff shows you how to export them from Arc and import them in each profile — Handoff itself never sees them.
+
+### What moves with you
+
+| From Arc | Moves | How |
+|---|---|---|
+| Spaces | ✅ | Each Space opens in its own window, in the profile you choose |
+| Pinned tabs and Today tabs | ✅ | Opened as tabs (you can leave Today tabs out) |
+| Folders, including nested ones | ✅ | Kept in the bookmarks file, or as tab groups with the extension |
+| Favorites | ✅ | Opened in the profile you choose |
+| Archived tabs | ✅ optional | **Recover archived tabs** reads Arc's archive file |
+| Saved passwords | ✅ guided | Arc's own export → your browser's import. Handoff never reads them |
+| Website logins and cookies | ❌ | You sign in to each site once in the new browser |
+| History, Boosts, Easels, Notes | ❌ | Not part of the sidebar file |
+
+Handoff opens up to 5,000 tabs per move and reads sidebars with up to 100,000 tabs and folders.
+
+### Optional: tab groups with the extension
+
+Opening in profiles gives you plain tabs. For **tab groups** (and for Firefox or Opera), use the Handoff extension that comes in every download:
+
+1. Copy the **Handoff Extension** folder somewhere permanent (the browser loads it from there). With the Terminal install it is already in `~/Handoff Extras`.
+2. In your browser, open the **Extensions** page, turn on **Developer mode**, click **Load unpacked** and choose that folder. In Firefox, open `about:debugging` → **This Firefox** → **Load Temporary Add-on** and pick **Handoff for Firefox.zip**.
+3. In Handoff, open **Send to browser → Tab groups with the Handoff extension**, click **Save browser pack**, and open it in the extension. Review the preview and click **Move**. You can **Undo** in the same browser session.
+
+### Full Disk Access on Mac (optional)
+
+Handoff reads only the **names** of your browser profiles (such as *Work* or *Personal*) so you can pick them. Some Macs block that, and Handoff then lists profiles as *Default*, *Profile 1* and so on — you can still click **Show** to see which is which and type a name.
+
+To let Handoff see the real names:
+
+1. Open **System Settings → Privacy & Security → Full Disk Access**.
+2. Click the **+** button at the bottom of the list (enter your password if asked).
+3. Choose **Applications → Handoff** and click **Open**.
+4. Make sure the switch next to **Handoff** is **on**.
+5. **Quit Handoff** (<kbd>⌘</kbd> <kbd>Q</kbd>) and open it again.
+
+Handoff also has a button that opens this settings page for you. You can turn the switch off again at any time. Handoff never reads passwords, cookies or history, with or without this access.
+
+### Where is my Arc file?
+
+Handoff finds it automatically. If you need to choose it yourself, the file is called **StorableSidebar.json**:
+
+- **Mac:** `~/Library/Application Support/Arc/StorableSidebar.json` — in the file picker press <kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>G</kbd> and paste that path.
+- **Windows:** in Arc's folder under your user's `AppData\Local\Packages` (the folder name starts with `TheBrowserCompany.Arc`), in `LocalCache\Local\Arc`.
+
+## Your data stays on your computer
+
+```mermaid
+flowchart LR
+    subgraph "Your computer"
+        A["Arc sidebar file"] --> H["Handoff"]
+        H --> B["Your browser profiles"]
+        H --> X["Exports you save"]
+    end
+    H -. "nothing is uploaded" .-x C(("Internet"))
+```
+
+- No account, no tracking and no upload in the app or extension. Handoff only reads the file you choose and saves files where you choose.
+- Opening a tab contacts that website through your browser, as any tab would.
+- Handoff never reads passwords, cookies or browsing history.
+- Full details: [privacy](docs/privacy.md) · [security model](docs/security/threat-model.md).
+
+## FAQ
+
+**Is it free?** Yes, and open source under the [MIT license](LICENSE).
+
+**Why does my Mac or PC warn me?** Handoff is not yet signed by Apple or Microsoft, which costs a yearly fee. The Terminal install avoids the Mac warning and checks the download's checksum. The code is public, so you can read exactly what it does.
+
+**Will it change Arc?** No. Handoff only reads Arc's sidebar file. Arc keeps working as before.
+
+**Can I undo a move?** With the extension, yes — **Undo** removes the tabs and bookmarks that move created, in the same browser session. Tabs opened in profiles are ordinary tabs you can close.
+
+**Something went wrong.** Use **Copy diagnostic** at the bottom of the Send to browser screen and include it in an [issue](https://github.com/paarths-collab/handoff/issues). It contains only counts, never your titles or links.
+
+---
+
+## For developers
+
+### What's in this repository
+
+```mermaid
+flowchart TB
+    core["packages/core<br/>parse · plan · export · limits"]
+    ui["packages/ui<br/>shared React workspace"]
+    desktop["apps/desktop<br/>Tauri 2 app (Rust + React)"]
+    ext["apps/extension<br/>WXT extension: Chrome · Firefox"]
+    film["apps/film<br/>Remotion product film"]
+    core --> ui
+    ui --> desktop
+    ui --> ext
+    core --> desktop
+    core --> ext
+```
+
+| Path | What it is |
+|---|---|
+| `packages/core` | Reads Arc sidebars and Handoff packs, plans moves, exports bookmarks/archive/CSV/pack, enforces import limits |
+| `packages/ui` | The shared preview workspace used by the app and the extension |
+| `apps/desktop` | The native app (Tauri 2). Rust side: file discovery and grants, profile listing and launching, saving exports |
+| `apps/extension` | The browser extension that creates tabs, tab groups and bookmarks, with Undo |
+| `apps/film` | The product film, written in [Remotion](https://www.remotion.dev); see [its README](apps/film/README.md) |
+| `scripts/` | Packaging, the Mac installer and repository checks |
+
+The website, web converter and browser guides live in the separate [handoff-website](https://github.com/paarths-collab/handoff-website) repository.
+
+### Run it from source
+
+You need the Node version in `.nvmrc`, the pnpm version in `package.json` and the [Tauri 2 prerequisites](https://v2.tauri.app/start/prerequisites/) for your platform.
 
 ```sh
 git clone https://github.com/paarths-collab/handoff.git
 cd handoff
+pnpm install --frozen-lockfile
+pnpm --filter @handoff/desktop exec tauri dev
 ```
 
-You can also use GitHub's **Code → Download ZIP** and extract the folder. Open the repository in Claude Code, Codex or Cursor, then paste the [coding-agent setup prompt](docs/setup-prompt.txt). One prompt works with all three agents on macOS and Windows.
+Choose [`fixtures/tiny.json`](fixtures/tiny.json), a synthetic sidebar with one Space and three tabs. Synthetic `.test` links do not resolve on the internet.
 
-The agent installs project dependencies and launches the desktop app. You choose a detected Arc sidebar or your own file and confirm the migration. The optional extension uses the actual file you select or a pack received from Handoff. Your sidebar stays local; the setup prompt does not authorize commits, publishing or automatic browser changes.
+For the extension, run `pnpm --filter @handoff/extension build` and load `apps/extension/.output/chrome-mv3` unpacked in a disposable Chromium profile.
 
-The website has a **Copy setup prompt** button and a [step-by-step setup guide](docs/agent-setup.md).
+Prefer a coding agent? Open the folder in Claude Code, Codex or Cursor and paste the [setup prompt](docs/setup-prompt.txt) ([guide](docs/agent-setup.md)). It installs dependencies and launches the app; it never commits, publishes or changes your browsers on its own.
 
-## Try a synthetic sidebar
+### Checks
 
-1. Use Node from `.nvmrc` and the pnpm version in `package.json`. Run `pnpm install --frozen-lockfile`.
-2. Install the standard Tauri v2 platform prerequisites and run `pnpm --filter @handoff/desktop exec tauri dev` to open the native app.
-3. Choose [tiny.json](fixtures/tiny.json) in the native file picker. Expect one Space and three tabs. Expand the preview, export Bookmarks HTML, and open the file in a browser. The [guides](docs/guides/README.md) cover importing it.
-4. For tab groups, run `pnpm --filter @handoff/extension build`. In a disposable Chromium profile, open the Extensions page, enable Developer mode, choose **Load unpacked**, and select `apps/extension/.output/chrome-mv3`. Open the extension's importer, choose the same fixture, review the plan, and click **Move**. Synthetic .test destinations do not resolve on the public internet. Review the result, then try Undo.
+| Command | What it runs |
+|---|---|
+| `pnpm check` | TypeScript, lint, formatting, unit and property tests, builds, manifest and fixture-privacy checks, the pinned-Actions check and the production dependency audit |
+| `pnpm e2e` | Playwright: the desktop UI with a mocked native bridge and the real Chromium extension (run `pnpm build` and `pnpm exec playwright install chromium` first) |
+| `pnpm mutation` | Mutation tests for the core engine |
+| `cargo test --locked` · `cargo clippy --locked --all-targets -- -D warnings` | Native tests and lints, in `apps/desktop/src-tauri` |
 
-## Checks
+### CI and releases
 
-`pnpm check` runs TypeScript, lint, formatting, unit/property tests, production builds, manifest and fixture privacy checks, and the production dependency audit. `pnpm e2e` checks the built desktop frontend with a mocked native bridge and the actual Chromium extension in disposable profiles; no website server is needed. Run `pnpm build` first, and install the browser with `pnpm exec playwright install chromium` if needed. Run `pnpm mutation` for the core mutation suite. Run Rust tests from `apps/desktop/src-tauri` with `cargo test --locked` and `cargo clippy --locked --all-targets -- -D warnings`.
+```mermaid
+flowchart LR
+    P["push / pull request"] --> CI["App and extension CI<br/>Linux checks + macOS and Windows native tests"]
+    M["manual run<br/>build-downloads"] --> DL["Mac DMG + Windows ZIP<br/>as artifacts"]
+    T["version tag v1.2.3"] --> R["Draft desktop release<br/>CI → builds → SHA256SUMS → draft"]
+    R --> H["Maintainer reviews and publishes"]
+```
 
-[Build plan](docs/PLAN.md) · [Build decisions](docs/decisions.md) · [Threat model](docs/security/threat-model.md) · [Report a security issue](SECURITY.md)
+- Every third-party GitHub Action is pinned to a commit SHA, and Rust to a fixed version. The only job that can write to the repository runs no third-party Actions.
+- **To release:** bump the version in the root, desktop and extension `package.json`, `tauri.conf.json`, `Cargo.toml` and `Cargo.lock`. Commit, tag (`vX.Y.Z`) and push the tag. Run **Actions → Draft desktop release** with that tag. Review the draft, then publish it.
+- To build a Windows download yourself on Windows x64 (Rust MSVC, Visual Studio C++ Build Tools): `pnpm install --frozen-lockfile` then `pnpm package:windows`.
+- Builds use ad hoc macOS signing; Apple notarization and Windows code signing are not configured yet.
 
-## Build the Windows desktop download
+### More
 
-On Windows x64, install the Node version in `.nvmrc`, pnpm from `package.json`, Rust stable MSVC, and Visual Studio C++ Build Tools with the Windows SDK. Run `pnpm install --frozen-lockfile`, then `pnpm package:windows`. This builds the native Tauri app as a per-user NSIS installer and creates `release/handoff-<version>-windows-x64.zip` with the installer, optional Chromium extension, Firefox add-on and setup instructions.
+[Changelog](CHANGELOG.md) · [Contributing](CONTRIBUTING.md) · [Security policy](SECURITY.md) · [Threat model](docs/security/threat-model.md) · [Arc file format](docs/arc-format.md) · [Build decisions](docs/decisions.md) · [Third-party notices](THIRD_PARTY_NOTICES.md)
 
-The `App and extension CI` GitHub Actions workflow tests the native app on macOS and Windows. To build both downloads as workflow artifacts, run it manually with **build-downloads** enabled. Windows installer execution and an Arc-to-browser smoke test must pass on a Windows PC before release; a successful macOS build does not verify Windows behavior.
+## License
 
-## GitHub Actions
-
-[App and extension CI](.github/workflows/ci.yaml) runs on pushes, pull requests and manual runs:
-
-- Linux: TypeScript, lint, formatting, unit/property tests, app and Chrome/Firefox extension builds, manifest checks, fixture privacy checks and the production dependency audit. Playwright tests the desktop frontend with a mocked native bridge and the actual Chromium extension in disposable profiles. Its HTML report is retained for seven days.
-- macOS and Windows: native Rust tests, Clippy and executable builds run independently of the shared checks, so a browser-test failure does not skip either platform. These jobs compile and test native code; they do not automate native installer dialogs or establish real Arc compatibility.
-- A manual run with **build-downloads** enabled also builds the macOS universal DMG (Apple Silicon and Intel) and Windows x64 ZIP, including optional extensions and setup instructions. Download artifacts are retained for fourteen days.
-
-[Draft desktop release](.github/workflows/release.yaml) is manual and never publishes a release automatically. Once the workflow is on the default branch:
-
-1. Update the application version consistently in the root, desktop and extension package manifests, `apps/desktop/src-tauri/tauri.conf.json`, and the native Cargo manifest/lockfile. Commit the reviewed changes and create and push the matching version tag, such as `v1.0.0`, using the authorized publishing identity.
-2. Using the **paarths-collab** publishing account, open **Actions → Draft desktop release → Run workflow**. Select that tag and enter it in **tag**. It must already exist, match the app version and point to the exact selected commit. The workflow never creates or moves tags.
-3. The workflow reruns CI and builds both downloads. Only after every CI job succeeds does it generate **SHA256SUMS.txt** and create a new **draft** GitHub Release. It fails rather than overwriting an existing release. Review signing, install the builds and perform a real migration on both operating systems before publishing the draft manually.
-
-No personal access token or custom Actions secret is needed. GitHub automatically supplies temporary credentials to the release job; only that job requests permission to write releases. The draft is created by GitHub Actions after the publishing account starts the workflow. People downloading, cloning or using Handoff do not need a token from Handoff. While the repositories are private, access still requires an authorized GitHub account.
-
-Current packaging uses ad hoc macOS signing and does not configure Apple notarization or Windows certificate signing. Signing credentials and platform release testing remain separate from CI. The [product-film workflow](.github/workflows/film.yaml) continues to render film artifacts independently. Website CI is maintained in the separate website repository.
-
-[Archived design prototypes](archive/prototypes/README.md) · [Shared UI font license](packages/ui/src/assets/Figtree-OFL.txt) · [Extension notices](apps/extension/public/licenses/) · [Film notices and artwork](apps/film/public/)
+Handoff is released under the [MIT License](LICENSE). Browser logos, fonts and the film's audio belong to their owners; see [third-party notices](THIRD_PARTY_NOTICES.md). Handoff is not affiliated with The Browser Company or any browser maker.

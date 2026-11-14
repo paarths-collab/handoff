@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.0.2
+
+- Show each browser's logo on the destination tiles.
+- Use the Handoff mark for the Mac, Windows and extension icons.
+- Add a one-line Terminal installer for macOS that verifies the release checksum and avoids the Gatekeeper prompt.
+- Security: pin every CI Action to a commit SHA and keep the release job free of third-party Actions; leave script-capable links out of bookmark exports; cap imports at 1,000 Spaces, 100,000 tabs and folders and 64 KiB links, and moves at 5,000 tabs; create Mac archives through one handle to the chosen folder.
+- Release under the MIT License.
+
+## 1.0.1
+
+- Open the full preview as soon as a sidebar is loaded.
+- Make **Send to browser** the main step after the preview: choose a browser, a profile for each Space, open, then keep folders, use the extension for tab groups, recover archived tabs and move passwords.
+- Offer Safari on Mac, through a bookmarks import.
+- Fix the Windows download build's checksum step.
+
 ## 1.0.0
 
 - Read an Arc sidebar or Handoff pack and preview Spaces, Favorites, pinned and Today tabs. Inspect skipped entries and structural warnings before moving.
