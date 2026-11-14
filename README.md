@@ -171,6 +171,6 @@ flowchart LR
 
 ## License
 
-Developers: see [CONTRIBUTING.md](CONTRIBUTING.md) to build, test and release Handoff.
+Want to help? See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 Handoff is released under the [MIT License](LICENSE). Browser logos, fonts and the film's audio belong to their owners; see [third-party notices](THIRD_PARTY_NOTICES.md). Handoff is not affiliated with The Browser Company or any browser maker.
