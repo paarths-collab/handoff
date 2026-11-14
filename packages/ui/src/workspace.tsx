@@ -217,7 +217,9 @@ export function SidebarWorkspace(props: SidebarWorkspaceProps) {
 			)}
 			<section className="ws-compact" hidden={expanded && !!library}>
 				<h1>
-					{props.importMode ? "Move your sidebar." : "Export your sidebar."}
+					{props.importMode || props.primary
+						? "Move your sidebar."
+						: "Export your sidebar."}
 				</h1>
 				<div hidden={!!library}>{props.filePicker}</div>
 				<div className="ws-source" hidden={!library && !!props.filePicker}>
@@ -242,10 +244,12 @@ export function SidebarWorkspace(props: SidebarWorkspaceProps) {
 								{spaceChoices}
 							</details>
 						</div>
-						<label className="ws-setting">
-							<span>Format</span>
-							{formatPicker}
-						</label>
+						{!props.primary && (
+							<label className="ws-setting">
+								<span>Format</span>
+								{formatPicker}
+							</label>
+						)}
 						<button
 							className="ws-preview-button"
 							type="button"

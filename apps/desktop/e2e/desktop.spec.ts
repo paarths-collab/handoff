@@ -104,9 +104,7 @@ async function setup(page: Page, named = true) {
 	).toHaveCount(0);
 	await page.getByRole("button", { name: /fixture.json/ }).click();
 	await expect(page.locator(".ws-source")).toContainText("fixture.json");
-	await page
-		.getByRole("button", { name: "Preview sidebar", exact: true })
-		.click();
+	// Loading a sidebar opens the full preview straight away.
 	await expect(page.locator(".ws-totals")).toContainText("3 tabs");
 	// The main action after the preview, as in the product film.
 	await page
@@ -276,4 +274,20 @@ test("desktop recovery uses the native archive picker and exports the included t
 				action.args.path === "archive.json",
 		),
 	).toBe(true);
+});
+
+test("on a Mac, Safari is offered and moves through a bookmarks import", async ({
+	page,
+}) => {
+	await page.addInitScript(() =>
+		Object.defineProperty(navigator, "platform", { get: () => "MacIntel" }),
+	);
+	const actions = await setup(page);
+	await page.getByRole("radio", { name: "Safari" }).click();
+	const safari = page.getByRole("region", { name: "Move to Safari" });
+	await expect(safari).toBeVisible();
+	await expect(page.locator("section.profiles")).toHaveCount(0);
+	await safari.getByRole("button", { name: "Save Safari bookmarks" }).click();
+	await expect.poll(() => actions.at(-1)?.command).toBe("save_export");
+	expect(actions.at(-1)?.args.format).toBe("bookmarks");
 });

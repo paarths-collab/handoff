@@ -46,6 +46,9 @@ function App() {
 	const [found, setFound] = useState<Sidebar[]>([]);
 	const [browsers, setBrowsers] = useState<Detected[]>([]);
 	const [target, setTarget] = useState<Browser | "">("");
+	// Safari has no profiles or extension hook, so it moves through a bookmarks import.
+	const [safari, setSafari] = useState(false);
+	const onMac = /Mac/.test(navigator.platform);
 	const [library, setLibrary] = useState<Library | null>(null);
 	const [source, setSource] = useState("");
 	const [sourcePath, setSourcePath] = useState("");
@@ -122,6 +125,8 @@ function App() {
 		setSavedPack(false);
 		setShowSafari(false);
 		setSending(false);
+		// Go straight to the full preview with the sidebar, as in the film.
+		setExpanded(true);
 	}
 
 	async function save(kind: "bookmarks" | "csv" | "archive" | "pack") {
@@ -242,7 +247,7 @@ function App() {
 					</div>
 					<section className="desktop-step" aria-labelledby="browser-heading">
 						<h3 id="browser-heading">Destination browser</h3>
-						{browsers.length > 0 ? (
+						{browsers.length > 0 || onMac ? (
 							<div
 								className="browser-tiles"
 								role="radiogroup"
@@ -253,16 +258,28 @@ function App() {
 										key={b}
 										type="button"
 										role="radio"
-										aria-checked={b === target}
+										aria-checked={!safari && b === target}
 										disabled={busy}
 										onClick={() => {
 											setTarget(b);
+											setSafari(false);
 											setSavedPack(false);
 										}}
 									>
 										{names[b]}
 									</button>
 								))}
+								{onMac && (
+									<button
+										type="button"
+										role="radio"
+										aria-checked={safari}
+										disabled={busy}
+										onClick={() => setSafari(true)}
+									>
+										Safari
+									</button>
+								)}
 							</div>
 						) : (
 							<p>
@@ -270,16 +287,43 @@ function App() {
 							</p>
 						)}
 					</section>
-					{browser && (
-						<ProfileMover
-							library={library}
-							selected={selected}
-							browser={browser.browser}
-							browserName={names[browser.browser]}
-							busy={busy}
-							perform={perform}
-							setStatus={setStatus}
-						/>
+					{safari ? (
+						<section className="desktop-step guide" aria-label="Move to Safari">
+							<h2>Move to Safari</h2>
+							<p>
+								Safari can't open Spaces directly. Save them as bookmarks, then
+								import the file in Safari. Each Space becomes a bookmarks
+								folder.
+							</p>
+							<button
+								className="primary"
+								disabled={busy}
+								onClick={() => perform(() => save("bookmarks"))}
+							>
+								Save Safari bookmarks
+							</button>
+							<ol>
+								<li>
+									Open Safari and choose File → Import Browsing Data from File
+									or Folder. In older versions choose File → Import From →
+									Bookmarks HTML File.
+								</li>
+								<li>Select the saved bookmarks file and confirm the import.</li>
+								<li>Open Bookmarks and expand an imported Space.</li>
+							</ol>
+						</section>
+					) : (
+						browser && (
+							<ProfileMover
+								library={library}
+								selected={selected}
+								browser={browser.browser}
+								browserName={names[browser.browser]}
+								busy={busy}
+								perform={perform}
+								setStatus={setStatus}
+							/>
+						)
 					)}
 					<section className="desktop-step export-grid">
 						<section>
@@ -310,7 +354,7 @@ function App() {
 							</button>
 						</section>
 					</section>
-					{showSafari && (
+					{showSafari && !safari && (
 						<section className="guide">
 							<h2>Import in Safari</h2>
 							<ol>
