@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="apps/desktop/src-tauri/icons/128x128.png" width="96" height="96" alt="Handoff icon">
+<img src="docs/media/handoff-logo.png" width="96" height="96" alt="Handoff logo">
 
 # Handoff
 
@@ -28,7 +28,11 @@ Arc is no longer moving forward, and starting over in a new browser means rebuil
 3. You **pick a browser and a profile for each Space**, already signed in — and each Space opens in its own window.
 4. You **keep a copy** as bookmarks, a searchable archive or a spreadsheet.
 
-Watch the 90-second film on the [website](https://um2.us/q/nCuQnjWlY).
+### Watch the film
+
+[![Watch the Handoff film (1:36)](docs/media/handoff-film-poster.jpg)](docs/media/handoff-film.mp4)
+
+*Click the image to play the film (1:36, with sound).*
 
 ## Install
 
