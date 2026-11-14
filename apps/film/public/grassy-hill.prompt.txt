@@ -1,0 +1,2 @@
+Generated using the built-in image generation tool.
+Prompt: A broad gently rounded grassy hill with a transparent background, fine realistic short grass, sunlight from upper right, golden lime green on the right and mossy green on the left; crest near the lower third, no sky, objects, text or UI. Used as the low foreground inside the glass desktop preview.

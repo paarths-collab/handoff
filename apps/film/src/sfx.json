@@ -1,0 +1,57 @@
+{
+	"glass": {
+		"prompt": "Soft glassy shimmer with a gentle crystalline swirl, premium app logo reveal, clean, no music",
+		"seconds": 3,
+		"volume": 0.7
+	},
+	"whoosh": {
+		"prompt": "Soft airy whoosh transition, smooth and subtle, clean user interface motion",
+		"seconds": 1.2,
+		"volume": 0.4
+	},
+	"click": {
+		"prompt": "Crisp clear computer mouse click, single sharp click, close microphone, dry",
+		"seconds": 0.5,
+		"volume": 0.55
+	},
+	"pop": {
+		"prompt": "Soft user interface pop, small bubble-like tick, subtle and clean",
+		"seconds": 0.5,
+		"volume": 0.35
+	},
+	"success": {
+		"prompt": "Gentle two-note success chime, soft and warm, modern app confirmation sound",
+		"seconds": 1.2,
+		"volume": 0.6
+	},
+	"scan": {
+		"prompt": "Light digital scanning shimmer, soft sparkle sweep, subtle user interface",
+		"seconds": 1.5,
+		"volume": 0.45
+	},
+	"window": {
+		"prompt": "Soft swoosh of a window opening on a computer desktop, gentle and airy",
+		"seconds": 0.8,
+		"volume": 0.5
+	},
+	"tabs": {
+		"prompt": "Rapid sequence of soft clicky taps, like a stack of cards being dealt quickly, clean and clear, interface sound",
+		"seconds": 1.5,
+		"volume": 0.6
+	},
+	"swell": {
+		"prompt": "Warm soft cinematic swell rising gently, airy and bright, ends softly, no melody",
+		"seconds": 3,
+		"volume": 0.5
+	},
+	"dim": {
+		"prompt": "Soft low descending airy tone, gentle and slightly melancholic, slowly fading out, no melody",
+		"seconds": 3,
+		"volume": 0.45
+	},
+	"scatter": {
+		"prompt": "Light papery flutter of small cards scattering and drifting away softly, airy and delicate",
+		"seconds": 2.5,
+		"volume": 0.45
+	}
+}

@@ -33,8 +33,6 @@
     "@wxt-dev/module-react": "1.2.2",
     "fast-check": "4.10.2",
     "happy-dom": "21.0.4",
-    "lighthouse": "13.6.0",
-    "tailwindcss": "4.3.5",
     "tsx": "4.23.15",
     "typescript": "6.0.3",
     "vite": "8.3.8",

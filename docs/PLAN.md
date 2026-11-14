@@ -1,5 +1,8 @@
 # Tab Mover: Implementation Plan (v1, one-day agent build)
 
+> Historical implementation plan. The current product is Handoff. Use the repository README and `docs/agent-setup.md` for setup, the separate [handoff-website](https://github.com/paarths-collab/handoff-website) repository for the final website, and `packages/ui/src/workspace.tsx` for the shared app/extension workspace. Retired design explorations are in `archive/prototypes/`; website paths below describe the former monorepo layout. Old countdown and visual-design requirements below are not current shipping requirements.
+
+
 *For **Astra**, the lead agent. "Owner" means the product owner, who holds the accounts, runs the final manual checks and presses launch.*
 
 ---

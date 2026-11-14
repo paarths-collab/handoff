@@ -1,0 +1,121 @@
+name: App and extension CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      build-downloads:
+        description: Also build the macOS universal DMG and Windows x64 ZIP
+        type: boolean
+        default: false
+  workflow_call:
+    inputs:
+      build-downloads:
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Shared code and browser tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+      - name: Install pnpm
+        run: npm install --global pnpm@11.25.0
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Check, test and build the app and extensions
+        run: pnpm check
+      - name: Install test browser
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Test desktop frontend and real Chromium extension
+        run: pnpm e2e
+      - name: Upload browser test report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: browser-test-report
+          path: playwright-report/
+          retention-days: 7
+          if-no-files-found: ignore
+
+  native:
+    name: Native app (${{ matrix.platform }})
+    needs: quality
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macos-universal
+            os: macos-15
+          - platform: windows-x64
+            os: windows-2022
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+      - name: Install pnpm
+        run: npm install --global pnpm@11.25.0
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+          targets: ${{ matrix.platform == 'macos-universal' && inputs.build-downloads && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: apps/desktop/src-tauri -> target
+          key: ${{ matrix.platform }}
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Build desktop frontend
+        run: pnpm --filter @handoff/desktop build
+      - name: Test native app
+        working-directory: apps/desktop/src-tauri
+        run: cargo test --locked
+      - name: Lint native app
+        working-directory: apps/desktop/src-tauri
+        run: cargo clippy --locked --all-targets -- -D warnings
+      - name: Build native executable
+        if: ${{ !inputs.build-downloads }}
+        working-directory: apps/desktop/src-tauri
+        run: cargo build --locked
+      - name: Build macOS download
+        if: ${{ inputs.build-downloads && matrix.platform == 'macos-universal' }}
+        run: |
+          pnpm --filter @handoff/extension zip
+          pnpm --filter @handoff/desktop bundle:mac
+          pnpm package:mac
+      - name: Build Windows download
+        if: ${{ inputs.build-downloads && matrix.platform == 'windows-x64' }}
+        run: pnpm package:windows
+      - name: Upload download
+        if: ${{ inputs.build-downloads }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: handoff-download-${{ matrix.platform }}
+          path: |
+            release/handoff-*-macos-universal.dmg
+            release/handoff-*-windows-x64.zip
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 0

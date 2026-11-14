@@ -1,0 +1,18 @@
+{
+	"name": "@handoff/film",
+	"version": "1.0.0",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"studio": "remotion studio src/index.ts",
+		"render": "remotion render src/index.ts HandoffFilm out/handoff-film.mp4",
+		"elevenlabs": "node scripts/elevenlabs.mjs"
+	},
+	"devDependencies": {
+		"@remotion/cli": "4.0.539",
+		"@remotion/fonts": "4.0.539",
+		"react": "19.3.1",
+		"react-dom": "19.3.1",
+		"remotion": "4.0.539"
+	}
+}

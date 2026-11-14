@@ -1,5 +1,7 @@
 # Build decisions
 
+- The website, guides and offline converter moved to the separate private [handoff-website](https://github.com/paarths-collab/handoff-website) repository. Desktop and extension tests no longer start a website server. The film keeps its own artwork and notices in `apps/film/public`; shared app UI assets remain in `packages/ui/src/assets`.
+
 - Build and test first with synthetic sidebars. The owner's real file remains an optional later compatibility test. Synthetic Windows coverage cannot establish compatibility with a real Windows sidebar.
 - R1 accepted depth-limited warnings, invalid-pack and unsupported-version errors. Validate complete pack contents at the core boundary. Derive aggregate counts. Enforce a fixed HTTP(S) maximum at planning and execution.
 - Count unselected tabs as by-choice skips. Preserve parser skips separately and account for cancelled work. Undo uses a session marker, owned tab IDs and serialized imports.
@@ -10,7 +12,7 @@
 - S2. Isolated Chromium launches with synthetic 4 KiB, 64 KiB and 160 KiB fragments did not deliver an intact pack. Use file handoff across browsers. No supported fragment size is claimed.
 - S4. Firefox runtime was unavailable. The grouping API shipped across versions 138 and 139. Use capability detection and Firefox 140 as the floor for the manifest data-collection declaration. See [Mozilla’s grouping announcement](https://blog.mozilla.org/addons/2025/04/30/webextensions-support-for-tab-groups/).
 - The Mac had Chrome and Arc installed, with Chrome for Testing available for extension loading. Variations in native browser UI and macOS privacy prompts require the owner’s manual check. No Windows environment was available.
-- Arc confirms December 22, 2026 as its desktop sunset date. The site countdown uses the visitor’s calendar date. [Arc announcement](https://arc.net/)
+- Arc confirms December 22, 2026 as its desktop sunset date. The retired countdown prototype used the visitor’s calendar date; the final homepage has no runtime countdown. [Arc announcement](https://arc.net/)
 - Apple's individual Developer Program lists USD 99 annually or local equivalent. Signing and store submissions remain owner tasks. [Apple membership](https://developer.apple.com/help/account/membership/program-enrollment)
 - Opera’s current FAQ describes Add to Opera from the Chrome Web Store. Actual prompts vary by installed version. [Opera FAQ](https://help.opera.com/en/faq/)
 - Tauri uses its dialog plugin from Rust. Custom narrow commands handle IO and browser launch. The webview receives no general filesystem, opener or shell permission.

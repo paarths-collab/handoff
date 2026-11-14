@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta
+			name="description"
+			content="Move your Arc spaces, folders and tabs into a browser of your choice. Convert your sidebar locally with Handoff."
+		>
+		<title>Handoff · Take your sidebar with you</title>
+		<link rel="stylesheet" href="./site/v-a.css">
+		<script type="module" src="./site/countdown.ts"></script>
+		<script type="module" src="./site/ascii.ts"></script>
+	</head>
+	<body>
+		<header class="nav">
+			<div class="wrap nav-in">
+				<a class="brand" href="../"
+					><span class="mark" aria-hidden="true">⇥</span>Handoff</a
+				>
+				<nav aria-label="Main">
+					<a href="#how">How it works</a><a href="#browsers">Browsers</a
+					><a href="../guides/">Guides</a>
+				</nav>
+				<a class="btn btn-ink btn-sm" href="../convert.html"
+					>Open converter <span aria-hidden="true">→</span></a
+				>
+			</div>
+		</header>
+
+		<main>
+			<section class="hero">
+				<canvas class="hero-field" data-ascii-field aria-hidden="true"></canvas>
+				<div class="wrap hero-in">
+					<div class="hero-copy">
+						<a class="pill" href="https://arc.net/">
+							<span class="pulse" aria-hidden="true"></span>
+							Arc closes December 22, 2026
+							<span class="pill-days" data-days="{n} days left"></span>
+						</a>
+						<h1>
+							Take your sidebar<br><span class="accent">with you.</span
+							><span class="caret" aria-hidden="true">_</span>
+						</h1>
+						<p class="lede">
+							Move your Arc Spaces, folders and tabs into your next browser.
+							Everything happens on your computer.
+						</p>
+						<div class="actions">
+							<a class="btn btn-ink" href="../convert.html"
+								>Convert my sidebar <span aria-hidden="true">→</span></a
+							><a class="btn btn-ghost" href="#how">How it works</a>
+						</div>
+						<ul class="checks" aria-label="Highlights">
+							<li><span aria-hidden="true">[✓]</span> No account</li>
+							<li><span aria-hidden="true">[✓]</span> No upload</li>
+							<li><span aria-hidden="true">[✓]</span> Free</li>
+						</ul>
+					</div>
+
+					<figure class="term" aria-label="Example: an Arc sidebar becomes bookmark folders">
+						<div class="term-bar" aria-hidden="true">
+							<i></i><i></i><i></i>
+							<span>handoff — preview</span>
+						</div>
+<pre class="term-body" aria-hidden="true"><span class="t-h">ARC SIDEBAR</span>                 <span class="t-h">BOOKMARKS</span>
+<span class="t-f">───────────────────</span>         <span class="t-f">───────────────────</span>
+<span class="t-f">▾</span> <b>Studio</b>                    <span class="t-f">▾</span> <b>Studio</b>
+  <span class="t-f">├─</span> Pinned                   <span class="t-f">├─</span> Pinned
+  <span class="t-f">│</span>  <span class="t-f">├─</span> Reference     <span class="t-a">──▶</span>     <span class="t-f">│</span>  <span class="t-f">├─</span> Reference
+  <span class="t-f">│</span>  <span class="t-f">└─</span> Color library         <span class="t-f">│</span>  <span class="t-f">└─</span> Color library
+  <span class="t-f">└─</span> Today                    <span class="t-f">└─</span> Today
+     <span class="t-f">└─</span> Design notes             <span class="t-f">└─</span> Design notes
+<span class="t-f">▸</span> <b>Personal</b>                  <span class="t-f">▸</span> <b>Personal</b></pre>
+						<div class="term-foot" aria-hidden="true">
+							<span class="t-f">$</span> converting
+							<span class="t-a" data-ascii-progress></span>
+						</div>
+						<figcaption>Your folder structure travels with your tabs.</figcaption>
+					</figure>
+				</div>
+			</section>
+
+			<section class="strip" aria-label="Supported browsers">
+				<div class="wrap strip-in">
+					<span class="label">Works with</span>
+					<ul>
+						<li>Chrome</li>
+						<li>Brave</li>
+						<li>Edge</li>
+						<li>Firefox</li>
+						<li>Safari</li>
+						<li>Vivaldi</li>
+						<li>Opera</li>
+					</ul>
+				</div>
+			</section>
+
+			<section class="section" id="how">
+				<div class="wrap">
+					<header class="section-head">
+						<span class="label">01 / How it works</span>
+						<h2>From sidebar to browser</h2>
+						<p>Three steps. No sign-in, no upload, nothing to install.</p>
+					</header>
+					<ol class="steps">
+						<li class="card">
+<pre class="art" aria-hidden="true">┌──────────────┐
+│ {          } │
+│   ········   │
+│   ·····      │
+└──────────────┘
+ StorableSidebar</pre>
+							<span class="step-n">Step 01</span>
+							<h3>Find your file</h3>
+							<p>
+								Choose StorableSidebar.json from Arc’s local folder. The
+								converter shows you where to look.
+							</p>
+						</li>
+						<li class="card">
+<pre class="art" aria-hidden="true">▾ Studio
+  ├─ Pinned
+  │  └─ 12 tabs
+  └─ Today
+▸ Personal</pre>
+							<span class="step-n">Step 02</span>
+							<h3>Preview your Spaces</h3>
+							<p>
+								Review folders, Favorites, Today tabs and anything the reader
+								had to skip.
+							</p>
+						</li>
+						<li class="card">
+<pre class="art" aria-hidden="true">sidebar ─┬─▶ bookmarks.html
+         ├─▶ archive.html
+         └─▶ tabs.csv</pre>
+							<span class="step-n">Step 03</span>
+							<h3>Take them with you</h3>
+							<p>
+								Download bookmarks for your next browser, or keep a searchable
+								HTML archive.
+							</p>
+						</li>
+					</ol>
+				</div>
+			</section>
+
+			<section class="section" id="browsers">
+				<div class="wrap">
+					<header class="section-head">
+						<span class="label">02 / Destinations</span>
+						<h2>Pick your next browser</h2>
+						<p>Step-by-step guides for each one.</p>
+					</header>
+					<div class="browsers">
+						<a class="browser" href="../guides/chrome.html"
+							><span><b>Chrome</b><small>Chromium</small></span
+							><i aria-hidden="true">↗</i></a
+						><a class="browser" href="../guides/brave.html"
+							><span><b>Brave</b><small>Chromium</small></span
+							><i aria-hidden="true">↗</i></a
+						><a class="browser" href="../guides/edge.html"
+							><span><b>Edge</b><small>Chromium</small></span
+							><i aria-hidden="true">↗</i></a
+						><a class="browser" href="../guides/vivaldi.html"
+							><span><b>Vivaldi</b><small>Chromium</small></span
+							><i aria-hidden="true">↗</i></a
+						><a class="browser" href="../guides/opera.html"
+							><span><b>Opera</b><small>Chromium</small></span
+							><i aria-hidden="true">↗</i></a
+						><a class="browser" href="../guides/firefox.html"
+							><span><b>Firefox</b><small>Gecko</small></span
+							><i aria-hidden="true">↗</i></a
+						><a class="browser" href="../guides/safari.html"
+							><span><b>Safari</b><small>WebKit</small></span
+							><i aria-hidden="true">↗</i></a
+						><a class="browser browser-all" href="../guides/"
+							><span><b>All guides</b><small>Files · passwords · scope</small></span
+							><i aria-hidden="true">→</i></a
+						>
+					</div>
+				</div>
+			</section>
+
+			<section class="section">
+				<div class="wrap">
+					<header class="section-head">
+						<span class="label">03 / Outputs</span>
+						<h2>Choose an output</h2>
+						<p>Every format is generated in your browser.</p>
+					</header>
+					<div class="formats">
+						<article class="card format">
+							<span class="ext">.html</span>
+							<h3>Bookmarks HTML</h3>
+							<p>Nested folders to import into your browser.</p>
+						</article>
+						<article class="card format">
+							<span class="ext">.html</span>
+							<h3>HTML archive</h3>
+							<p>A searchable sidebar you can open offline.</p>
+						</article>
+						<article class="card format">
+							<span class="ext">.json</span>
+							<h3>Handoff pack</h3>
+							<p>A portable library for the extension or another conversion.</p>
+						</article>
+						<article class="card format">
+							<span class="ext">.csv</span>
+							<h3>CSV</h3>
+							<p>One row per tab for a spreadsheet.</p>
+						</article>
+					</div>
+				</div>
+			</section>
+
+			<section class="section">
+				<div class="wrap">
+					<div class="card privacy">
+<pre class="lock" aria-hidden="true">   ┌─────┐
+   │     │
+ ┌─┴─────┴─┐
+ │    o    │
+ │    │    │
+ └─────────┘</pre>
+						<div>
+							<span class="label">04 / Privacy</span>
+							<h2>Your tabs stay here</h2>
+							<p>
+								Your browser reads the file locally. The converter’s content
+								security policy blocks outgoing connections. No account or
+								analytics.
+							</p>
+<pre class="kv" aria-hidden="true"><span class="t-f">$</span> handoff --privacy
+  network   <span class="t-f">.........</span> <span class="t-a">blocked</span>
+  account   <span class="t-f">.........</span> <span class="t-a">none</span>
+  analytics <span class="t-f">.........</span> <span class="t-a">none</span></pre>
+							<a class="more" href="../guides/privacy.html"
+								>Read the privacy policy <span aria-hidden="true">→</span></a
+							>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section class="section">
+				<div class="wrap faq-wrap">
+					<header class="section-head">
+						<span class="label">05 / FAQ</span>
+						<h2>Common questions</h2>
+					</header>
+					<div class="faq">
+						<details>
+							<summary>Will this change my Arc sidebar?</summary>
+							<p>
+								The converter reads the file you choose and creates new
+								downloads. You can keep using your original sidebar.
+							</p>
+						</details>
+						<details>
+							<summary>Can I move passwords or browsing history?</summary>
+							<p>
+								Use your browser’s own import tools for history and passwords.
+								The <a href="../guides/passwords.html">password guide</a> covers
+								the separate steps.
+							</p>
+						</details>
+						<details>
+							<summary>How do I move tabs to Safari?</summary>
+							<p>
+								Download bookmarks HTML and follow the
+								<a href="../guides/safari.html">Safari guide</a>.
+							</p>
+						</details>
+					</div>
+				</div>
+			</section>
+
+			<section class="section">
+				<div class="wrap">
+					<div class="cta">
+						<canvas data-ascii-field aria-hidden="true"></canvas>
+						<div class="cta-in">
+							<h2>Ready when you are.</h2>
+							<p data-days="Arc closes in {n} days.">Arc closes December 22, 2026.</p>
+							<a class="btn btn-ink" href="../convert.html"
+								>Convert my sidebar <span aria-hidden="true">→</span></a
+							>
+						</div>
+					</div>
+				</div>
+			</section>
+		</main>
+
+		<footer class="footer">
+			<div class="wrap">
+<pre class="wordmark" aria-hidden="true">██╗  ██╗ █████╗ ███╗   ██╗██████╗  ██████╗ ███████╗███████╗
+██║  ██║██╔══██╗████╗  ██║██╔══██╗██╔═══██╗██╔════╝██╔════╝
+███████║███████║██╔██╗ ██║██║  ██║██║   ██║█████╗  █████╗
+██╔══██║██╔══██║██║╚██╗██║██║  ██║██║   ██║██╔══╝  ██╔══╝
+██║  ██║██║  ██║██║ ╚████║██████╔╝╚██████╔╝██║     ██║
+╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═════╝  ╚═════╝ ╚═╝     ╚═╝</pre>
+				<div class="footer-row">
+					<span>Source publication pending</span>
+					<nav aria-label="Footer">
+						<a href="../guides/">Guides</a><a href="../guides/privacy.html">Privacy</a
+						><a href="../convert.html">Converter</a>
+					</nav>
+				</div>
+			</div>
+		</footer>
+	</body>
+</html>

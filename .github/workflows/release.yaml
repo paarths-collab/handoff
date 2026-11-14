@@ -1,0 +1,103 @@
+name: Draft desktop release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing version tag on the selected commit, such as v1.0.0
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: draft-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Verify release tag and version
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+      - name: Require the version tag to identify this exact commit
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import { readFileSync } from 'node:fs';
+          import { execFileSync } from 'node:child_process';
+          const tag = process.env.RELEASE_TAG;
+          assert.equal(process.env.GITHUB_ACTOR, 'paarths-collab', 'Start draft releases using the paarths-collab publishing account');
+          const app = JSON.parse(readFileSync('apps/desktop/src-tauri/tauri.conf.json', 'utf8'));
+          assert.match(tag, /^v\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/);
+          assert.equal(tag, `v${app.version}`, 'Tag must match the app version');
+          for (const path of ['package.json', 'apps/desktop/package.json', 'apps/extension/package.json']) {
+            assert.equal(JSON.parse(readFileSync(path, 'utf8')).version, app.version, `Version mismatch: ${path}`);
+          }
+          const cargo = readFileSync('apps/desktop/src-tauri/Cargo.toml', 'utf8').split('[package]')[1]?.split(/^\[/m)[0];
+          assert.equal(cargo?.match(/^version\s*=\s*"([^"]+)"/m)?.[1], app.version, 'Native manifest version mismatch');
+          const locked = readFileSync('apps/desktop/src-tauri/Cargo.lock', 'utf8').split('[[package]]').find(block => /^name = "handoff"$/m.test(block));
+          assert.equal(locked?.match(/^version = "([^"]+)"/m)?.[1], app.version, 'Native lockfile version mismatch');
+          const tagged = execFileSync('git', ['rev-parse', `refs/tags/${tag}^{commit}`], {encoding:'utf8'}).trim();
+          assert.equal(tagged, process.env.GITHUB_SHA, 'Select the branch or tag at the tagged release commit');
+          NODE
+
+  builds:
+    name: Verify and package both platforms
+    needs: validate
+    uses: ./.github/workflows/ci.yaml
+    with:
+      build-downloads: true
+
+  draft:
+    name: Upload reviewed builds to a draft release
+    needs: builds
+    if: ${{ github.repository == 'paarths-collab/handoff' }}
+    permissions:
+      contents: write
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: handoff-download-*
+          path: release
+          merge-multiple: true
+      - name: Verify downloads and calculate SHA-256 checksums
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
+          import { createHash } from 'node:crypto';
+          const { version } = JSON.parse(readFileSync('apps/desktop/src-tauri/tauri.conf.json', 'utf8'));
+          const expected = [`handoff-${version}-macos-universal.dmg`, `handoff-${version}-windows-x64.zip`].sort();
+          assert.deepEqual(readdirSync('release').sort(), expected, 'Both exact-version downloads are required');
+          const sums = expected.map(name => `${createHash('sha256').update(readFileSync(`release/${name}`)).digest('hex')}  ${name}`);
+          writeFileSync('release/SHA256SUMS.txt', sums.join('\n') + '\n');
+          writeFileSync('release-notes.md', `Handoff ${version} for macOS (Apple Silicon and Intel) and Windows x64.\n\nEach download includes the desktop app, optional Chromium extension, Firefox add-on and setup instructions. Verify downloads using SHA256SUMS.txt.\n\nBuild commit: ${process.env.GITHUB_SHA}\n\nDraft: review signing, installation and a real Arc migration on both operating systems before publishing. These builds do not configure Apple notarization or Windows certificate signing.\n`);
+          NODE
+      - name: Create draft using GitHub Actions automatic credentials
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: |
+          gh release create "$RELEASE_TAG" release/*.dmg release/*.zip release/SHA256SUMS.txt --verify-tag --draft --title "Handoff $RELEASE_TAG" --notes-file release-notes.md

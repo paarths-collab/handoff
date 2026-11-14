@@ -39,6 +39,9 @@
 		"shortDescription": "Move your Arc sidebar locally",
 		"macOS": {
 			"signingIdentity": "-"
+		},
+		"resources": {
+			"../../../packages/ui/src/assets/Figtree-OFL.txt": "licenses/Figtree-OFL.txt"
 		}
 	}
 }
