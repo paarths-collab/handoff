@@ -30,7 +30,7 @@ Arc is no longer moving forward, and starting over in a new browser means rebuil
 
 ### Demo
 
-[![Handoff demo](docs/media/handoff-film-poster.jpg)](docs/media/handoff-film.mp4)
+https://github.com/user-attachments/assets/e7a9f256-3999-46d5-922a-2febff74398b
 
 ## Install
 
