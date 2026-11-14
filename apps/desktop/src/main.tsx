@@ -17,6 +17,13 @@ import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { type Browser, ProfileMover } from "./profiles";
 import "./style.css";
+import brave from "./assets/browsers/brave.png";
+import chrome from "./assets/browsers/chrome.png";
+import edge from "./assets/browsers/edge.png";
+import firefox from "./assets/browsers/firefox.png";
+import opera from "./assets/browsers/opera.png";
+import safariIcon from "./assets/browsers/safari.png";
+import vivaldi from "./assets/browsers/vivaldi.png";
 import { DesktopWorkspace, type ExportFormat } from "./workspace";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { LogicalSize } from "@tauri-apps/api/dpi";
@@ -27,6 +34,14 @@ type Detected = {
 	store_available: boolean;
 };
 type Sidebar = { path: string; size: number; modified: number | null };
+const icons: Record<Browser, string> = {
+	chrome,
+	brave,
+	edge,
+	vivaldi,
+	opera,
+	firefox,
+};
 const names: Record<Browser, string> = {
 	chrome: "Chrome",
 	brave: "Brave",
@@ -266,6 +281,7 @@ function App() {
 											setSavedPack(false);
 										}}
 									>
+										<img src={icons[b]} alt="" width="28" height="28" />
 										{names[b]}
 									</button>
 								))}
@@ -277,6 +293,7 @@ function App() {
 										disabled={busy}
 										onClick={() => setSafari(true)}
 									>
+										<img src={safariIcon} alt="" width="28" height="28" />
 										Safari
 									</button>
 								)}

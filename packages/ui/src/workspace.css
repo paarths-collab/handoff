@@ -505,7 +505,10 @@ body {
 	gap: 10px;
 }
 .browser-tiles button {
-	min-width: 120px;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	min-width: 140px;
 	padding: 14px 18px;
 	background: #111;
 	color: #eee;

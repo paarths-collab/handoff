@@ -1,0 +1,2 @@
+Browser logos sourced from https://github.com/alrra/browser-logos/tree/main/src
+Original logos and trademarks belong to Google, Brave, Microsoft, Mozilla, Apple, Vivaldi, and Opera, respectively.
