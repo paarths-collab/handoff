@@ -47,14 +47,14 @@ The `App and extension CI` GitHub Actions workflow tests the native app on macOS
 [App and extension CI](.github/workflows/ci.yaml) runs on pushes, pull requests and manual runs:
 
 - Linux: TypeScript, lint, formatting, unit/property tests, app and Chrome/Firefox extension builds, manifest checks, fixture privacy checks and the production dependency audit. Playwright tests the desktop frontend with a mocked native bridge and the actual Chromium extension in disposable profiles. Its HTML report is retained for seven days.
-- macOS and Windows: native Rust tests, Clippy and executable builds after the shared checks pass. These jobs compile and test native code; they do not automate native installer dialogs or establish real Arc compatibility.
+- macOS and Windows: native Rust tests, Clippy and executable builds run independently of the shared checks, so a browser-test failure does not skip either platform. These jobs compile and test native code; they do not automate native installer dialogs or establish real Arc compatibility.
 - A manual run with **build-downloads** enabled also builds the macOS universal DMG (Apple Silicon and Intel) and Windows x64 ZIP, including optional extensions and setup instructions. Download artifacts are retained for fourteen days.
 
 [Draft desktop release](.github/workflows/release.yaml) is manual and never publishes a release automatically. Once the workflow is on the default branch:
 
 1. Update the application version consistently in the root, desktop and extension package manifests, `apps/desktop/src-tauri/tauri.conf.json`, and the native Cargo manifest/lockfile. Commit the reviewed changes and create and push the matching version tag, such as `v1.0.0`, using the authorized publishing identity.
 2. Using the **paarths-collab** publishing account, open **Actions → Draft desktop release → Run workflow**. Select that tag and enter it in **tag**. It must already exist, match the app version and point to the exact selected commit. The workflow never creates or moves tags.
-3. The workflow reruns CI, builds both downloads, generates **SHA256SUMS.txt**, and creates a new **draft** GitHub Release. It fails rather than overwriting an existing release. Review signing, install the builds and perform a real migration on both operating systems before publishing the draft manually.
+3. The workflow reruns CI and builds both downloads. Only after every CI job succeeds does it generate **SHA256SUMS.txt** and create a new **draft** GitHub Release. It fails rather than overwriting an existing release. Review signing, install the builds and perform a real migration on both operating systems before publishing the draft manually.
 
 No personal access token or custom Actions secret is needed. GitHub automatically supplies temporary credentials to the release job; only that job requests permission to write releases. The draft is created by GitHub Actions after the publishing account starts the workflow. People downloading, cloning or using Handoff do not need a token from Handoff. While the repositories are private, access still requires an authorized GitHub account.
 

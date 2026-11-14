@@ -56,7 +56,6 @@ jobs:
 
   native:
     name: Native app (${{ matrix.platform }})
-    needs: quality
     strategy:
       fail-fast: false
       matrix:
