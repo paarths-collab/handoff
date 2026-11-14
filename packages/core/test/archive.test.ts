@@ -156,7 +156,13 @@ it("preserves unknown dates, missing Spaces, unusual URLs, source IDs and title 
 			toBookmarksHtml(result.library),
 			"text/html",
 		);
-		expect(doc.querySelectorAll("a")).toHaveLength(4);
+		// The javascript: tab stays in the pack and CSV but never becomes a clickable bookmark.
+		expect(doc.querySelectorAll("a")).toHaveLength(3);
+		expect(
+			[...doc.querySelectorAll("a")].some((a) =>
+				a.getAttribute("href")?.startsWith("javascript:"),
+			),
+		).toBe(false);
 		const output = new win.DOMParser().parseFromString(
 			toArchiveHtml(result.library),
 			"text/html",

@@ -13,6 +13,29 @@ function folder(title: string, contents: string) {
 		"<DT><H3>" + html(title) + "</H3>\n<DL><p>\n" + contents + "</DL><p>\n"
 	);
 }
+// Bookmark files keep every link that cannot run code when clicked. Script-capable schemes
+// (javascript:, data:, vbscript:, blob:) and unknown app handlers are left out.
+const bookmarkSchemes = new Set([
+	"http:",
+	"https:",
+	"ftp:",
+	"mailto:",
+	"file:",
+	"about:",
+	"arc:",
+	"chrome:",
+	"edge:",
+	"brave:",
+	"vivaldi:",
+	"opera:",
+]);
+export function isBookmarkableUrl(value: string): boolean {
+	try {
+		return bookmarkSchemes.has(new URL(value).protocol);
+	} catch {
+		return false;
+	}
+}
 function bookmarkNodes(nodes: Node[]) {
 	const lines: string[] = [];
 	let depth = 0;
@@ -24,7 +47,7 @@ function bookmarkNodes(nodes: Node[]) {
 		if (node.kind === "folder") {
 			lines.push("<DT><H3>" + html(node.title) + "</H3>", "<DL><p>");
 			depth++;
-		} else
+		} else if (isBookmarkableUrl(node.url))
 			lines.push(
 				'<DT><A HREF="' + html(node.url) + '">' + html(node.title) + "</A>",
 			);

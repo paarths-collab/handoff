@@ -250,3 +250,37 @@ it.each(["profile", "icon", "color", "savedTitle", "customTitle"])(
 		});
 	},
 );
+
+it("never writes script-capable links into bookmark files", () => {
+	const lib = library();
+	lib.favorites = [
+		tab("ok", "https://site-0001.test/p"),
+		tab("plain", "http://site-0002.test/"),
+		tab("script", "javascript:alert(document.domain)"),
+		tab("spaced", " javascript:alert(1)"),
+		tab("data", "data:text/html,<script>alert(1)</script>"),
+		tab("vb", "vbscript:msgbox(1)"),
+		tab("blob", "blob:https://site.test/1"),
+		tab("app", "vscode://open?x=1"),
+		tab("file", "file:///Users/someone/notes.txt"),
+		tab("internal", "chrome://settings"),
+		tab("broken", "not a url"),
+	];
+	const out = toBookmarksHtml(lib);
+	for (const kept of [
+		"https://site-0001.test/p",
+		"http://site-0002.test/",
+		"file:///Users/someone/notes.txt",
+		"chrome://settings",
+	])
+		expect(out).toContain(`HREF="${kept}"`);
+	for (const bad of [
+		"javascript:",
+		"data:",
+		"vbscript:",
+		"blob:",
+		"vscode:",
+		"not a url",
+	])
+		expect(out).not.toContain(bad);
+});

@@ -13,6 +13,7 @@ import { anonymize } from "../../../scripts/anonymize";
 import {
 	assertConserved,
 	defaultOptions,
+	isBookmarkableUrl,
 	parseArcSidebar,
 	parseInput,
 	parsePack,
@@ -263,7 +264,9 @@ it.each(["tiny", "deep", "special-chars", "schemes", "duplicates"])(
 	"round-trips all exported rows in %s",
 	async (name) => {
 		const lib = fixture(name),
-			tabs = flatten(lib),
+			// Bookmark files leave out script-capable links such as javascript:.
+			tabs = flatten(lib).filter((t) => isBookmarkableUrl(t.url)),
+			dropped = flatten(lib).filter((t) => !isBookmarkableUrl(t.url)),
 			win = new Window({ settings: { disableJavaScriptEvaluation: true } });
 		try {
 			const doc = new win.DOMParser().parseFromString(
@@ -302,11 +305,12 @@ it.each(["tiny", "deep", "special-chars", "schemes", "duplicates"])(
 					url: null,
 				});
 				for (const { node, path } of walk(section.nodes))
-					expectedTree.push({
-						path: [...sectionPath, section.name, ...path],
-						title: node.title,
-						url: node.kind === "tab" ? node.url : null,
-					});
+					if (node.kind === "folder" || isBookmarkableUrl(node.url))
+						expectedTree.push({
+							path: [...sectionPath, section.name, ...path],
+							title: node.title,
+							url: node.kind === "tab" ? node.url : null,
+						});
 			}
 			expect(actualTree).toEqual(expectedTree);
 			expect(links.map((a) => [a.textContent, a.getAttribute("href")])).toEqual(
@@ -317,7 +321,7 @@ it.each(["tiny", "deep", "special-chars", "schemes", "duplicates"])(
 			).toContain("Favorites");
 			function idsFor(rows: string[][]) {
 				const available = new Map<string, string[]>();
-				for (const t of tabs) {
+				for (const t of flatten(lib)) {
 					const k = JSON.stringify([t.title, t.url]);
 					available.set(k, [...(available.get(k) ?? []), t.arcId]);
 				}
@@ -328,8 +332,14 @@ it.each(["tiny", "deep", "special-chars", "schemes", "duplicates"])(
 			assertConserved(
 				lib,
 				idsFor(links.map((a) => [a.textContent, a.getAttribute("href") ?? ""])),
-				[],
+				dropped.map((t) => t.arcId),
 			);
+			// Empty links are dropped too; Move already skips them as "empty-url".
+			if (name === "schemes")
+				expect(dropped.map((t) => t.url.split(":")[0])).toEqual([
+					"javascript",
+					"",
+				]);
 			const archive = new win.DOMParser().parseFromString(
 				toArchiveHtml(lib),
 				"text/html",
